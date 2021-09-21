@@ -1,0 +1,39 @@
+---
+title: "Where do CDI words come from?"
+author: "George & Georgia"
+date: "9/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(tidyverse)
+require(here)
+require(ggrepel)
+```
+
+
+## Goal
+
+Investigate whether inclusion on the CDI is more predicted by frequency in adult or children books, television, or speech.
+
+```{r load-data}
+adult = list()
+child = list()
+data_dir = "data/Charlesworth-Clean-data/"
+#adult["books"] = read_csv(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt"))) # too big!
+adult["speech"] = read_csv(here(paste0(data_dir, "Adult_Speech/lemmatized_adult_speech_corpus.txt"))) # or not lemma?
+adult["tv1"] = read_csv(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")))
+adult["tv2"] = read_csv(here(paste0(data_dir, "Adult_TV/simple_scripts_corpus.txt")))
+
+child["books"] = read_csv(here(paste0(data_dir, "Child_Books/lemmatized_child_books.txt")))
+child["tv"] = read_csv(here(paste0(data_dir, "Child_TV/childrens_tv_combined_corpus.txt")))
+child["speech"] = read_csv(here(paste0(data_dir, "CHILDES clean text/lemmatized_corpus_parents.txt")))
+```
+
+## Normalize Word Frequencies
+
+```{r, echo=FALSE}
+
+```
+

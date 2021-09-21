@@ -13,28 +13,48 @@ subf <- read_csv(here("data/SUBTLEX-US.csv")) %>%
   select(word, word_count, word_count_norm, prob, source, rank)
 # hapaxes already removed  
 
+
+# ToDo: remove book-reading corpora from CHILDES data!
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 chf <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.csv")) %>% select(-X1) %>%
   mutate(source = "CHILDES") %>% 
   arrange(desc(word_count)) %>%
   mutate(rank = 1:n())
 
+# Q1: do we want to keep PoS? -- makes use of subtlex more difficult
+# Q2: do we want to 1) track down FR translations of the English storybooks? or 
+#  2) look at top-selling 50-100 storybooks per language (easier & more appropriate)
+# - let's do 2
+
+# Q3: frame as looking at item-level differences (are some bookish vs. talkish / TVish?)
+#  - maybe make subscores of book words vs. TV / talk words -- correlate with SES / other vars
+
+# lemmatize or no? - do what AoA-pipeline does (Snowball stemmer)
+# meanwhile, try without
+
+# - date of writing as criterion? - don't want 'all of Gutenberg', use popularity list
+
+# let's include UK books -> UK wordbank and US books -> US wordbank separately (likely v similar)
+# leave out PoS (for now) -- tricky with SUBTLEX and Montag corpus
+
 # 165 UK picture book corpus: https://osf.io/b2qd8/
 # from: Dawson, N., Hsiao, Y., Tan, A.W.M., Banerji, N., & Nation, K. (2021). 
 # Features of lexical richness in children’s books: Comparisons with child-directed speech. Language Development Research.
-bbf <- read_csv(here("alvin-books/picturebook_ref.csv")) %>%
+bbf <- read_csv(here("data/alvin-books/picturebook_ref.csv")) %>%
   filter(PoS_type=="lexical") %>%  # just use 9074 lexical items? (2360 non-lexical excluded)
-  arrange(desc(n)) %>%
-  rename(word_count = n,
-         word = lemma) %>%
+  group_by(lemma) %>%
+  summarise(word_count = sum(n)) %>%
+  arrange(desc(word_count)) %>%
+  rename(word = lemma) %>%
   mutate(rank = 1:n()) 
 # only 5550 unique words (unique are lemma x PoS combos)
 
-# Dawson2021 uses keyness scores (ratio of normalized frequency in focus corpus to norm. freq in reference corpus),
-# with +10 to each words frequency 
 
-# book corpus (Montag et al 2016)
-bf <- read.csv(here("book-corpus/100out.txt"), sep=' ') %>% 
+# Dawson2021 uses keyness scores (ratio of normalized frequency in focus corpus to norm. freq in reference corpus),
+# with +10 to each word's frequency 
+
+# book corpus (Montag et al 2016) -- is this lemmatized?
+bf <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>% 
   mutate(word = ifelse(word=="i", "I", word),
          word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
          prob = word_count / sum(word_count),
@@ -49,13 +69,23 @@ nrow(subset(bf, word_count==1)) # 2548 hapaxes (44%)
 
 cdi_voc = subset(chf, on_cdi==1)$word # 657 / 680 -- should check other 23 words
 
+# which CDI items aren't we matching?
+# unmatched = setdiff()
+
+# how to appropriately smooth small corpora to make them comparable to larger corpora?
+# 1)  remove low freq words from large corpora
+# 2) only take words that are in all corpora
+# proposal: smooth small corpora -- pretend low freq words from large corpora are 
+#  seen 1/(total tokens in large corpus)  -- how much probability is that? does it matter?
+
+# Montag corpus
 bf <- bf %>% mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0))
 #  filter(word_count>1)
 
 subf <- subf %>% mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0))
 
 
-
+#
 all_freq_long <- rbind(bf, chf, subf) %>%
   select(word, source, on_cdi, word_count_norm) 
 
@@ -76,6 +106,8 @@ all_freq <- all_freq_long %>%
 #thresh = 2*sd(all_freq$childes_book_diff) # 1813
 
 cor.test(all_freq$CHILDES, all_freq$Books) # .77
+cor.test(all_freq$CHILDES, all_freq$SUBTLEX) # .89
+
 
 require(GGally)
 all_freq %>% 
@@ -83,7 +115,7 @@ all_freq %>%
          CHILDES = log(CHILDES),
          SUBTLEX = log(SUBTLEX)) %>%
   ggpairs(columns=c("Books","CHILDES","SUBTLEX"),
-        ggplot2::aes(colour=as.logical(on_cdi), alpha=.3))
+        ggplot2::aes(colour=as.logical(on_cdi), alpha=.3)) + theme_bw()
 ggsave(file="log_freq_books_childes_movies_by_onCDI.pdf", width=6.5, height=6.5)
 
 ggpairs(all_freq, columns=c("childes_book_ratio","childes_movie_ratio","book_movie_ratio"),
