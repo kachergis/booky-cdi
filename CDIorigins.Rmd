@@ -15,9 +15,11 @@ require(ggrepel)
 
 ## Goal
 
-Investigate whether inclusion on the CDI is more predicted by frequency in adult or children books, television, or speech.
+Investigate whether inclusion on the CDI is more predicted by frequency in adult- or children-oriented sources, including books, television, and speech.
+To start, we will look at American English, before extending to British English and French.
+We will begin with unlemmatized corpora, and disregard part-of-speech classification.
 
-```{r load-data}
+```{r load-data, echo=F, eval=F}
 adult = list()
 child = list()
 data_dir = "data/Charlesworth-Clean-data/"
@@ -29,7 +31,39 @@ adult["tv2"] = read_csv(here(paste0(data_dir, "Adult_TV/simple_scripts_corpus.tx
 child["books"] = read_csv(here(paste0(data_dir, "Child_Books/lemmatized_child_books.txt")))
 child["tv"] = read_csv(here(paste0(data_dir, "Child_TV/childrens_tv_combined_corpus.txt")))
 child["speech"] = read_csv(here(paste0(data_dir, "CHILDES clean text/lemmatized_corpus_parents.txt")))
+# memory errors...check Charlesworth analyses to see how they load it
 ```
+
+```{r load-orig-data}
+# SUBTLEX-US subtitle word frequencies (adult speech standard)
+adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>%
+  rename(word_count_norm = SUBTLWF, # frequency per million words
+         word_count = SLUSfreq) %>% 
+  mutate(source = "SUBTLEX",
+         prob = word_count / sum(word_count)) %>%
+  arrange(desc(word_count_norm)) %>%
+  mutate(rank = 1:n()) %>%
+  select(word, word_count, word_count_norm, prob, source, rank)
+# hapaxes already removed  
+
+# ToDo: remove book-reading corpora from CHILDES data!
+# CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
+child_speech <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.csv")) %>% 
+  select(-X1) %>%
+  mutate(source = "CHILDES") %>% 
+  arrange(desc(word_count)) %>%
+  mutate(rank = 1:n())
+
+child_books <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>% 
+  mutate(word = ifelse(word=="i", "I", word),
+         word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
+         prob = word_count / sum(word_count),
+         source = "Books"
+  ) %>%
+  arrange(desc(word_count)) %>%
+  mutate(rank = 1:n()) 
+```
+
 
 ## Normalize Word Frequencies
 
