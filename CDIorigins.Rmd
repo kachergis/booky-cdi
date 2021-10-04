@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 require(tidyverse)
 require(here)
 require(ggrepel)
+require(kableExtra)
+require(tidyboot)
 ```
 
 
@@ -35,39 +37,139 @@ child["speech"] = read_csv(here(paste0(data_dir, "CHILDES clean text/lemmatized_
 ```
 
 ```{r load-orig-data}
-# SUBTLEX-US subtitle word frequencies (adult speech standard)
-adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>%
-  rename(word_count_norm = SUBTLWF, # frequency per million words
-         word_count = SLUSfreq) %>% 
-  mutate(source = "SUBTLEX",
-         prob = word_count / sum(word_count)) %>%
-  arrange(desc(word_count_norm)) %>%
-  mutate(rank = 1:n()) %>%
-  select(word, word_count, word_count_norm, prob, source, rank)
-# hapaxes already removed  
-
 # ToDo: remove book-reading corpora from CHILDES data!
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 child_speech <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.csv")) %>% 
   select(-X1) %>%
   mutate(source = "CHILDES") %>% 
+  #mutate(word_count = word_count + 10) %>% # smooth -- does it matter?
   arrange(desc(word_count)) %>%
   mutate(rank = 1:n())
 
+cdi_voc = subset(child_speech, on_cdi==1)$word # 657 / 680 -- should check other 23 words
+
+# SUBTLEX-US subtitle word frequencies (adult speech standard), hapaxes already removed 
+adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>% # 50.3 million words
+  rename(word_count_norm = SUBTLWF, # frequency per million words
+         word_count = SLUSfreq) %>%
+  #mutate(word_count = word_count + 10) %>% # smooth -- does it matter?
+  mutate(source = "SUBTLEX",
+         prob = word_count / sum(word_count)) %>%
+  arrange(desc(word_count_norm)) %>%
+  mutate(rank = 1:n()) %>%
+  select(word, word_count, word_count_norm, prob, source, rank) %>%
+  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 610 CDI words
+
+# Google book frequencies (743.8 billion words)
+adult_books <- read.csv(here("data/google-books-common-words.txt"), sep='\t') %>%
+  #mutate(word_count = word_count + 10) %>% # smooth -- does it matter?
+  mutate(word = tolower(word),
+         word = ifelse(word=="i", "I", word),
+         word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
+         prob = word_count / sum(word_count),
+         source = "Adult Books") %>%
+  arrange(desc(word_count)) %>%
+  mutate(rank = 1:n(),
+         on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 643
+
 child_books <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>% 
+  #mutate(word_count = word_count + 10) %>% # smooth -- does it matter?
   mutate(word = ifelse(word=="i", "I", word),
          word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
          prob = word_count / sum(word_count),
-         source = "Books"
+         source = "Children's Books"
   ) %>%
   arrange(desc(word_count)) %>%
-  mutate(rank = 1:n()) 
+  mutate(rank = 1:n(),
+         on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) 
 ```
+
+Our data sources:
+* Adult speech: `r nrow(adult_speech)` types, `r sum(adult_speech$word_count)` tokens from the CHILDES corpus (`r sum(adult_speech$on_cdi)` CDI words)
+* Children speech: `r nrow(children_speech)` types, `r sum(children_speech$word_count)` tokens from the CHILDES corpus (`r sum(children_speech$on_cdi)` CDI words)
+* Adult books: `r nrow(adult_books)` types, `r sum(adult_books$word_count)` tokens from the Google books corpus
+* Children's books: `r nrow(children_books)` types, `r sum(children_books$word_count)` tokens from the CHILDES corpus (`r sum(children_books$on_cdi)` CDI words)
 
 
 ## Normalize Word Frequencies
 
-```{r, echo=FALSE}
+We will calculate keyness scores for each word, i.e. the ratio of normalized frequency in focus corpus to normalized frequency in a reference corpus.
+For now, we will use the subset of words that are found in all four corpora (N=4229), but we may consider following Dawson et al. (2021) and adding a constant (e.g., 10) to all normalized frequencies in every corpus in order to not eliminate the bulk of words that do not appear in the smaller corpora (which are the child-directed corpora).
+<!-- "Given the problem of calculating ratios for words occurring in the focus corpus, but not at all in the reference corpus, we added a constant of 10 to all normalised frequencies before calculating keyness. We selected this value as the constant because it focuses the keyword analysis on the lower end of the frequency spectrum (Kilgarriff, 2009), which we considered to be important when identifying the words that children were unlikely to encounter in everyday conversation, but which they would experience through regular exposure to book language." --> 
 
+For our reference corpus, we will use adult speech (movie subtitles), as this is the target language distribution that children will eventually learn.
+(Although we could use child-directed speech, as that is what is given to children, or Google book frequency, which could be considered the epitome of an 'educated' distribution.)
+
+```{r keyness, echo=F}
+all_freq_long <- rbind(child_speech, adult_speech, child_books, adult_books) %>%
+  select(word, source, on_cdi, word_count_norm) 
+
+# wide
+all_freq <- all_freq_long %>%
+  pivot_wider(names_from = source, values_from = word_count_norm) %>%
+  filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(SUBTLEX), !is.na(`Adult Books`)) %>%
+  mutate(ch_speech_ad_speech_ratio = CHILDES / SUBTLEX,
+         ch_book_ad_speech_ratio = `Children's Books` / SUBTLEX,
+         ad_book_ad_speech_ratio = `Adult Books` / SUBTLEX)
+         #ch_book_ad_book_ratio = `Children's Books` / `Adult Books`,
+         #ch_book_ad_book_ratio = `Children's Books` / CHILDES) # are children's books like adult books, or like children's speech?
 ```
 
+## Child-directed speech vs. Adult speech
+
+We first examine the keyness of words in child-directed speech vs. that in adult speech.
+Here are the 10 words most over-represented in child-directed speech compared to adult movies:
+
+```{r, echo=F}
+# top 10
+all_freq %>% arrange(desc(ch_speech_ad_speech_ratio)) %>% head(10) %>% kable(digits=2)
+```
+
+Here are the 10 words most under-represented in CHILDES, compared to adult movies:
+
+```{r, echo=F}
+all_freq %>% arrange(desc(ch_speech_ad_speech_ratio)) %>% tail(10) %>% kable(digits=2)
+```
+
+
+## Children's books vs. adult speech
+
+Here are the 10 words most over-represented in child-directed speech compared to adult speech:
+
+```{r, echo=F}
+all_freq %>% arrange(desc(ch_book_ad_speech_ratio)) %>% head(10) %>% kable(digits=2)
+```
+
+Here are the 10 words most under-represented in CHILDES, compared to adult speech:
+
+```{r, echo=F}
+all_freq %>% arrange(desc(ch_book_ad_speech_ratio)) %>% tail(10) %>% kable(digits=2)
+```
+
+
+
+# Keyness of CDI words vs. non-CDI words 
+
+```{r keyness-cdi}
+# ToDo: bootstrap CIs
+all_freq %>% group_by(on_cdi) %>%
+  summarise(childes_movie_ratio = mean(childes_movie_ratio),
+            childes_book_ratio = mean(childes_book_ratio),
+            book_movie_ratio = mean(book_movie_ratio),
+            n=n())
+```
+
+
+```{r}
+movie <- all_freq %>% group_by(on_cdi) %>%
+  tidyboot_mean(childes_movie_ratio)
+
+movie %>% ggplot(aes(x=on_cdi, y=mean)) + 
+  geom_bar() +
+  geom_errorbar()
+```
+
+
+## Other Ideas
+
+Does the mean IRT difficulty of CDI/non-CDI words systematically vary with the source?
