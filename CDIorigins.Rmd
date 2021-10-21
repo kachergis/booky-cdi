@@ -171,6 +171,7 @@ For comparison, here are the 10 words most over-represented in adult books compa
 
 ```{r, echo=F}
 all_freq %>% arrange(desc(adult_books_vs_speech)) %>% head(10) %>% kable(digits=2)
+all_freq_smooth %>% arrange(desc(adult_books_vs_speech)) %>% head(10) %>% kable(digits=2)
 ```
 
 
@@ -178,10 +179,13 @@ and the 10 words most under-represented in adult books compared to adult speech:
 
 ```{r, echo=F}
 all_freq %>% arrange(desc(adult_books_vs_speech)) %>% tail(10) %>% kable(digits=2)
+all_freq_smooth %>% arrange(desc(adult_books_vs_speech)) %>% tail(10) %>% kable(digits=2)
 ```
 
 
 # Keyness of CDI words vs. non-CDI words 
+
+For just the `r nrow(all_freq)` words that occur in all four corpora:
 
 ```{r keyness-cdi-mean, eval=F, echo=F}
 all_freq %>% group_by(on_cdi) %>%
@@ -191,8 +195,18 @@ all_freq %>% group_by(on_cdi) %>%
             n=n()) %>% kable(digits=2)
 ```
 
-Below we show the average keyness of child-directed speech and children's books for CDI vs. non-CDI words, using adult speech as the reference corpus.
+Now for the `r nrow(all_freq_smooth)` words appearing in any of the corpora, with Laplace-smoothed normalized frequencies:
 
+```{r keyness-cdi-mean-smooth, eval=F, echo=F}
+all_freq_smooth %>% group_by(on_cdi) %>%
+  summarise(child_book_vs_adult_speech = mean(child_book_vs_adult_speech),
+            child_vs_adult_speech = mean(child_vs_adult_speech),
+            adult_books_vs_speech = mean(adult_books_vs_speech),
+            n=n()) %>% kable(digits=2)
+```
+
+Below we show the average keyness of child-directed speech and children's books for CDI vs. non-CDI words, using adult speech as the reference corpus.
+This is based on the words common to all corpora.
 
 ```{r, keyness-cdi-confint, echo=F, fig.width=8, fig.height=3.5}
 ch_book <- all_freq %>% group_by(on_cdi) %>%
@@ -222,7 +236,41 @@ p3 <- ad_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")
 ggpubr::ggarrange(p1, p2, p3, nrow=1)
 ```
 
+Now we do the same for the union of all words across the corpora (Laplace-smoothed).
+
+```{r, keyness-cdi-confint-smooth, echo=F, fig.width=8, fig.height=3.5}
+ch_book <- all_freq_smooth %>% group_by(on_cdi) %>%
+  tidyboot_mean(child_book_vs_adult_speech)
+
+ch_speech <- all_freq_smooth %>% group_by(on_cdi) %>%
+  tidyboot_mean(child_vs_adult_speech)
+
+ad_speech <- all_freq_smooth %>% group_by(on_cdi) %>%
+  tidyboot_mean(adult_books_vs_speech)
+
+p1 <- ch_book %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+  ggplot(aes(x=CDI, y=mean)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  theme_classic() + ylab("Children's Books Keyness") + ylim(0,20)
+
+p2 <- ch_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+  ggplot(aes(x=CDI, y=mean)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  theme_classic() + ylab("Child-directed Speech Keyness") + ylim(0,6)
+
+p3 <- ad_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+  ggplot(aes(x=CDI, y=mean)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  theme_classic() + ylab("Adult Books Keyness") + ylim(0,5)
+
+ggpubr::ggarrange(p1, p2, p3, nrow=1)
+```
+
 ## Predicting AoA
+
+Which corpus best predicts words' AoA?
+Which corpora contribute unique variance to predicting AoA?
+(Does the book corpus interact with SES, since we expect high-SES parents read more to their children?)
 
 ```{r}
 load("data/en_ws_production.Rdata")
