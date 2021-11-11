@@ -12,6 +12,8 @@ require(here)
 require(ggrepel)
 require(kableExtra)
 require(tidyboot)
+require(readr)
+require(tokenizers)
 ```
 
 
@@ -22,18 +24,34 @@ To start, we will look at American English, before extending to British English 
 We will begin with unlemmatized corpora, and disregard part-of-speech classification.
 
 ```{r load-data, echo=F, eval=F}
+process_text <- function(path) {
+  words = tokenize_words(read_file(path))
+  tab <- table(words[[1]])
+  wf <- data_frame(word = names(tab), count = as.numeric(tab)) %>%
+    arrange(desc(count))
+  print(paste0("loaded ", nrow(wf), " word types (", sum(wf$count)," tokens)"))
+  return(wf)
+}
+
 adult = list()
 child = list()
 data_dir = "data/Charlesworth-Clean-data/"
-#adult["books"] = read_csv(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt"))) # too big!
-adult["speech"] = read_csv(here(paste0(data_dir, "Adult_Speech/lemmatized_adult_speech_corpus.txt"))) # or not lemma?
-adult["tv1"] = read_csv(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")))
-adult["tv2"] = read_csv(here(paste0(data_dir, "Adult_TV/simple_scripts_corpus.txt")))
+adult["books"] = process_text(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt")))
+adult["speech"] = process_text(here(paste0(data_dir, "Adult_Speech/adult_speech_corpus.txt"))) # or lemmatized_adult_speech_corpus.txt
+# loaded 27536 word types (3104328 tokens)
+adult["tv1"] = process_text(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")))
+# loaded 45351 word types (4175570 tokens)
+adult["tv2"] = process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")))
+# loaded 103079 word types (2056384 tokens)
 
-child["books"] = read_csv(here(paste0(data_dir, "Child_Books/lemmatized_child_books.txt")))
-child["tv"] = read_csv(here(paste0(data_dir, "Child_TV/childrens_tv_combined_corpus.txt")))
-child["speech"] = read_csv(here(paste0(data_dir, "CHILDES clean text/lemmatized_corpus_parents.txt")))
-# memory errors...check Charlesworth analyses to see how they load it
+child["books"] = process_text(here(paste0(data_dir, "Child_Books/unlemmatized_child_books.txt")))
+# loaded 42652 word types (4730867 tokens)
+child["tv"] = process_text(here(paste0(data_dir, "Child_TV/childrens_tv_combined_corpus.txt")))
+# loaded 84341 word types (6759928 tokens)
+child["speech"] = process_text(here(paste0(data_dir, "CHILDES clean text/corpus_parents.txt")))
+# loaded 38770 word types (5495648 tokens)
+
+save(adult, child, file="data/Charlesworth-unlemmatized-counts.Rdata")
 ```
 
 ```{r load-orig-data, echo=F, message=F, warning=F}
