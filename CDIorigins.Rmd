@@ -1,7 +1,7 @@
 ---
 title: "Where do CDI words come from?"
 author: "George & Georgia"
-date: "9/10/2021"
+date: "11/10/2021"
 output: html_document
 ---
 
@@ -19,7 +19,10 @@ require(tokenizers)
 
 ## Goal
 
-Investigate whether inclusion on the CDI is more predicted by frequency in adult- or children-oriented sources, including books, television, and speech.
+Can we identify words on the CDI that are more bookish, speechy, or from TV? (Controlling for difficulty, as more bookish words are probably more difficult)
+
+Using this distributional source information, can we find features of children (e.g., mother's education) that relate to knowledge of subsets of words (e.g. bookish words)?
+
 To start, we will look at American English, before extending to British English and French.
 We will begin with unlemmatized corpora, and disregard part-of-speech classification.
 
@@ -39,18 +42,35 @@ process_text <- function(path, source_name) {
 }
 
 data_dir = "data/Charlesworth-Clean-data/"
-adult_dat <- process_text(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt")), "books")
-adult_dat <- adult_dat %>% bind_rows(process_text(here(paste0(data_dir, "Adult_Speech/adult_speech_corpus.txt")), "speech")) # or lemmatized_adult_speech_corpus.txt
+adult_dat <- bind_rows(process_text(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt")), "books"),
+                       process_text(here(paste0(data_dir, "Adult_Speech/adult_speech_corpus.txt")), "speech")) 
+# or lemmatized_adult_speech_corpus.txt
+# loaded 827414 word types (35143617 tokens)
 # loaded 27536 word types (3104328 tokens)
-adult_dat <- adult_dat %>% bind_rows(process_text(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")), "tv1"))
-# loaded 45351 word types (4175570 tokens)
-adult_dat <- adult_dat %>% bind_rows(process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")), "tv2"))
-# loaded 103079 word types (2056384 tokens)
 
-# combine the TV corpora?
-#tv1 <- process_text(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")), "tv1")
-#tv2 <- process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")), "tv2")
+
+# combine the TV corpora
+tv1 <- process_text(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")), "tv1")
+# loaded 45351 word types (4175570 tokens)
+tv2 <- process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")), "tv2")
+# loaded 103079 word types (2056384 tokens)
 #tv1 %>% select(word, word_count) 
+
+adult_tv <- full_join(tv1 %>% select(word, word_count), 
+                      tv2 %>% select(word, word_count), by="word") %>%
+  mutate(word_count.x = replace_na(word_count.x, 0),
+         word_count.y = replace_na(word_count.y, 0),
+         word_count = word_count.x + word_count.y) %>%
+  select(word, word_count) %>%
+  filter(word_count>1) %>% # hapaxes are mostly junk--phrases with spaces/punctuation removed
+  mutate(source = "TV",
+         word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
+         prob = word_count / sum(word_count)) %>%
+  mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>% # I'd I've..
+  arrange(desc(word_count_norm)) %>%
+  mutate(rank = 1:n())
+
+adult_dat = bind_rows(adult_dat, adult_tv)
 
 child_dat <- bind_rows(
   process_text(here(paste0(data_dir, "Child_Books/unlemmatized_child_books.txt")), "books"),
@@ -70,13 +90,14 @@ save(adult_dat, child_dat, file="data/Charlesworth-unlemmatized-counts.Rdata")
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 child_speech <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.csv")) %>% 
   select(-X1) %>%
-  mutate(source = "CHILDES",
-         word = tolower(word)) %>% 
-  mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>%
+  mutate(source = "CHILDES") %>%
+#         word = tolower(word)) %>% 
+#  mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>%
   arrange(desc(word_count)) %>%
   mutate(rank = 1:n())
 
-load("data/en_ws_production.Rdata")
+#load("data/en_ws_production.Rdata")
+#cdi_items = unique(d_en_ws$definition)
 
 cdi_voc = subset(child_speech, on_cdi==1)$word # 657 / 680 -- should check other 23 words
 
@@ -97,10 +118,17 @@ adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>% # 50.3 million words
   mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 610 CDI words
 
 # SUBTLEX is missing all of the apostrophized words...let's use the Charlesworth corpus instead
-load("data/Charlesworth-unlemmatized-counts.Rdata")
+load("data/Charlesworth-unlemmatized-counts.Rdata") 
 
-adult_speech2 <- adult_dat %>% filter(source=="speech") %>%
-  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 618 CDI words
+adult_dat <- adult_dat %>% 
+  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 
+table(adult_dat$on_cdi, adult_dat$source) 
+# 638 CDI words in books, 618 in speech, 636 on TV
+
+child_dat <- child_dat %>% 
+  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) 
+table(child_dat$on_cdi, child_dat$source)
+# 596 in books, 656 in speech, 652 on TV
 
 # Google book frequencies (743.8 billion words) min freq = 100005
 adult_books <- read.csv(here("data/google-books-common-words.txt"), sep='\t') %>%
@@ -138,6 +166,133 @@ Our data sources:
 We will calculate keyness scores for each word, i.e. the ratio of normalized frequency in focus corpus to normalized frequency in a reference corpus.
 For now, we will use the subset of words that are found in all four corpora (N=4229), but we may consider following Dawson et al. (2021) and adding a constant (e.g., 10) to all normalized frequencies in every corpus in order to not eliminate the bulk of words that do not appear in the smaller corpora (which are the child-directed corpora).
 <!-- "Given the problem of calculating ratios for words occurring in the focus corpus, but not at all in the reference corpus, we added a constant of 10 to all normalised frequencies before calculating keyness. We selected this value as the constant because it focuses the keyword analysis on the lower end of the frequency spectrum (Kilgarriff, 2009), which we considered to be important when identifying the words that children were unlikely to encounter in everyday conversation, but which they would experience through regular exposure to book language." --> 
+
+
+### Child-directed Speech vs. Books
+
+```{r keyness-childes-vs-montag, echo=F, eval=F}
+# CHILDES and Montag books
+ch_freq_long <- rbind(child_speech, child_books) %>%
+  select(word, source, on_cdi, word_count_norm, word_count) %>%
+  filter(!is.element(word, c("d","m","s","t", "xxx"))) 
+# equivalent to child_dat, which is based on Charlesworth corpora
+
+# wide - no smoothing, only keep subset of 4611 words in all corpora
+ch_freq <- ch_freq_long %>% select(-word_count) %>%
+  pivot_wider(names_from = source, values_from = word_count_norm) %>%
+  filter(!is.na(`Children's Books`), !is.na(CHILDES)) %>%
+  mutate(ch_book_vs_speech = `Children's Books` / CHILDES,
+         prop_booky = `Children's Books` / (`Children's Books` + CHILDES)) 
+
+# Laplace smoothing, alpha=10, keep all 123060 words in any corpus
+ch_freq_smooth <- ch_freq_long %>% 
+  mutate(word_count_norm_smooth = word_count_norm + 10) %>%
+  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
+  filter(!is.na(`Children's Books`), !is.na(CHILDES)) %>%
+  mutate(ch_book_vs_speech = `Children's Books` / CHILDES,
+         prop_booky = `Children's Books` / (`Children's Books` + CHILDES))
+```
+
+```{r keyness-charlesworth-corpora, echo=F, eval=F}
+# wide - no smoothing, only keep subset of 4611 words in all corpora
+ch_freq_charles <- child_dat %>% select(-word_count) %>%
+  pivot_wider(names_from = source, values_from = word_count_norm) %>%
+  filter(!is.na(books), !is.na(speech)) %>%
+  mutate(ch_book_vs_speech = books / speech,
+         prop_booky = books / (books + speech)) 
+
+# Laplace smoothing, alpha=10, keep all 124036 words in any corpus
+ch_freq_smooth_charles <- child_dat %>% 
+  mutate(word_count_norm_smooth = word_count_norm + 10) %>%
+  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
+  filter(!is.na(books), !is.na(speech)) %>%
+  mutate(ch_book_vs_speech = books / speech,
+         prop_booky = books / (books + speech))
+```
+
+### Most Child Booky Words
+
+```{r}
+ch_freq %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
+ch_freq_smooth %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
+
+p1 <- ch_freq %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
+  ggplot(aes(x=CHILDES, y=`Children's Books`, color=Word)) + 
+  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+  scale_x_log10() + scale_y_log10() + ggtitle("Raw Frequencies (intersection)")
+
+p2 <- ch_freq_smooth %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
+  ggplot(aes(x=CHILDES, y=`Children's Books`, color=Word)) + 
+  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+  scale_x_log10() + scale_y_log10() + ggtitle("Smoothed Frequencies (union)")
+
+ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
+```
+
+## 
+
+```{r}
+cor(subset(ch_freq, on_cdi==1)$CHILDES, subset(ch_freq, on_cdi==1)$`Children's Books`) # .75
+cor(subset(ch_freq, on_cdi==0)$CHILDES, subset(ch_freq, on_cdi==0)$`Children's Books`)
+```
+
+Of the words on the CDI, which are more booky/speechy?
+
+```{r}
+ch_freq_smooth %>% filter(on_cdi==1) %>%
+  ggplot(aes(x=CHILDES, y=`Children's Books`)) + 
+  geom_point(alpha=.3) + theme_classic() + 
+  scale_x_log10() + scale_y_log10() +
+  geom_text_repel(aes(label=word)) +
+  geom_abline(intercept = 0, slope = 1, linetype="dashed")
+  #geom_text(data=subset(ch_freq_smooth, on_cdi==1 & (wt > 4 | mpg > 25)), aes(label=name))
+
+```
+
+```{r}
+ch_key <- ch_freq %>% group_by(on_cdi) %>%
+  tidyboot_mean(ch_book_vs_speech)
+
+ch_key_smooth <- ch_freq_smooth %>% group_by(on_cdi) %>%
+  tidyboot_mean(ch_book_vs_speech)
+
+p1 <- ch_key %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+  ggplot(aes(x=CDI, y=mean)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  theme_classic() + ylab("Children's Book Keyness") + xlab("")
+
+p2 <- ch_key_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+  ggplot(aes(x=CDI, y=mean)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  theme_classic() + ylab("Children's Book Keyness") + xlab("")
+
+ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
+```
+
+```{r}
+ch_booky <- ch_freq %>% group_by(on_cdi) %>%
+  tidyboot_mean(prop_booky)
+
+ch_booky_smooth <- ch_freq_smooth %>% group_by(on_cdi) %>%
+  tidyboot_mean(prop_booky)
+
+p1 <- ch_booky %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+  ggplot(aes(x=CDI, y=mean)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  theme_classic() + ylab("Proportion of Book Occurrences") 
+
+p2 <- ch_booky_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+  ggplot(aes(x=CDI, y=mean)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  theme_classic() + ylab("Proportion of Book Occurrences")
+
+ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
+```
+
+
+
+
+### Reference Corpus: Adult Speech
 
 For our reference corpus, we will use adult speech (movie subtitles), as this is the target language distribution that children will eventually learn.
 (Although we could use child-directed speech, as that is what is given to children, or Google book frequency, which could be considered the epitome of an 'educated' distribution.)
@@ -185,7 +340,7 @@ all_freq <- all_freq_long %>%
 # Laplace smoothing, alpha=10, keep all 115597 words in any corpus
 all_freq_smooth <- all_freq_long %>% 
   mutate(word_count_norm_smooth = word_count_norm + 10) %>%
-  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=1) %>% 
+  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
   filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(speech), !is.na(`Adult Books`)) %>%
   mutate(child_vs_adult_speech = CHILDES / speech, 
          child_book_vs_adult_speech = `Children's Books` / speech,
@@ -285,12 +440,12 @@ ad_speech <- all_freq %>% group_by(on_cdi) %>%
 p1 <- ch_book %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean)) + 
   geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
-  theme_classic() + ylab("Children's Books Keyness") + ylim(0,20)
+  theme_classic() + ylab("Children's Books Keyness") #+ ylim(0,20)
 
 p2 <- ch_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean)) + 
   geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
-  theme_classic() + ylab("Child-directed Speech Keyness") + ylim(0,6)
+  theme_classic() + ylab("Child-directed Speech Keyness") #+ ylim(0,6)
 
 p3 <- ad_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean)) + 
@@ -315,17 +470,17 @@ ad_speech <- all_freq_smooth %>% group_by(on_cdi) %>%
 p1 <- ch_book %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean)) + 
   geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
-  theme_classic() + ylab("Children's Books Keyness") + ylim(0,20)
+  theme_classic() + ylab("Children's Books Keyness") #+ ylim(0,20)
 
 p2 <- ch_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean)) + 
   geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
-  theme_classic() + ylab("Child-directed Speech Keyness") + ylim(0,6)
+  theme_classic() + ylab("Child-directed Speech Keyness") #+ ylim(0,6)
 
 p3 <- ad_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean)) + 
   geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
-  theme_classic() + ylab("Adult Books Keyness") + ylim(0,5)
+  theme_classic() + ylab("Adult Books Keyness") #+ ylim(0,5)
 
 ggpubr::ggarrange(p1, p2, p3, nrow=1)
 ```
