@@ -47,6 +47,11 @@ adult_dat <- adult_dat %>% bind_rows(process_text(here(paste0(data_dir, "Adult_T
 adult_dat <- adult_dat %>% bind_rows(process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")), "tv2"))
 # loaded 103079 word types (2056384 tokens)
 
+# combine the TV corpora?
+#tv1 <- process_text(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")), "tv1")
+#tv2 <- process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")), "tv2")
+#tv1 %>% select(word, word_count) 
+
 child_dat <- bind_rows(
   process_text(here(paste0(data_dir, "Child_Books/unlemmatized_child_books.txt")), "books"),
   process_text(here(paste0(data_dir, "Child_TV/childrens_tv_combined_corpus.txt")), "tv"),
@@ -56,6 +61,7 @@ child_dat <- bind_rows(
 # loaded 84341 word types (6759928 tokens)
 # loaded 38770 word types (5495648 tokens)
 
+
 save(adult_dat, child_dat, file="data/Charlesworth-unlemmatized-counts.Rdata")
 ```
 
@@ -64,9 +70,13 @@ save(adult_dat, child_dat, file="data/Charlesworth-unlemmatized-counts.Rdata")
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 child_speech <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.csv")) %>% 
   select(-X1) %>%
-  mutate(source = "CHILDES") %>% 
+  mutate(source = "CHILDES",
+         word = tolower(word)) %>% 
+  mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>%
   arrange(desc(word_count)) %>%
   mutate(rank = 1:n())
+
+load("data/en_ws_production.Rdata")
 
 cdi_voc = subset(child_speech, on_cdi==1)$word # 657 / 680 -- should check other 23 words
 
@@ -87,6 +97,10 @@ adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>% # 50.3 million words
   mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 610 CDI words
 
 # SUBTLEX is missing all of the apostrophized words...let's use the Charlesworth corpus instead
+load("data/Charlesworth-unlemmatized-counts.Rdata")
+
+adult_speech2 <- adult_dat %>% filter(source=="speech") %>%
+  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 618 CDI words
 
 # Google book frequencies (743.8 billion words) min freq = 100005
 adult_books <- read.csv(here("data/google-books-common-words.txt"), sep='\t') %>%
@@ -113,7 +127,7 @@ child_books <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>%
 
 Our data sources:
 
-- Adult speech: `r nrow(adult_speech)` types, `r sum(adult_speech$word_count)` tokens from the CHILDES corpus (`r sum(adult_speech$on_cdi)` CDI words)
+- Adult speech: `r nrow(adult_speech)` types, `r sum(adult_speech$word_count)` tokens from the SUBTLEX corpus (`r sum(adult_speech$on_cdi)` CDI words)
 - Children speech: `r nrow(child_speech)` types, `r sum(child_speech$word_count)` tokens from the CHILDES corpus (`r sum(child_speech$on_cdi)` CDI words)
 - Adult books: `r nrow(adult_books)` types, `r sum(adult_books$word_count)` tokens from the Google books corpus
 - Children's books: `r nrow(child_books)` types, `r sum(child_books$word_count)` tokens from the CHILDES corpus (`r sum(child_books$on_cdi)` CDI words)
@@ -128,7 +142,7 @@ For now, we will use the subset of words that are found in all four corpora (N=4
 For our reference corpus, we will use adult speech (movie subtitles), as this is the target language distribution that children will eventually learn.
 (Although we could use child-directed speech, as that is what is given to children, or Google book frequency, which could be considered the epitome of an 'educated' distribution.)
 
-```{r keyness, echo=F}
+```{r keyness-subtlex, echo=F, eval=F}
 all_freq_long <- rbind(child_speech, adult_speech, child_books, adult_books) %>%
   select(word, source, on_cdi, word_count_norm) %>%
   filter(!is.element(word, c("d","m","s","t", "xxx"))) 
@@ -151,6 +165,31 @@ all_freq_smooth <- all_freq_long %>%
   mutate(child_vs_adult_speech = CHILDES / SUBTLEX, 
          child_book_vs_adult_speech = `Children's Books` / SUBTLEX,
          adult_books_vs_speech = `Adult Books` / SUBTLEX)
+```
+
+Non-SUBTLEX adult speech (Charlesworth corpus):
+
+```{r keyness-charlesworth, echo=F}
+all_freq_long <- rbind(child_speech, adult_speech2, child_books, adult_books) %>%
+  select(word, source, on_cdi, word_count_norm) %>%
+  filter(!is.element(word, c("d","m","s","t", "xxx", "child's own name"))) 
+
+# wide - no smoothing, only keep subset of 3977 words in all corpora
+all_freq <- all_freq_long %>%
+  pivot_wider(names_from = source, values_from = word_count_norm) %>%
+  filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(speech), !is.na(`Adult Books`)) %>%
+  mutate(child_vs_adult_speech = CHILDES / speech, 
+         child_book_vs_adult_speech = `Children's Books` / speech,
+         adult_books_vs_speech = `Adult Books` / speech)
+
+# Laplace smoothing, alpha=10, keep all 115597 words in any corpus
+all_freq_smooth <- all_freq_long %>% 
+  mutate(word_count_norm_smooth = word_count_norm + 10) %>%
+  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=1) %>% 
+  filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(speech), !is.na(`Adult Books`)) %>%
+  mutate(child_vs_adult_speech = CHILDES / speech, 
+         child_book_vs_adult_speech = `Children's Books` / speech,
+         adult_books_vs_speech = `Adult Books` / speech)
 ```
 
 ## Child-directed speech vs. Adult speech
@@ -299,6 +338,20 @@ Which corpora contribute unique variance to predicting AoA?
 
 ```{r}
 load("data/en_ws_production.Rdata")
+
+# poor man's AoA
+cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
+  summarise(mean_produces = mean(produces, na.rm=T)) 
+
+d_age <- d_en_ws %>% left_join(d_demo %>% select(data_id, age)) %>%
+  filter(!is.na(age)) %>%
+  group_by(definition, category, lexical_class, age) %>%
+  summarise(mean_produces = mean(produces, na.rm=T))
+
+d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_class)) + 
+  geom_line(alpha=.3) + theme_classic()
+#d50pct <- d_age %>% filter(mean_produces < .55, mean_produces > .45)
+# ToDo: get AoA model fits
 ```
 
 
