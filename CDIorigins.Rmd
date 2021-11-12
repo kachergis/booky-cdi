@@ -76,7 +76,8 @@ child_dat <- bind_rows(
   process_text(here(paste0(data_dir, "Child_Books/unlemmatized_child_books.txt")), "books"),
   process_text(here(paste0(data_dir, "Child_TV/childrens_tv_combined_corpus.txt")), "tv"),
   process_text(here(paste0(data_dir, "CHILDES clean text/corpus_parents.txt")), "speech")
-  )
+  ) %>%
+  filter(!is.element(word, c("d","m","s","t", "xxx", "ve", "ll", "n't", "rrb", "unc", "re"))) 
 # loaded 42652 word types (4730867 tokens)
 # loaded 84341 word types (6759928 tokens)
 # loaded 38770 word types (5495648 tokens)
@@ -174,7 +175,7 @@ For now, we will use the subset of words that are found in all four corpora (N=4
 # CHILDES and Montag books
 ch_freq_long <- rbind(child_speech, child_books) %>%
   select(word, source, on_cdi, word_count_norm, word_count) %>%
-  filter(!is.element(word, c("d","m","s","t", "xxx"))) 
+  filter(!is.element(word, c("d","m","s","t", "xxx", "ve", "ll", "n't", "rrb", "unc", "re"))) 
 # equivalent to child_dat, which is based on Charlesworth corpora
 
 # wide - no smoothing, only keep subset of 4611 words in all corpora
@@ -194,10 +195,10 @@ ch_freq_smooth <- ch_freq_long %>%
 ```
 
 ```{r keyness-charlesworth-corpora, echo=F, eval=F}
-# wide - no smoothing, only keep subset of 4611 words in all corpora
+# wide - no smoothing, only keep subset of 12855 words in all corpora
 ch_freq_charles <- child_dat %>% select(-word_count) %>%
-  pivot_wider(names_from = source, values_from = word_count_norm) %>%
-  filter(!is.na(books), !is.na(speech)) %>%
+  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm) %>%
+  filter(!is.na(books), !is.na(speech), !is.na(tv)) %>%
   mutate(ch_book_vs_speech = books / speech,
          prop_booky = books / (books + speech)) 
 
@@ -205,7 +206,7 @@ ch_freq_charles <- child_dat %>% select(-word_count) %>%
 ch_freq_smooth_charles <- child_dat %>% 
   mutate(word_count_norm_smooth = word_count_norm + 10) %>%
   pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
-  filter(!is.na(books), !is.na(speech)) %>%
+  filter(!is.na(books), !is.na(speech), !is.na(tv)) %>%
   mutate(ch_book_vs_speech = books / speech,
          prop_booky = books / (books + speech))
 ```
@@ -213,8 +214,8 @@ ch_freq_smooth_charles <- child_dat %>%
 ### Most Child Booky Words
 
 ```{r}
-ch_freq %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
-ch_freq_smooth %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
+#ch_freq %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
+#ch_freq_smooth %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
 
 p1 <- ch_freq %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
   ggplot(aes(x=CHILDES, y=`Children's Books`, color=Word)) + 
@@ -229,31 +230,73 @@ p2 <- ch_freq_smooth %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
 ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 ```
 
-## 
 
 ```{r}
 cor(subset(ch_freq, on_cdi==1)$CHILDES, subset(ch_freq, on_cdi==1)$`Children's Books`) # .75
-cor(subset(ch_freq, on_cdi==0)$CHILDES, subset(ch_freq, on_cdi==0)$`Children's Books`)
+cor(subset(ch_freq, on_cdi==0)$CHILDES, subset(ch_freq, on_cdi==0)$`Children's Books`) # .42
 ```
 
-Of the words on the CDI, which are more booky/speechy?
+Same, but with Charlesworth corpora
 
 ```{r}
-ch_freq_smooth %>% filter(on_cdi==1) %>%
+p1 <- ch_freq_charles %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
+  ggplot(aes(x=speech, y=books, color=Word)) + 
+  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+  scale_x_log10() + scale_y_log10() + ggtitle("Raw Frequencies (intersection)")
+
+p2 <- ch_freq_smooth_charles %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
+  ggplot(aes(x=speech, y=books, color=Word)) + 
+  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+  scale_x_log10() + scale_y_log10() + ggtitle("Smoothed Frequencies (union)")
+
+ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
+```
+
+
+### Which CDI words are more booky/speechy?
+
+```{r}
+p1 <- ch_freq_smooth %>% filter(on_cdi==1) %>%
   ggplot(aes(x=CHILDES, y=`Children's Books`)) + 
   geom_point(alpha=.3) + theme_classic() + 
   scale_x_log10() + scale_y_log10() +
   geom_text_repel(aes(label=word)) +
-  geom_abline(intercept = 0, slope = 1, linetype="dashed")
+  geom_abline(intercept = 0, slope = 1, linetype="dashed") +
+  ggtitle("CHILDES vs. Montag book corpus")
   #geom_text(data=subset(ch_freq_smooth, on_cdi==1 & (wt > 4 | mpg > 25)), aes(label=name))
 
+p2 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
+  ggplot(aes(x=speech, y=books)) + 
+  geom_point(alpha=.3) + theme_classic() + 
+  scale_x_log10() + scale_y_log10() +
+  geom_text_repel(aes(label=word)) + xlab("CHILDES") + 
+  geom_abline(intercept = 0, slope = 1, linetype="dashed") +
+  ggtitle("CHILDES vs. FB Children's Books")
+
+p3 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
+  ggplot(aes(x=speech, y=tv)) + 
+  geom_point(alpha=.3) + theme_classic() + 
+  scale_x_log10() + scale_y_log10() +
+  geom_text_repel(aes(label=word)) + ylab("Children's TV and Movies") + 
+  geom_abline(intercept = 0, slope = 1, linetype="dashed") +
+  ggtitle("CHILDES vs. Children's Movies")
+
+# merge in lexical_class and color points by it?
+
+ggpubr::ggarrange(p1, p2, p3, nrow=1, common.legend = T)
+ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=12, height=6)
 ```
 
+
+
 ```{r}
-ch_key <- ch_freq %>% group_by(on_cdi) %>%
+# holds even if we filter out many low frequency words
+ch_key <- ch_freq %>% #filter(CHILDES>1, `Children's Books`>1) %>%
+  group_by(on_cdi) %>%
   tidyboot_mean(ch_book_vs_speech)
 
-ch_key_smooth <- ch_freq_smooth %>% group_by(on_cdi) %>%
+ch_key_smooth <- ch_freq_smooth %>% 
+  group_by(on_cdi) %>%
   tidyboot_mean(ch_book_vs_speech)
 
 p1 <- ch_key %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
@@ -289,10 +332,158 @@ p2 <- ch_booky_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI W
 ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 ```
 
+## Booky vs. Speechy vs. TV Words
+
+Table based on Charlesworth corpora
+
+```{r}
+ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech) %>%
+  DT::datatable() %>%
+  DT::formatRound(columns=c('books','tv','speech'), digits=0) %>%
+  DT::formatPercentage(columns=c('prop_booky'), digits=0)
+```
+
+
+## Predicting AoA
+
+Which corpus best predicts words' AoA?
+Which corpora contribute unique variance to predicting AoA?
+(Does the book corpus interact with SES, since we expect high-SES parents read more to their children?)
+
+```{r}
+load("data/en_ws_production.Rdata")
+
+
+dd <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech)
+
+summary(dd)
+
+# poor man's AoA
+cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
+  summarise(mean_produces = mean(produces, na.rm=T)) %>%
+  mutate(word = case_when(definition=="a lot" ~ "lot",
+                          definition=="all gone" ~ "gone",
+                          #definition=="babysitter's name" ~ "babysitter",
+                          definition=="buttocks/bottom*" ~ "butt",
+                          definition=="call (on phone)" ~ "call",
+                          definition=="can (auxiliary)" ~ "can",
+                          definition=="can (object)" ~ "can",
+                          definition=="chicken (animal)" ~ "chicken",
+                          definition=="chicken (food)" ~ "chicken",
+                          definition=="clean (action)" ~ "clean",
+                          definition=="clean (description)" ~ "clean",
+                          definition=="church*" ~ "church", # add temple, synagogue..?
+                          definition=="daddy*" ~ "daddy",
+                          definition=="mommy*" ~ "mommy",
+                          definition=="grandma*" ~ "grandma",
+                          definition=="grandpa*" ~ "grandpa",
+                          definition=="vagina*" ~ "vagina",
+                          definition=="penis*" ~ "penis",
+                          definition=="drink (object)" ~ "drink",
+                          definition=="drink (action)" ~ "drink",
+                          definition=="did/did ya" ~ "did",
+                          definition=="dress (object)" ~ "dress",
+                          definition=="dry (action)" ~ "dry",
+                          definition=="dry (description)" ~ "dry",
+                          definition=="baa baa" ~ "bah",
+                          definition=="choo choo" ~ "choo",
+                          definition=="woof woof" ~ "woof",
+                          definition=="yum yum" ~ "yum",
+                          definition=="fish (animal)" ~ "fish",
+                          definition=="fish (food)" ~ "fish",
+                          definition=="gas station" ~ "gas", # or station? or average?
+                          definition=="work (action)" ~ "work",
+                          definition=="work (place)" ~ "work",
+                          definition=="water (beverage)" ~ "water",
+                          definition=="water (not beverage)" ~ "water",
+                          definition=="wanna/want to" ~ "wanna", # or want
+                          definition=="watch (action)" ~ "watch",
+                          definition=="watch (object)" ~ "watch",
+                          definition=="TV" ~ "tv",
+                          definition=="washing machine" ~ "washing",
+                          definition=="lawn mower" ~ "mower",
+                          definition=="soda/pop" ~ "soda",
+                          definition=="swing (action)" ~ "swing",
+                          definition=="swing (object)" ~ "swing",
+                          TRUE ~ definition)) %>%
+  filter(!is.element(definition, c("babysitter's name", "child's own name", "gonna get you!", "give me five!")))
+# remove some words we can't match
+
+itdat <- left_join(cdi_acc, dd)
+# need to fix all the parenthetical / starred / slashed items
+itdat[which(!complete.cases(itdat)),]
+
+
+ddd <- itdat %>% filter(!is.na(on_cdi)) 
+
+summary(lm(mean_produces ~ prop_booky, data=ddd)) # r^2 = .22; more booky = harder
+
+ddd$books = scale(log(ddd$books), center=F)[,1]
+ddd$tv = scale(log(ddd$tv), center=F)[,1]
+ddd$speech = scale(log(ddd$speech), center=F)[,1]
+
+# we should tack on adult_books
+cor.test(itdat$books, itdat$speech) # .73
+cor.test(itdat$tv, itdat$speech) # .83
+cor.test(itdat$tv, itdat$books) # .94
+# Books and TV are most correlated; books and speech least correlated
+
+# correlations change if we scale and log the frequencies...
+cor.test(ddd$books, ddd$speech) # .81
+cor.test(ddd$tv, ddd$speech) # .86
+cor.test(ddd$tv, ddd$books) # .87
+
+# with all 3 sources, only speech and books are significant
+summary(lm(mean_produces ~ books + speech + tv, data=ddd)) # 
+
+summary(lm(mean_produces ~ books + tv + speech, data=ddd))
+summary(lm(mean_produces ~ books + speech, data=ddd))
+
+
+# let's take the 200 bookiest CDI items and look at relation of subscore to mom_ed
+booky_items <- itdat %>% arrange(desc(prop_booky)) %>% head(200)
+
+samp <- d_demo %>% filter(!is.na(mom_ed)) # 2773
+
+booky_scores <- d_en_ws %>% filter(is.element(definition, booky_items$definition)) %>%
+  group_by(data_id) %>% summarise(booky_production = sum(produces))
+
+# most children get 0 booky words (they're hard)
+# hist(booky_scores$booky_production)
+samp <- left_join(samp, booky_scores)
+
+#AoA ~ book_freq * mom_ed + spoken_freq * mom_ed
+
+summary(lm(production ~ age, data=samp)) # .465
+summary(lm(production ~ age + mom_ed, data=samp)) # r^2 = .477
+
+summary(lm(booky_production ~ age , data=samp)) # r^2 = .452
+summary(lm(booky_production ~ age + mom_ed, data=samp)) # .462
+
+samp %>% 
+  mutate(nonbooky_production = production - booky_production) %>%
+  ggplot(aes(x=booky_production, y=production, color=mom_ed, shape=mom_ed)) +
+  geom_point(alpha=.3) + theme_classic() #+ geom_smooth()
+
+d_age <- d_en_ws %>% left_join(d_demo %>% select(data_id, age)) %>%
+  filter(!is.na(age)) %>%
+  group_by(definition, category, lexical_class, age) %>%
+  summarise(mean_produces = mean(produces, na.rm=T))
+
+d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_class)) + 
+  geom_line(alpha=.3) + theme_classic()
+#d50pct <- d_age %>% filter(mean_produces < .55, mean_produces > .45)
+# ToDo: get AoA model fits
+```
 
 
 
-### Reference Corpus: Adult Speech
+
+
+
+### Comparing to Adult Speech
 
 For our reference corpus, we will use adult speech (movie subtitles), as this is the target language distribution that children will eventually learn.
 (Although we could use child-directed speech, as that is what is given to children, or Google book frequency, which could be considered the epitome of an 'educated' distribution.)
@@ -324,7 +515,7 @@ all_freq_smooth <- all_freq_long %>%
 
 Non-SUBTLEX adult speech (Charlesworth corpus):
 
-```{r keyness-charlesworth, echo=F}
+```{r keyness-charlesworth, echo=F, eval=F}
 all_freq_long <- rbind(child_speech, adult_speech2, child_books, adult_books) %>%
   select(word, source, on_cdi, word_count_norm) %>%
   filter(!is.element(word, c("d","m","s","t", "xxx", "child's own name"))) 
@@ -352,7 +543,7 @@ all_freq_smooth <- all_freq_long %>%
 We first examine the keyness of words in child-directed speech vs. that in adult speech.
 Here are the 10 words most over-represented in child-directed speech compared to adult movies:
 
-```{r, echo=F}
+```{r, echo=F, eval=F}
 # top 10
 all_freq %>% arrange(desc(child_vs_adult_speech)) %>% head(10) %>% kable(digits=2)
 all_freq_smooth %>% arrange(desc(child_vs_adult_speech)) %>% head(10) %>% kable(digits=2)
@@ -361,73 +552,16 @@ all_freq_smooth %>% arrange(desc(child_vs_adult_speech)) %>% head(10) %>% kable(
 
 Here are the 10 words most under-represented in CHILDES, compared to adult movies:
 
-```{r, echo=F}
+```{r, echo=F, eval=F}
 all_freq %>% arrange(desc(child_vs_adult_speech)) %>% tail(10) %>% kable(digits=2)
 all_freq_smooth %>% arrange(desc(child_vs_adult_speech)) %>% tail(10) %>% kable(digits=2)
 ```
 
 
-## Children's books vs. adult speech
-
-Here are the 10 words most over-represented in children's books compared to adult speech:
-
-```{r, echo=F}
-all_freq %>% arrange(desc(child_book_vs_adult_speech)) %>% head(10) %>% kable(digits=2)
-all_freq_smooth %>% arrange(desc(child_book_vs_adult_speech)) %>% head(10) %>% kable(digits=2)
-```
-
-
-Here are the 10 words most under-represented in CHILDES compared to adult speech:
-
-```{r, echo=F}
-all_freq %>% arrange(desc(child_book_vs_adult_speech)) %>% tail(10) %>% kable(digits=2)
-all_freq_smooth %>% arrange(desc(child_book_vs_adult_speech)) %>% tail(10) %>% kable(digits=2)
-```
-
-## Adult books vs. adult speech
-
-For comparison, here are the 10 words most over-represented in adult books compared to adult speech:
-
-```{r, echo=F}
-all_freq %>% arrange(desc(adult_books_vs_speech)) %>% head(10) %>% kable(digits=2)
-all_freq_smooth %>% arrange(desc(adult_books_vs_speech)) %>% head(10) %>% kable(digits=2)
-```
-
-
-and the 10 words most under-represented in adult books compared to adult speech:
-
-```{r, echo=F}
-all_freq %>% arrange(desc(adult_books_vs_speech)) %>% tail(10) %>% kable(digits=2)
-all_freq_smooth %>% arrange(desc(adult_books_vs_speech)) %>% tail(10) %>% kable(digits=2)
-```
-
-
-# Keyness of CDI words vs. non-CDI words 
-
-For just the `r nrow(all_freq)` words that occur in all four corpora:
-
-```{r keyness-cdi-mean, eval=F, echo=F}
-all_freq %>% group_by(on_cdi) %>%
-  summarise(child_book_vs_adult_speech = mean(child_book_vs_adult_speech),
-            child_vs_adult_speech = mean(child_vs_adult_speech),
-            adult_books_vs_speech = mean(adult_books_vs_speech),
-            n=n()) %>% kable(digits=2)
-```
-
-Now for the `r nrow(all_freq_smooth)` words appearing in any of the corpora, with Laplace-smoothed normalized frequencies:
-
-```{r keyness-cdi-mean-smooth, eval=F, echo=F}
-all_freq_smooth %>% group_by(on_cdi) %>%
-  summarise(child_book_vs_adult_speech = mean(child_book_vs_adult_speech),
-            child_vs_adult_speech = mean(child_vs_adult_speech),
-            adult_books_vs_speech = mean(adult_books_vs_speech),
-            n=n()) %>% kable(digits=2)
-```
-
 Below we show the average keyness of child-directed speech and children's books for CDI vs. non-CDI words, using adult speech as the reference corpus.
 This is based on the words common to all corpora.
 
-```{r, keyness-cdi-confint, echo=F, fig.width=8, fig.height=3.5}
+```{r, keyness-cdi-confint, echo=F, eval=F, fig.width=8, fig.height=3.5}
 ch_book <- all_freq %>% group_by(on_cdi) %>%
   tidyboot_mean(child_book_vs_adult_speech)
 
@@ -457,7 +591,7 @@ ggpubr::ggarrange(p1, p2, p3, nrow=1)
 
 Now we do the same for the union of all words across the corpora (Laplace-smoothed).
 
-```{r, keyness-cdi-confint-smooth, echo=F, fig.width=8, fig.height=3.5}
+```{r, keyness-cdi-confint-smooth, echo=F, eval=F, fig.width=8, fig.height=3.5}
 ch_book <- all_freq_smooth %>% group_by(on_cdi) %>%
   tidyboot_mean(child_book_vs_adult_speech)
 
@@ -483,30 +617,6 @@ p3 <- ad_speech %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")
   theme_classic() + ylab("Adult Books Keyness") #+ ylim(0,5)
 
 ggpubr::ggarrange(p1, p2, p3, nrow=1)
-```
-
-## Predicting AoA
-
-Which corpus best predicts words' AoA?
-Which corpora contribute unique variance to predicting AoA?
-(Does the book corpus interact with SES, since we expect high-SES parents read more to their children?)
-
-```{r}
-load("data/en_ws_production.Rdata")
-
-# poor man's AoA
-cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
-  summarise(mean_produces = mean(produces, na.rm=T)) 
-
-d_age <- d_en_ws %>% left_join(d_demo %>% select(data_id, age)) %>%
-  filter(!is.na(age)) %>%
-  group_by(definition, category, lexical_class, age) %>%
-  summarise(mean_produces = mean(produces, na.rm=T))
-
-d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_class)) + 
-  geom_line(alpha=.3) + theme_classic()
-#d50pct <- d_age %>% filter(mean_produces < .55, mean_produces > .45)
-# ToDo: get AoA model fits
 ```
 
 
