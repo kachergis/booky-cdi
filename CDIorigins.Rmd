@@ -171,7 +171,7 @@ For now, we will use the subset of words that are found in all four corpora (N=4
 
 ### Child-directed Speech vs. Books
 
-```{r keyness-childes-vs-montag, echo=F, eval=F}
+```{r keyness-childes-vs-montag, echo=F}
 # CHILDES and Montag books
 ch_freq_long <- rbind(child_speech, child_books) %>%
   select(word, source, on_cdi, word_count_norm, word_count) %>%
@@ -194,7 +194,7 @@ ch_freq_smooth <- ch_freq_long %>%
          prop_booky = `Children's Books` / (`Children's Books` + CHILDES))
 ```
 
-```{r keyness-charlesworth-corpora, echo=F, eval=F}
+```{r keyness-charlesworth-corpora, echo=F}
 # wide - no smoothing, only keep subset of 12855 words in all corpora
 ch_freq_charles <- child_dat %>% select(-word_count) %>%
   pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm) %>%
@@ -255,7 +255,7 @@ ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 
 ### Which CDI words are more booky/speechy?
 
-```{r}
+```{r, fig.width=10, fig.height=5}
 p1 <- ch_freq_smooth %>% filter(on_cdi==1) %>%
   ggplot(aes(x=CHILDES, y=`Children's Books`)) + 
   geom_point(alpha=.3) + theme_classic() + 
@@ -440,8 +440,14 @@ summary(lm(mean_produces ~ books + speech + tv, data=ddd)) #
 
 summary(lm(mean_produces ~ books + tv + speech, data=ddd))
 summary(lm(mean_produces ~ books + speech, data=ddd))
+```
 
 
+## Predict Booky Vocabulary per child by Mother Education
+
+(also try ses_group)
+
+```{r}
 # let's take the 200 bookiest CDI items and look at relation of subscore to mom_ed
 booky_items <- itdat %>% arrange(desc(prop_booky)) %>% head(200)
 
@@ -464,8 +470,8 @@ summary(lm(booky_production ~ age + mom_ed, data=samp)) # .462
 
 samp %>% 
   mutate(nonbooky_production = production - booky_production) %>%
-  ggplot(aes(x=booky_production, y=production, color=mom_ed, shape=mom_ed)) +
-  geom_point(alpha=.3) + theme_classic() #+ geom_smooth()
+  ggplot(aes(x=booky_production, y=nonbooky_production, color=mom_ed, shape=mom_ed)) +
+  geom_point(alpha=.3) + theme_classic() + geom_smooth()
 
 d_age <- d_en_ws %>% left_join(d_demo %>% select(data_id, age)) %>%
   filter(!is.na(age)) %>%
@@ -479,8 +485,15 @@ d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_cla
 ```
 
 
+## Per-child, per-item mixed effects
+
+produces ~ book_freq * mom_ed + speech_freq * mom_ed + (1|item) + (1|child)
 
 
+produces ~ lexical_class * book_freq * mom_ed + lexical_class * speech_freq * mom_ed + (1|item) + (1|child)
+
+
+## Also try same regressions controlling for Google books frequency (reference corpus) 
 
 
 ### Comparing to Adult Speech
