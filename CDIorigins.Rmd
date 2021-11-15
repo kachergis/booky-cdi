@@ -496,9 +496,39 @@ d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_cla
 ## Per-child, per-item mixed effects
 
 produces ~ book_freq * mom_ed + speech_freq * mom_ed + (1|item) + (1|child)
-
-
 produces ~ lexical_class * book_freq * mom_ed + lexical_class * speech_freq * mom_ed + (1|item) + (1|child)
+
+```{r}
+d_samp <- d_en_ws %>% filter(is.element(data_id, samp$data_id)) %>%
+  left_join(samp %>% select(data_id, age, production, mom_ed, ses_group)) %>% # vocab? booky_production
+  left_join(itdat %>% select(definition, lexical_class, books, tv, speech, prop_booky))
+
+require(lme4)
+require(lmerTest)
+require(ggeffects)
+
+d_samp <- d_samp %>% mutate(books_sc = scale(log(books)),
+                            tv_sc = scale(log(tv)),
+                            speech_sc = scale(log(speech)))
+
+# make mom_ed numeric? 
+m1 <- lmer(produces ~ age + books_sc * mom_ed + speech_sc * mom_ed + (1|item_id) + (1|data_id), data=d_samp)
+summary(m1)
+anova(m1)
+
+m1p <- ggemmeans(m1, c("books_sc", "speech_sc", "mom_ed"))
+plot(m1p)
+
+m2 <- lmer(produces ~ age + lexical_class * books_sc * mom_ed + lexical_class * speech_sc * mom_ed + (1|item_id) + (1|data_id), data=d_samp)
+summary(m2)
+
+# somehow control for word difficulty: 
+# utterance length, word length, and/or morphological complexity?
+
+save(m1, m2, file="data/model_fits.Rdata")
+```
+
+
 
 
 ## Also try same regressions controlling for Google books frequency (reference corpus) 
