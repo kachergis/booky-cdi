@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(glue)
+library(wordbankr)
 require(tidyverse)
 require(here)
 require(ggrepel)
@@ -357,6 +359,12 @@ load("data/en_ws_production.Rdata")
 
 dd <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
   select(-ch_book_vs_speech)
+  
+#### add aoas
+#walk(list.files(".", pattern = "aoa_functions.R$", full.names = TRUE), source)
+#wb_data <- load_wb_data("English (American)")
+#aoas <- fit_aoas(wb_data)
+
 
 summary(dd)
 
