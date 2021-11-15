@@ -509,19 +509,30 @@ require(ggeffects)
 
 d_samp <- d_samp %>% mutate(books_sc = scale(log(books)),
                             tv_sc = scale(log(tv)),
-                            speech_sc = scale(log(speech)))
+                            speech_sc = scale(log(speech)),
+                            prop_booky_sc = scale(log(prop_booky)),
+                            mom_ed_sc = scale(as.numeric(mom_ed)))
 
 # make mom_ed numeric? 
-m1 <- lmer(produces ~ age + books_sc * mom_ed + speech_sc * mom_ed + (1|item_id) + (1|data_id), data=d_samp)
+m1 <- lmer(produces ~ age + books_sc * mom_ed_sc + speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), data=d_samp)
 summary(m1)
 anova(m1)
 
-m1p <- ggemmeans(m1, c("books_sc", "speech_sc", "mom_ed"))
+m1p <- ggemmeans(m1, c("books_sc", "speech_sc", "mom_ed_sc"))
 plot(m1p)
 
-m2 <- lmer(produces ~ age + lexical_class * books_sc * mom_ed + lexical_class * speech_sc * mom_ed + (1|item_id) + (1|data_id), data=d_samp)
+m1pint <- ggemmeans(m1, c("books_sc", "speech_sc", "books_sc:mom_ed_sc", "mom_ed_sc:speech_sc"))
+plot(m1pint)
+
+m1pint <- ggemmeans(m1, c("books_sc", "speech_sc", "mom_ed_sc", 
+                          "books_sc:mom_ed_sc", "mom_ed_sc:speech_sc"))
+m1pred <- ggpredict(m1)
+m1eff <- ggeffect(m1)
+
+m2 <- lmer(produces ~ age + lexical_class * books_sc * mom_ed_sc + lexical_class * speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), data=d_samp)
 summary(m2)
 
+#m3 <- lmer(produces ~ age + mom_ed * prop_booky * lexical_class, data=d_samp)
 # somehow control for word difficulty: 
 # utterance length, word length, and/or morphological complexity?
 
