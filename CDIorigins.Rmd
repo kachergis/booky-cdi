@@ -389,13 +389,13 @@ cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
                           definition=="grandpa*" ~ "grandpa",
                           definition=="vagina*" ~ "vagina",
                           definition=="penis*" ~ "penis",
-                          definition=="drink (object)" ~ "drink",
+                          definition=="drink (beverage)" ~ "drink",
                           definition=="drink (action)" ~ "drink",
                           definition=="did/did ya" ~ "did",
                           definition=="dress (object)" ~ "dress",
                           definition=="dry (action)" ~ "dry",
                           definition=="dry (description)" ~ "dry",
-                          definition=="baa baa" ~ "bah",
+                          definition=="baa baa" ~ "baa",
                           definition=="choo choo" ~ "choo",
                           definition=="woof woof" ~ "woof",
                           definition=="yum yum" ~ "yum",
@@ -415,8 +415,34 @@ cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
                           definition=="soda/pop" ~ "soda",
                           definition=="swing (action)" ~ "swing",
                           definition=="swing (object)" ~ "swing",
+                          definition=="go potty" ~ "potty",
+                          definition=="gonna/going to" ~ "gonna", # search CHILDES
+                          definition=="gotta/got to" ~ "gotta",
+                          definition=="little (description)" ~ "little",
+                          definition=="next to" ~ "next",
+                          definition=="hafta/have to" ~ "hafta",
+                          definition=="french fries" ~ "fries",
+                          definition=="need/need to" ~ "need",
+                          definition=="inside/in" ~ "in", # also inside
+                          definition=="orange (description)" ~ "orange",
+                          definition=="orange (food)" ~ "orange",
+                          definition=="on top of" ~ "top",
+                          definition=="owie/boo boo" ~ "ouch",
+                          definition=="potato chip" ~ "chip",
+                          definition=="quack quack" ~ "quack",
+                          definition=="tissue/kleenex" ~ "tissue",
+                          definition=="shh/shush/hush" ~ "shh",
+                          definition=="slide (action)" ~ "slide",
+                          definition=="slide (object)" ~ "slide",
+                          definition=="teddybear" ~ "teddy",
+                          definition=="thank you" ~ "thanks",
+                          definition=="toy (object)" ~ "toy",
+                          definition=="try/try to" ~ "try",
+                          definition=="turn around" ~ "turn",
+                          definition=="TV" ~ "tv", # or television
+                          definition=="uh oh" ~ "uhoh",
                           TRUE ~ definition)) %>%
-  filter(!is.element(definition, c("babysitter's name", "child's own name", "gonna get you!", "give me five!")))
+  filter(!is.element(definition, c("babysitter's name", "child's own name", "gonna get you!", "give me five!", "pet's name", "so big!", "this little piggy")))
 # remove some words we can't match
 
 itdat <- left_join(cdi_acc, dd)
@@ -515,8 +541,7 @@ d_samp <- d_samp %>% mutate(age_sc = scale(age),
                             prop_booky_sc = scale(log(prop_booky)),
                             mom_ed_sc = scale(as.numeric(mom_ed)))
 
-# make mom_ed numeric? 
-m1 <- lmer(produces ~ age_sc + books_sc * mom_ed_sc + speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), data=d_samp)
+m1 <- glmer(produces ~ age_sc + books_sc * mom_ed_sc + speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
 summary(m1)
 anova(m1)
 
@@ -530,7 +555,7 @@ ggarrange(plot(m1_age_mom_ed), plot(m1_speech_mom_ed), plot(m1_books_mom_ed), nr
 m1pred <- ggpredict(m1)
 m1eff <- ggeffect(m1)
 
-m2 <- lmer(produces ~ age_sc + lexical_class * books_sc * mom_ed_sc + lexical_class * speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), data=d_samp)
+m2 <- glmer(produces ~ age_sc + lexical_class * books_sc * mom_ed_sc + lexical_class * speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
 summary(m2)
 
 m2book <- ggpredict(m2, terms=c("mom_ed_sc","lexical_class","books_sc"))
