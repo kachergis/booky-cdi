@@ -1,7 +1,7 @@
 ---
 title: "Where do CDI words come from?"
 author: "George & Georgia"
-date: "11/10/2021"
+date: "`r Sys.Date()`"
 output: html_document
 ---
 
@@ -16,6 +16,10 @@ require(kableExtra)
 require(tidyboot)
 require(readr)
 require(tokenizers)
+require(lme4)
+require(lmerTest)
+require(ggeffects)
+require(ggpubr)
 ```
 
 
@@ -28,65 +32,6 @@ Using this distributional source information, can we find features of children (
 To start, we will look at American English, before extending to British English and French.
 We will begin with unlemmatized corpora, and disregard part-of-speech classification.
 
-```{r load-data, echo=F, eval=F}
-process_text <- function(path, source_name) {
-  words = tokenize_words(read_file(path))
-  tab <- table(words[[1]])
-  wf <- data_frame(word = names(tab), word_count = as.numeric(tab)) %>%
-    mutate(source = source_name,
-         word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
-         prob = word_count / sum(word_count)) %>%
-    mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>%
-    arrange(desc(word_count_norm)) %>%
-    mutate(rank = 1:n())
-  print(paste0("loaded ", nrow(wf), " word types (", sum(wf$word_count)," tokens)"))
-  return(wf)
-}
-
-data_dir = "data/Charlesworth-Clean-data/"
-adult_dat <- bind_rows(process_text(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt")), "books"),
-                       process_text(here(paste0(data_dir, "Adult_Speech/adult_speech_corpus.txt")), "speech")) 
-# or lemmatized_adult_speech_corpus.txt
-# loaded 827414 word types (35143617 tokens)
-# loaded 27536 word types (3104328 tokens)
-
-
-# combine the TV corpora
-tv1 <- process_text(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")), "tv1")
-# loaded 45351 word types (4175570 tokens)
-tv2 <- process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")), "tv2")
-# loaded 103079 word types (2056384 tokens)
-#tv1 %>% select(word, word_count) 
-
-adult_tv <- full_join(tv1 %>% select(word, word_count), 
-                      tv2 %>% select(word, word_count), by="word") %>%
-  mutate(word_count.x = replace_na(word_count.x, 0),
-         word_count.y = replace_na(word_count.y, 0),
-         word_count = word_count.x + word_count.y) %>%
-  select(word, word_count) %>%
-  filter(word_count>1) %>% # hapaxes are mostly junk--phrases with spaces/punctuation removed
-  mutate(source = "TV",
-         word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
-         prob = word_count / sum(word_count)) %>%
-  mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>% # I'd I've..
-  arrange(desc(word_count_norm)) %>%
-  mutate(rank = 1:n())
-
-adult_dat = bind_rows(adult_dat, adult_tv)
-
-child_dat <- bind_rows(
-  process_text(here(paste0(data_dir, "Child_Books/unlemmatized_child_books.txt")), "books"),
-  process_text(here(paste0(data_dir, "Child_TV/childrens_tv_combined_corpus.txt")), "tv"),
-  process_text(here(paste0(data_dir, "CHILDES clean text/corpus_parents.txt")), "speech")
-  ) %>%
-  filter(!is.element(word, c("d","m","s","t", "xxx", "ve", "ll", "n't", "rrb", "unc", "re"))) 
-# loaded 42652 word types (4730867 tokens)
-# loaded 84341 word types (6759928 tokens)
-# loaded 38770 word types (5495648 tokens)
-
-
-save(adult_dat, child_dat, file="data/Charlesworth-unlemmatized-counts.Rdata")
-```
 
 ```{r load-orig-data, echo=F, message=F, warning=F}
 # ToDo: remove book-reading corpora from CHILDES data!
@@ -154,6 +99,8 @@ child_books <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>%
   arrange(desc(word_count)) %>%
   mutate(rank = 1:n(),
          on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) 
+
+load("data/en_ws_production.Rdata")
 ```
 
 Our data sources:
@@ -278,7 +225,7 @@ p2 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
 p3 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
   ggplot(aes(x=speech, y=tv)) + 
   geom_point(alpha=.3) + theme_classic() + 
-  scale_x_log10() + scale_y_log10() +
+  scale_x_log10() + scale_y_log10() + xlab("CHILDES") + 
   geom_text_repel(aes(label=word)) + ylab("Children's TV and Movies") + 
   geom_abline(intercept = 0, slope = 1, linetype="dashed") +
   ggtitle("CHILDES vs. Children's Movies")
@@ -286,50 +233,54 @@ p3 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
 # merge in lexical_class and color points by it?
 
 ggpubr::ggarrange(p1, p2, p3, nrow=1, common.legend = T)
-ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=12, height=6)
+ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=16, height=9)
 ```
 
 
 
 ```{r}
+ch_freq <- ch_freq %>% left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition"))
+
+ch_freq_smooth <- ch_freq_smooth %>% left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition"))
+
 # holds even if we filter out many low frequency words
 ch_key <- ch_freq %>% #filter(CHILDES>1, `Children's Books`>1) %>%
-  group_by(on_cdi) %>%
+  group_by(on_cdi, lexical_class) %>%
   tidyboot_mean(ch_book_vs_speech)
 
 ch_key_smooth <- ch_freq_smooth %>% 
-  group_by(on_cdi) %>%
+  group_by(on_cdi, lexical_class) %>%
   tidyboot_mean(ch_book_vs_speech)
 
 p1 <- ch_key %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
   theme_classic() + ylab("Children's Book Keyness") + xlab("")
 
 p2 <- ch_key_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
+  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
   theme_classic() + ylab("Children's Book Keyness") + xlab("")
 
 ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 ```
 
 ```{r}
-ch_booky <- ch_freq %>% group_by(on_cdi) %>%
+ch_booky <- ch_freq %>% group_by(on_cdi, lexical_class) %>%
   tidyboot_mean(prop_booky)
 
-ch_booky_smooth <- ch_freq_smooth %>% group_by(on_cdi) %>%
+ch_booky_smooth <- ch_freq_smooth %>% group_by(on_cdi, lexical_class) %>%
   tidyboot_mean(prop_booky)
 
 p1 <- ch_booky %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
-  theme_classic() + ylab("Proportion of Book Occurrences") 
+  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+  theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
 
 p2 <- ch_booky_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper)) +
-  theme_classic() + ylab("Proportion of Book Occurrences")
+  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+  theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
 
 ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 ```
@@ -354,9 +305,6 @@ Which corpora contribute unique variance to predicting AoA?
 (Does the book corpus interact with SES, since we expect high-SES parents read more to their children?)
 
 ```{r}
-load("data/en_ws_production.Rdata")
-
-
 dd <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
   select(-ch_book_vs_speech)
   
@@ -364,11 +312,11 @@ dd <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
 #walk(list.files(".", pattern = "aoa_functions.R$", full.names = TRUE), source)
 #wb_data <- load_wb_data("English (American)")
 #aoas <- fit_aoas(wb_data)
-
+#save(aoas, file="data/AoAs_EN_American.Rds")
+load("data/AoAs_EN_American.Rds")
 
 summary(dd)
 
-# poor man's AoA
 cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
   summarise(mean_produces = mean(produces, na.rm=T)) %>%
   mutate(word = case_when(definition=="a lot" ~ "lot",
@@ -449,6 +397,10 @@ itdat <- left_join(cdi_acc, dd)
 # need to fix all the parenthetical / starred / slashed items
 itdat[which(!complete.cases(itdat)),]
 
+# add Google book frequency to df -- use this as "base rate"
+itdat <- itdat %>% left_join(adult_books %>% 
+                               select(word, word_count) %>% 
+                               rename(adult_books = word_count))
 
 ddd <- itdat %>% filter(!is.na(on_cdi)) 
 
@@ -524,15 +476,11 @@ d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_cla
 produces ~ book_freq * mom_ed + speech_freq * mom_ed + (1|item) + (1|child)
 produces ~ lexical_class * book_freq * mom_ed + lexical_class * speech_freq * mom_ed + (1|item) + (1|child)
 
+
 ```{r}
 d_samp <- d_en_ws %>% filter(is.element(data_id, samp$data_id)) %>%
   left_join(samp %>% select(data_id, age, production, mom_ed, ses_group)) %>% # vocab? booky_production
   left_join(itdat %>% select(definition, lexical_class, books, tv, speech, prop_booky))
-
-require(lme4)
-require(lmerTest)
-require(ggeffects)
-require(ggpubr)
 
 d_samp <- d_samp %>% mutate(age_sc = scale(age), 
                             books_sc = scale(log(books)),
@@ -540,8 +488,20 @@ d_samp <- d_samp %>% mutate(age_sc = scale(age),
                             speech_sc = scale(log(speech)),
                             prop_booky_sc = scale(log(prop_booky)),
                             mom_ed_sc = scale(as.numeric(mom_ed)))
+```
 
+```{r fit-big-models, eval=F}
 m1 <- glmer(produces ~ age_sc + books_sc * mom_ed_sc + speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+
+m2 <- glmer(produces ~ age_sc + lexical_class * books_sc * mom_ed_sc + lexical_class * speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+
+save(m1, m2, file="data/model_fits.Rdata")
+```
+
+
+```{r}
+load("data/model_fits.Rdata")
+
 summary(m1)
 anova(m1)
 
@@ -555,7 +515,6 @@ ggarrange(plot(m1_age_mom_ed), plot(m1_speech_mom_ed), plot(m1_books_mom_ed), nr
 m1pred <- ggpredict(m1)
 m1eff <- ggeffect(m1)
 
-m2 <- glmer(produces ~ age_sc + lexical_class * books_sc * mom_ed_sc + lexical_class * speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
 summary(m2)
 
 m2book <- ggpredict(m2, terms=c("mom_ed_sc","lexical_class","books_sc"))
@@ -566,8 +525,6 @@ ggarrange(plot(m2book), plot(m2speech), nrow=1, common.legend = T)
 #m3 <- lmer(produces ~ age + mom_ed * prop_booky * lexical_class, data=d_samp)
 # somehow control for word difficulty: 
 # utterance length, word length, and/or morphological complexity?
-
-save(m1, m2, file="data/model_fits.Rdata")
 ```
 
 
