@@ -480,41 +480,78 @@ produces ~ lexical_class * book_freq * mom_ed + lexical_class * speech_freq * mo
 ```{r}
 d_samp <- d_en_ws %>% filter(is.element(data_id, samp$data_id)) %>%
   left_join(samp %>% select(data_id, age, production, mom_ed, ses_group)) %>% # vocab? booky_production
-  left_join(itdat %>% select(definition, lexical_class, books, tv, speech, prop_booky))
+  left_join(itdat %>% select(definition, lexical_class, books, tv, speech, prop_booky, adult_books))
 
-d_samp <- d_samp %>% mutate(age_sc = scale(age), 
+d_samp <- d_samp %>% mutate(age_sc = scale(age, center=T, scale=F), 
                             books_sc = scale(log(books)),
                             tv_sc = scale(log(tv)),
                             speech_sc = scale(log(speech)),
                             prop_booky_sc = scale(log(prop_booky)),
-                            mom_ed_sc = scale(as.numeric(mom_ed)))
+                            mom_ed_sc = scale(as.numeric(mom_ed), center=T, scale=F))
 ```
 
 ```{r fit-big-models, eval=F}
 m1 <- glmer(produces ~ age_sc + books_sc * mom_ed_sc + speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
 
 m2 <- glmer(produces ~ age_sc + lexical_class * books_sc * mom_ed_sc + lexical_class * speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+#Model failed to converge with max|grad| = 0.0255532 (tol = 0.002, component 1)Model is nearly unidentifiable: large eigenvalue ratio
+# - Rescale variables?
 
-save(m1, m2, file="data/model_fits.Rdata")
+save(m1, m2, file="data/model_fits_scaled.Rdata")
+```
+
+# Unscaled
+
+```{r}
+# try just log-scaled...
+m1 <- glmer(produces ~ age_sc + 
+              log(books) * mom_ed_sc + 
+              log(speech) * mom_ed_sc + 
+              (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+
+m2 <- glmer(produces ~ age_sc + 
+              lexical_class * log(books) * mom_ed_sc + 
+              lexical_class * log(speech) * mom_ed_sc + 
+              (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+
+# control for adult_book frequency
+m3 <- glmer(produces ~ age_sc + log(adult_books) +
+              log(books) * mom_ed_sc + 
+              log(speech) * mom_ed_sc + 
+              (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+
+m4 <- glmer(produces ~ age_sc + log(adult_books) +
+              lexical_class * log(books) * mom_ed_sc + 
+              lexical_class * log(speech) * mom_ed_sc + 
+              (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+
+save(m1, m2, m3, m4, file="data/model_fits.Rdata")
 ```
 
 
 ```{r}
 load("data/model_fits.Rdata")
+```
 
+
+
+```{r}
 summary(m1)
 anova(m1)
+
+m1pred <- ggpredict(m1)
+m1eff <- ggeffect(m1)
 
 m1_age_mom_ed <- ggemmeans(m1, c("age_sc", "mom_ed_sc"))
 m1_speech_mom_ed <- ggemmeans(m1, c("mom_ed_sc","speech_sc"))
 m1_books_mom_ed <- ggemmeans(m1, c("mom_ed_sc","books_sc"))
 
 ggarrange(plot(m1_age_mom_ed), plot(m1_speech_mom_ed), plot(m1_books_mom_ed), nrow=1)
+```
 
 
-m1pred <- ggpredict(m1)
-m1eff <- ggeffect(m1)
 
+```{r}
 summary(m2)
 
 m2book <- ggpredict(m2, terms=c("mom_ed_sc","lexical_class","books_sc"))
