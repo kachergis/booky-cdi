@@ -524,6 +524,12 @@ m4 <- glmer(produces ~ age_sc + log(adult_books) +
               lexical_class * log(books) * mom_ed_sc + 
               lexical_class * log(speech) * mom_ed_sc + 
               (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+# Model failed to converge with max|grad| = 0.00295637 (tol = 0.002, component 1)Model is nearly unidentifiable: very large eigenvalue
+# - Rescale variables?Model failed to converge with max|grad| = 0.148143 (tol = 0.002, component 1)Model is nearly unidentifiable: very large eigenvalue
+# - Rescale variables?Model failed to converge with max|grad| = 0.0178983 (tol = 0.002, component 1)Model is nearly unidentifiable: very large eigenvalue
+# - Rescale variables?Model failed to converge with max|grad| = 0.22543 (tol = 0.002, component 1)Model is nearly unidentifiable: very large eigenvalue
+# - Rescale variables?;Model is nearly unidentifiable: large eigenvalue ratio
+# - Rescale variables?
 
 save(m1, m2, m3, m4, file="data/model_fits.Rdata")
 ```
@@ -531,6 +537,29 @@ save(m1, m2, m3, m4, file="data/model_fits.Rdata")
 
 ```{r}
 load("data/model_fits.Rdata")
+```
+
+
+```{r}
+summary(m1)
+summary(m2)
+summary(m3)
+summary(m4)
+
+m1pred <- ggpredict(m1)
+m1eff <- ggeffect(m1)
+
+m1_age_mom_ed <- ggemmeans(m1, c("age_sc", "mom_ed_sc"))
+m1_speech_mom_ed <- ggemmeans(m1, c("mom_ed_sc","speech_sc"))
+m1_books_mom_ed <- ggemmeans(m1, c("mom_ed_sc","books_sc"))
+
+ggarrange(plot(m1_age_mom_ed), plot(m1_speech_mom_ed), plot(m1_books_mom_ed), nrow=1)
+```
+
+
+
+```{r}
+load("data/model_fits_scaled.Rdata")
 ```
 
 
