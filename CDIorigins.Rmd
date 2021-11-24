@@ -20,6 +20,7 @@ require(lme4)
 require(lmerTest)
 require(ggeffects)
 require(ggpubr)
+require(tidytext)
 ```
 
 
@@ -90,7 +91,12 @@ adult_books <- read.csv(here("data/google-books-common-words.txt"), sep='\t') %>
          on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 643
 
 # min freq = 1 (2548, but mostly real words)
-child_books <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>% 
+Montag_counts <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>%
+  bind_rows(tibble(word=c("a lot","all gone", "buttocks/bottom*", "yum yum", "turn around", "uh oh", "french fries", "gonna/going to", "night night", "hafta/have to", "green beans", "high chair", "ice cream", "inside/in", "lemme/let me", "next to", "on top of", "peanut butter", "quack quack", "rocking chair", "shh/shush/hush", "teddybear", "thank you", "wanna/want to", "woof woof"), 
+                   word_count=c(21, 1, 4, 5, 1, 1, 1, 63, 59, 47, 1, 1, 9, 1003, 12, 12, 9, 4, 28, 1, 7, 3, 36, 65, 17)))
+# e.g. "night night" = "goodnight" + "good night" (no actual "night night"s)
+
+child_books <- Montag_counts %>% 
   mutate(word = ifelse(word=="i", "I", word),
          word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
          prob = word_count / sum(word_count),
@@ -99,6 +105,27 @@ child_books <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>%
   arrange(desc(word_count)) %>%
   mutate(rank = 1:n(),
          on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) 
+
+# attempt to read in bigrams from raw text..
+#tmp <- data_frame(read_file(here("data/Montag-book-corpus/100Books.txt")))
+#tmp <- tokenize(read_file(here("data/Montag-book-corpus/100Books.txt")))
+#Montag_bigrams <- data_frame(unlist(tmp)) %>%
+#  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
+#  count(bigram, sort = TRUE)
+
+adult_aoas <- read_csv("data/AoA_51715_words.csv") %>% 
+  rename(word = Word, word_freq_norm=Freq_pm) %>%
+  mutate(lexical_class = case_when(Dom_PoS_SUBTLEX=="Noun" ~ "nouns",
+                                   Dom_PoS_SUBTLEX=="Verb" ~ "verbs",
+                                   Dom_PoS_SUBTLEX=="Adjective" ~ "adjectives",
+                                   Dom_PoS_SUBTLEX=="Name" ~ "other", 
+                                   is.element(Dom_PoS_SUBTLEX, 
+                                              c("Adverb", "Article", "Determiner", "Conjunction", 
+                                                "Preposition", "Pronoun")) ~ "function_words",
+                                   TRUE ~ "bad")) %>%
+  filter(lexical_class != "bad") 
+# ToDo: a small number of values in Dom_PoS_SUBTLEX are numeric...looks like copy/paste errors
+
 
 load("data/en_ws_production.Rdata")
 ```
@@ -239,9 +266,20 @@ ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=16, height=9)
 
 
 ```{r}
-ch_freq <- ch_freq %>% left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition"))
+ch_freq <- ch_freq %>% 
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters)) %>% # AoA_Kup_lem
+  left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition")) %>%
+  rename(lexical_class = lexical_class.x) %>% # ToDo: look at disagreements on lexical class
+  mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
+  select(-lexical_class.y)
 
-ch_freq_smooth <- ch_freq_smooth %>% left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition"))
+ch_freq_smooth <- ch_freq_smooth %>% 
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters)) %>%
+  left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition")) %>%
+  rename(lexical_class = lexical_class.x) %>% # ToDo: look at disagreements on lexical class
+  mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
+  select(-lexical_class.y)
+  
 
 # holds even if we filter out many low frequency words
 ch_key <- ch_freq %>% #filter(CHILDES>1, `Children's Books`>1) %>%
@@ -305,20 +343,43 @@ Which corpora contribute unique variance to predicting AoA?
 (Does the book corpus interact with SES, since we expect high-SES parents read more to their children?)
 
 ```{r}
-dd <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
-  select(-ch_book_vs_speech)
-  
+dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
+  rename(Montag=`Children's Books`) %>% select(-ch_book_vs_speech) %>%
+  filter(word!="child's own name") 
+
+# let's drop prop_booky..
+dd_novels <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech) 
+
+dd <- dd %>% select(-prop_booky) %>%
+  left_join(dd_novels %>% select(-prop_booky)) %>%
+  mutate(Nletters = ifelse(is.na(Nletters), nchar(word), Nletters))
+# ToDo: fix lexical_class for some words -- or better, add back full CDI definition
+
+# Montag book freq vs. Facebook children's books (more novels)
+#cor.test(dd$Montag, dd_novels$books) # .74
+#cor.test(dd$prop_booky, dd_novels$prop_booky) # uncorrelated!
+
+
 #### add aoas
 #walk(list.files(".", pattern = "aoa_functions.R$", full.names = TRUE), source)
 #wb_data <- load_wb_data("English (American)")
 #aoas <- fit_aoas(wb_data)
-#save(aoas, file="data/AoAs_EN_American.Rds")
-load("data/AoAs_EN_American.Rds")
+#saveRDS(aoas, file="data/english_(american)_aoa_bydefinition.rds")
+aoas <- readRDS("data/english_(american)_aoa_bydefinition.rds") %>%
+  filter(measure=="produces")
+
+aoas <- aoas %>% left_join(d_en_ws %>% distinct(definition, category, lexical_class))
+
+aoas[which(is.na(aoas$lexical_class)),]
+# inside and in don't have category/LC defined
 
 summary(dd)
 
-cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
-  summarise(mean_produces = mean(produces, na.rm=T)) %>%
+#cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
+#  summarise(mean_produces = mean(produces, na.rm=T)) %>%
+
+cdi_aoa <- aoas %>%
   mutate(word = case_when(definition=="a lot" ~ "lot",
                           definition=="all gone" ~ "gone",
                           #definition=="babysitter's name" ~ "babysitter",
@@ -390,10 +451,10 @@ cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
                           definition=="TV" ~ "tv", # or television
                           definition=="uh oh" ~ "uhoh",
                           TRUE ~ definition)) %>%
-  filter(!is.element(definition, c("babysitter's name", "child's own name", "gonna get you!", "give me five!", "pet's name", "so big!", "this little piggy")))
+  filter(!is.element(definition, c("babysitter's name", "child's own name", "gonna get you!", "give me five!", "pet's name", "so big!", "this little piggy"))) 
 # remove some words we can't match
 
-itdat <- left_join(cdi_acc, dd)
+itdat <- left_join(cdi_aoa, dd)
 # need to fix all the parenthetical / starred / slashed items
 itdat[which(!complete.cases(itdat)),]
 
@@ -402,9 +463,15 @@ itdat <- itdat %>% left_join(adult_books %>%
                                select(word, word_count) %>% 
                                rename(adult_books = word_count))
 
-ddd <- itdat %>% filter(!is.na(on_cdi)) 
+ddd <- itdat %>% filter(!is.na(on_cdi)) # 657/680
 
-summary(lm(mean_produces ~ prop_booky, data=ddd)) # r^2 = .22; more booky = harder
+#summary(lm(mean_produces ~ prop_booky, data=ddd)) # r^2 = .21; more booky = harder
+
+summary(lm(aoa ~ log(speech), data=ddd)) # .01
+summary(lm(aoa ~ log(tv), data=ddd))
+summary(lm(aoa ~ log(Montag), data=ddd)) # .0003
+summary(lm(aoa ~ log(books), data=ddd)) # .03
+summary(lm(aoa ~ log(adult_books), data=ddd)) # .03
 
 ddd$books = scale(log(ddd$books), center=F)[,1]
 ddd$tv = scale(log(ddd$tv), center=F)[,1]
@@ -450,6 +517,7 @@ samp <- left_join(samp, booky_scores)
 
 summary(lm(production ~ age, data=samp)) # .465
 summary(lm(production ~ age + mom_ed, data=samp)) # r^2 = .477
+#summary(lm(production/age ~ mom_ed, data=samp)) 
 
 summary(lm(booky_production ~ age , data=samp)) # r^2 = .452
 summary(lm(booky_production ~ age + mom_ed, data=samp)) # .462
