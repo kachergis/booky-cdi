@@ -34,7 +34,17 @@ To start, we will look at American English, before extending to British English 
 We will begin with unlemmatized corpora, and disregard part-of-speech classification.
 
 
-```{r load-orig-data, echo=F, message=F, warning=F}
+```{r word-cdi-definitions, echo=F, message=F, warning=F}
+# move to separate file?
+bigram_definitions = c("a lot","all gone", "buttocks/bottom*", "yum yum", "turn around", "uh oh", "french fries", "gonna/going to", "night night", "hafta/have to", "green beans", "high chair", "ice cream", "inside/in", "lemme/let me", "next to", "on top of", "peanut butter", "quack quack", "rocking chair", "shh/shush/hush", "teddybear", "thank you", "wanna/want to", "woof woof")
+bigrams_to_search = c("a lot", "all gone", "butt", "yum", "turn around", "uh oh", "french fries", "going to", "good night", "have to", "green beans", "high chair", "ice cream", "inside", "let me", "next to", "on top of", "peanut butter", "quack", "rocking chair", "hush", "teddy bear", "thank you", "want to", "woof")
+```
+
+
+```{r load-corpus-data, echo=F, message=F, warning=F}
+cdi_items <- readRDS("data/CDI-WS-American-EN.rds")
+adult_books <- readRDS("data/Google_books_frequencies.rds")
+
 # ToDo: remove book-reading corpora from CHILDES data!
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 child_speech <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.csv")) %>% 
@@ -43,12 +53,11 @@ child_speech <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.
 #         word = tolower(word)) %>% 
 #  mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>%
   arrange(desc(word_count)) %>%
-  mutate(rank = 1:n())
+  mutate(rank = 1:n()) %>%
+  left_join(cdi_items) %>%
+  mutate(on_cdi = ifelse(!is.na(definition), 1, 0))
 
-#load("data/en_ws_production.Rdata")
-#cdi_items = unique(d_en_ws$definition)
-
-cdi_voc = subset(child_speech, on_cdi==1)$word # 657 / 680 -- should check other 23 words
+#cdi_voc = subset(child_speech, on_cdi==1)$word # 657 / 680 -- should check other 23 words
 
 # SUBTLEX-US subtitle word frequencies (adult speech standard), min freq = 2
 adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>% # 50.3 million words
@@ -79,20 +88,10 @@ child_dat <- child_dat %>%
 table(child_dat$on_cdi, child_dat$source)
 # 596 in books, 656 in speech, 652 on TV
 
-# Google book frequencies (743.8 billion words) min freq = 100005
-adult_books <- read.csv(here("data/google-books-common-words.txt"), sep='\t') %>%
-  mutate(word = tolower(word),
-         word = ifelse(word=="i", "I", word),
-         word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
-         prob = word_count / sum(word_count),
-         source = "Adult Books") %>%
-  arrange(desc(word_count)) %>%
-  mutate(rank = 1:n(),
-         on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 643
 
 # min freq = 1 (2548, but mostly real words)
 Montag_counts <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>%
-  bind_rows(tibble(word=c("a lot","all gone", "buttocks/bottom*", "yum yum", "turn around", "uh oh", "french fries", "gonna/going to", "night night", "hafta/have to", "green beans", "high chair", "ice cream", "inside/in", "lemme/let me", "next to", "on top of", "peanut butter", "quack quack", "rocking chair", "shh/shush/hush", "teddybear", "thank you", "wanna/want to", "woof woof"), 
+  bind_rows(tibble(word=bigram_definitions, 
                    word_count=c(21, 1, 4, 5, 1, 1, 1, 63, 59, 47, 1, 1, 9, 1003, 12, 12, 9, 4, 28, 1, 7, 3, 36, 65, 17)))
 # e.g. "night night" = "goodnight" + "good night" (no actual "night night"s)
 
@@ -126,8 +125,6 @@ adult_aoas <- read_csv("data/AoA_51715_words.csv") %>%
   filter(lexical_class != "bad") 
 # ToDo: a small number of values in Dom_PoS_SUBTLEX are numeric...looks like copy/paste errors
 
-
-load("data/en_ws_production.Rdata")
 ```
 
 Our data sources:
@@ -268,14 +265,14 @@ ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=16, height=9)
 ```{r}
 ch_freq <- ch_freq %>% 
   left_join(adult_aoas %>% select(word, lexical_class, Nletters)) %>% # AoA_Kup_lem
-  left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition")) %>%
+  left_join(cdi_items, by=c("word"="definition")) %>%
   rename(lexical_class = lexical_class.x) %>% # ToDo: look at disagreements on lexical class
   mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
   select(-lexical_class.y)
 
 ch_freq_smooth <- ch_freq_smooth %>% 
   left_join(adult_aoas %>% select(word, lexical_class, Nletters)) %>%
-  left_join(d_en_ws %>% distinct(definition, lexical_class), by=c("word"="definition")) %>%
+  left_join(cdi_items, by=c("word"="definition")) %>%
   rename(lexical_class = lexical_class.x) %>% # ToDo: look at disagreements on lexical class
   mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
   select(-lexical_class.y)
@@ -369,7 +366,7 @@ dd <- dd %>% select(-prop_booky) %>%
 aoas <- readRDS("data/english_(american)_aoa_bydefinition.rds") %>%
   filter(measure=="produces")
 
-aoas <- aoas %>% left_join(d_en_ws %>% distinct(definition, category, lexical_class))
+aoas <- aoas %>% left_join(cdi_items)
 
 aoas[which(is.na(aoas$lexical_class)),]
 # inside and in don't have category/LC defined
@@ -379,80 +376,7 @@ summary(dd)
 #cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
 #  summarise(mean_produces = mean(produces, na.rm=T)) %>%
 
-cdi_aoa <- aoas %>%
-  mutate(word = case_when(definition=="a lot" ~ "lot",
-                          definition=="all gone" ~ "gone",
-                          #definition=="babysitter's name" ~ "babysitter",
-                          definition=="buttocks/bottom*" ~ "butt",
-                          definition=="call (on phone)" ~ "call",
-                          definition=="can (auxiliary)" ~ "can",
-                          definition=="can (object)" ~ "can",
-                          definition=="chicken (animal)" ~ "chicken",
-                          definition=="chicken (food)" ~ "chicken",
-                          definition=="clean (action)" ~ "clean",
-                          definition=="clean (description)" ~ "clean",
-                          definition=="church*" ~ "church", # add temple, synagogue..?
-                          definition=="daddy*" ~ "daddy",
-                          definition=="mommy*" ~ "mommy",
-                          definition=="grandma*" ~ "grandma",
-                          definition=="grandpa*" ~ "grandpa",
-                          definition=="vagina*" ~ "vagina",
-                          definition=="penis*" ~ "penis",
-                          definition=="drink (beverage)" ~ "drink",
-                          definition=="drink (action)" ~ "drink",
-                          definition=="did/did ya" ~ "did",
-                          definition=="dress (object)" ~ "dress",
-                          definition=="dry (action)" ~ "dry",
-                          definition=="dry (description)" ~ "dry",
-                          definition=="baa baa" ~ "baa",
-                          definition=="choo choo" ~ "choo",
-                          definition=="woof woof" ~ "woof",
-                          definition=="yum yum" ~ "yum",
-                          definition=="fish (animal)" ~ "fish",
-                          definition=="fish (food)" ~ "fish",
-                          definition=="gas station" ~ "gas", # or station? or average?
-                          definition=="work (action)" ~ "work",
-                          definition=="work (place)" ~ "work",
-                          definition=="water (beverage)" ~ "water",
-                          definition=="water (not beverage)" ~ "water",
-                          definition=="wanna/want to" ~ "wanna", # or want
-                          definition=="watch (action)" ~ "watch",
-                          definition=="watch (object)" ~ "watch",
-                          definition=="TV" ~ "tv",
-                          definition=="washing machine" ~ "washing",
-                          definition=="lawn mower" ~ "mower",
-                          definition=="soda/pop" ~ "soda",
-                          definition=="swing (action)" ~ "swing",
-                          definition=="swing (object)" ~ "swing",
-                          definition=="go potty" ~ "potty",
-                          definition=="gonna/going to" ~ "gonna", # search CHILDES
-                          definition=="gotta/got to" ~ "gotta",
-                          definition=="little (description)" ~ "little",
-                          definition=="next to" ~ "next",
-                          definition=="hafta/have to" ~ "hafta",
-                          definition=="french fries" ~ "fries",
-                          definition=="need/need to" ~ "need",
-                          definition=="inside/in" ~ "in", # also inside
-                          definition=="orange (description)" ~ "orange",
-                          definition=="orange (food)" ~ "orange",
-                          definition=="on top of" ~ "top",
-                          definition=="owie/boo boo" ~ "ouch",
-                          definition=="potato chip" ~ "chip",
-                          definition=="quack quack" ~ "quack",
-                          definition=="tissue/kleenex" ~ "tissue",
-                          definition=="shh/shush/hush" ~ "shh",
-                          definition=="slide (action)" ~ "slide",
-                          definition=="slide (object)" ~ "slide",
-                          definition=="teddybear" ~ "teddy",
-                          definition=="thank you" ~ "thanks",
-                          definition=="toy (object)" ~ "toy",
-                          definition=="try/try to" ~ "try",
-                          definition=="turn around" ~ "turn",
-                          definition=="TV" ~ "tv", # or television
-                          definition=="uh oh" ~ "uhoh",
-                          TRUE ~ definition)) %>%
-  filter(!is.element(definition, c("babysitter's name", "child's own name", "gonna get you!", "give me five!", "pet's name", "so big!", "this little piggy"))) 
-# remove some words we can't match
+cdi_aoa <- aoas %>% left_join(cdi_items) %>% select(-measure)
 
 itdat <- left_join(cdi_aoa, dd)
 # need to fix all the parenthetical / starred / slashed items
