@@ -31,7 +31,7 @@ Can we identify words on the CDI that are more bookish, speechy, or from TV? (Co
 Using this distributional source information, can we find features of children (e.g., mother's education) that relate to knowledge of subsets of words (e.g. bookish words)?
 
 To start, we will look at American English, before extending to British English and French.
-We will begin with unlemmatized corpora, and disregard part-of-speech classification.
+We will begin with unlemmatized corpora.
 
 
 ```{r word-cdi-definitions, echo=F, message=F, warning=F}
@@ -53,11 +53,14 @@ child_speech <- read_csv(here("data/childes_english_word_freq_cleaned_noHapaxes.
 #         word = tolower(word)) %>% 
 #  mutate(word = ifelse(word=="i", "I", ifelse(word=="i'll", "I'll", word))) %>%
   arrange(desc(word_count)) %>%
+  mutate(word = ifelse(word=="Play_Doh", "play dough", word)) %>%
   mutate(rank = 1:n()) %>%
   left_join(cdi_items) %>%
-  mutate(on_cdi = ifelse(!is.na(definition), 1, 0))
+  mutate(on_cdi = ifelse(!is.na(definition), 1, 0)) # %>%
+#  mutate(Ncapitals = str_count(word, "[A-Z]"))
+# names are capitalized -- remove them (but also: "I", "I'll", "I've" etc)
 
-#cdi_voc = subset(child_speech, on_cdi==1)$word # 657 / 680 -- should check other 23 words
+# Play_Doh is in CHILDES 268 times (word_count_norm=35.1)
 
 # SUBTLEX-US subtitle word frequencies (adult speech standard), min freq = 2
 adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>% # 50.3 million words
@@ -73,37 +76,43 @@ adult_speech <- read_csv(here("data/SUBTLEX-US.csv")) %>% # 50.3 million words
   arrange(desc(word_count_norm)) %>%
   mutate(rank = 1:n()) %>%
   select(word, word_count, word_count_norm, prob, source, rank) %>%
-  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 610 CDI words
+  left_join(cdi_items) %>%
+  mutate(on_cdi = ifelse(!is.na(definition), 1, 0)) %>% # 655 CDI words
+  filter(!is.element(word, c("s","t","m","re","ll","d"))) # need to re-parse subtitles and keep apostrophized words...
 
 # SUBTLEX is missing all of the apostrophized words...let's use the Charlesworth corpus instead
 load("data/Charlesworth-unlemmatized-counts.Rdata") 
 
 adult_dat <- adult_dat %>% 
-  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) # 
+  left_join(cdi_items) %>%
+  mutate(on_cdi = ifelse(!is.na(definition), 1, 0)) 
 table(adult_dat$on_cdi, adult_dat$source) 
-# 638 CDI words in books, 618 in speech, 636 on TV
+# 646 CDI words in books, 627 in speech, 643 on TV
 
 child_dat <- child_dat %>% 
-  mutate(on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) 
+  left_join(cdi_items) %>%
+  mutate(on_cdi = ifelse(!is.na(definition), 1, 0)) 
 table(child_dat$on_cdi, child_dat$source)
-# 596 in books, 656 in speech, 652 on TV
-
+# 604 in books, 662 in speech, 659 on TV
 
 # min freq = 1 (2548, but mostly real words)
 Montag_counts <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>%
-  bind_rows(tibble(word=bigram_definitions, 
-                   word_count=c(21, 1, 4, 5, 1, 1, 1, 63, 59, 47, 1, 1, 9, 1003, 12, 12, 9, 4, 28, 1, 7, 3, 36, 65, 17)))
+  mutate(word = ifelse(word=="i", "I", word)) %>%
+  filter(word!="–") %>%
+  bind_rows(tibble(word=bigrams_to_search, 
+                   word_count=c(21, 1, 4, 5, 1, 1, 1, 63, 59, 47, 1, 1, 9, 1003, 12, 12, 9, 4, 28, 1, 7, 3, 36, 65, 17))) %>%
+  left_join(cdi_items) 
 # e.g. "night night" = "goodnight" + "good night" (no actual "night night"s)
 
 child_books <- Montag_counts %>% 
-  mutate(word = ifelse(word=="i", "I", word),
-         word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
+  mutate(word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
          prob = word_count / sum(word_count),
-         source = "Children's Books"
+         source = "Montag"
   ) %>%
   arrange(desc(word_count)) %>%
   mutate(rank = 1:n(),
-         on_cdi = ifelse(is.element(word, cdi_voc), 1, 0)) 
+         on_cdi = ifelse(!is.na(definition), 1, 0)) 
+# starred items not all counted in Montag, e.g. "mother"
 
 # attempt to read in bigrams from raw text..
 #tmp <- data_frame(read_file(here("data/Montag-book-corpus/100Books.txt")))
@@ -123,7 +132,7 @@ adult_aoas <- read_csv("data/AoA_51715_words.csv") %>%
                                                 "Preposition", "Pronoun")) ~ "function_words",
                                    TRUE ~ "bad")) %>%
   filter(lexical_class != "bad") 
-# ToDo: a small number of values in Dom_PoS_SUBTLEX are numeric...looks like copy/paste errors
+# ToDo: a small number of values in Dom_PoS_SUBTLEX are numeric...looks like copy/paste errors from adjacent cells
 
 ```
 
@@ -147,38 +156,46 @@ For now, we will use the subset of words that are found in all four corpora (N=4
 ```{r keyness-childes-vs-montag, echo=F}
 # CHILDES and Montag books
 ch_freq_long <- rbind(child_speech, child_books) %>%
-  select(word, source, on_cdi, word_count_norm, word_count) %>%
+  select(word, definition, source, on_cdi, word_count_norm, word_count, lexical_class) %>%
   filter(!is.element(word, c("d","m","s","t", "xxx", "ve", "ll", "n't", "rrb", "unc", "re"))) 
 # equivalent to child_dat, which is based on Charlesworth corpora
 
 # wide - no smoothing, only keep subset of 4611 words in all corpora
 ch_freq <- ch_freq_long %>% select(-word_count) %>%
-  pivot_wider(names_from = source, values_from = word_count_norm) %>%
-  filter(!is.na(`Children's Books`), !is.na(CHILDES)) %>%
-  mutate(ch_book_vs_speech = `Children's Books` / CHILDES,
-         prop_booky = `Children's Books` / (`Children's Books` + CHILDES)) 
+  group_by(word, definition, source, on_cdi, lexical_class) %>%
+  summarise(word_count_norm = sum(word_count_norm)) %>%
+  pivot_wider(id_cols = c(word,definition,on_cdi,lexical_class), names_from = source, values_from = word_count_norm) %>%
+  filter(!is.na(Montag), !is.na(CHILDES)) %>%
+  mutate(ch_book_vs_speech = Montag / CHILDES,
+         prop_booky = Montag / (Montag + CHILDES)) 
 
 # Laplace smoothing, alpha=10, keep all 123060 words in any corpus
 ch_freq_smooth <- ch_freq_long %>% 
+  group_by(word, definition, source, on_cdi, lexical_class) %>%
+  summarise(word_count_norm = sum(word_count_norm)) %>%
   mutate(word_count_norm_smooth = word_count_norm + 10) %>%
-  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
-  filter(!is.na(`Children's Books`), !is.na(CHILDES)) %>%
-  mutate(ch_book_vs_speech = `Children's Books` / CHILDES,
-         prop_booky = `Children's Books` / (`Children's Books` + CHILDES))
+  pivot_wider(id_cols = c(word, definition, on_cdi, lexical_class), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
+  filter(!is.na(Montag), !is.na(CHILDES)) %>%
+  mutate(ch_book_vs_speech = Montag / CHILDES,
+         prop_booky = Montag / (Montag + CHILDES))
 ```
 
 ```{r keyness-charlesworth-corpora, echo=F}
 # wide - no smoothing, only keep subset of 12855 words in all corpora
 ch_freq_charles <- child_dat %>% select(-word_count) %>%
-  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm) %>%
+  group_by(word, definition, source, on_cdi, lexical_class) %>%
+  summarise(word_count_norm = sum(word_count_norm)) %>%
+  pivot_wider(id_cols = c(word, definition, on_cdi, lexical_class), names_from = source, values_from = word_count_norm) %>%
   filter(!is.na(books), !is.na(speech), !is.na(tv)) %>%
   mutate(ch_book_vs_speech = books / speech,
          prop_booky = books / (books + speech)) 
 
 # Laplace smoothing, alpha=10, keep all 124036 words in any corpus
 ch_freq_smooth_charles <- child_dat %>% 
+  group_by(word, definition, source, on_cdi, lexical_class) %>%
+  summarise(word_count_norm = sum(word_count_norm)) %>%
   mutate(word_count_norm_smooth = word_count_norm + 10) %>%
-  pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
+  pivot_wider(id_cols = c(word, definition, on_cdi, lexical_class), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
   filter(!is.na(books), !is.na(speech), !is.na(tv)) %>%
   mutate(ch_book_vs_speech = books / speech,
          prop_booky = books / (books + speech))
@@ -191,12 +208,12 @@ ch_freq_smooth_charles <- child_dat %>%
 #ch_freq_smooth %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
 
 p1 <- ch_freq %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
-  ggplot(aes(x=CHILDES, y=`Children's Books`, color=Word)) + 
+  ggplot(aes(x=CHILDES, y=Montag, color=Word)) + 
   geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
   scale_x_log10() + scale_y_log10() + ggtitle("Raw Frequencies (intersection)")
 
 p2 <- ch_freq_smooth %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
-  ggplot(aes(x=CHILDES, y=`Children's Books`, color=Word)) + 
+  ggplot(aes(x=CHILDES, y=Montag, color=Word)) + 
   geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
   scale_x_log10() + scale_y_log10() + ggtitle("Smoothed Frequencies (union)")
 
@@ -205,8 +222,8 @@ ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 
 
 ```{r}
-cor(subset(ch_freq, on_cdi==1)$CHILDES, subset(ch_freq, on_cdi==1)$`Children's Books`) # .75
-cor(subset(ch_freq, on_cdi==0)$CHILDES, subset(ch_freq, on_cdi==0)$`Children's Books`) # .42
+cor(subset(ch_freq, on_cdi==1)$CHILDES, subset(ch_freq, on_cdi==1)$Montag) # .76
+cor(subset(ch_freq, on_cdi==0)$CHILDES, subset(ch_freq, on_cdi==0)$Montag) # .58
 ```
 
 Same, but with Charlesworth corpora
@@ -214,12 +231,12 @@ Same, but with Charlesworth corpora
 ```{r}
 p1 <- ch_freq_charles %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
   ggplot(aes(x=speech, y=books, color=Word)) + 
-  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+  geom_point(alpha=.1) + theme_classic() + geom_smooth(method='lm') +
   scale_x_log10() + scale_y_log10() + ggtitle("Raw Frequencies (intersection)")
 
 p2 <- ch_freq_smooth_charles %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
   ggplot(aes(x=speech, y=books, color=Word)) + 
-  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+  geom_point(alpha=.1) + theme_classic() + geom_smooth(method='lm') +
   scale_x_log10() + scale_y_log10() + ggtitle("Smoothed Frequencies (union)")
 
 ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
@@ -230,7 +247,7 @@ ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 
 ```{r, fig.width=10, fig.height=5}
 p1 <- ch_freq_smooth %>% filter(on_cdi==1) %>%
-  ggplot(aes(x=CHILDES, y=`Children's Books`)) + 
+  ggplot(aes(x=CHILDES, y=Montag, color=lexical_class)) + 
   geom_point(alpha=.3) + theme_classic() + 
   scale_x_log10() + scale_y_log10() +
   geom_text_repel(aes(label=word)) +
@@ -239,7 +256,7 @@ p1 <- ch_freq_smooth %>% filter(on_cdi==1) %>%
   #geom_text(data=subset(ch_freq_smooth, on_cdi==1 & (wt > 4 | mpg > 25)), aes(label=name))
 
 p2 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
-  ggplot(aes(x=speech, y=books)) + 
+  ggplot(aes(x=speech, y=books, color=lexical_class)) + 
   geom_point(alpha=.3) + theme_classic() + 
   scale_x_log10() + scale_y_log10() +
   geom_text_repel(aes(label=word)) + xlab("CHILDES") + 
@@ -247,7 +264,7 @@ p2 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
   ggtitle("CHILDES vs. FB Children's Books")
 
 p3 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
-  ggplot(aes(x=speech, y=tv)) + 
+  ggplot(aes(x=speech, y=tv, color=lexical_class)) + 
   geom_point(alpha=.3) + theme_classic() + 
   scale_x_log10() + scale_y_log10() + xlab("CHILDES") + 
   geom_text_repel(aes(label=word)) + ylab("Children's TV and Movies") + 
@@ -257,29 +274,27 @@ p3 <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>%
 # merge in lexical_class and color points by it?
 
 ggpubr::ggarrange(p1, p2, p3, nrow=1, common.legend = T)
-ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=16, height=9)
+#ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=16, height=9)
 ```
 
 
 
 ```{r}
 ch_freq <- ch_freq %>% 
-  left_join(adult_aoas %>% select(word, lexical_class, Nletters)) %>% # AoA_Kup_lem
-  left_join(cdi_items, by=c("word"="definition")) %>%
-  rename(lexical_class = lexical_class.x) %>% # ToDo: look at disagreements on lexical class
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>% # AoA_Kup_lem
+  rename(lexical_class = lexical_class.x) %>%
   mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
   select(-lexical_class.y)
-
-ch_freq_smooth <- ch_freq_smooth %>% 
-  left_join(adult_aoas %>% select(word, lexical_class, Nletters)) %>%
-  left_join(cdi_items, by=c("word"="definition")) %>%
-  rename(lexical_class = lexical_class.x) %>% # ToDo: look at disagreements on lexical class
-  mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
-  select(-lexical_class.y)
+# ToDo: look at disagreements on lexical class
   
+ch_freq_smooth <- ch_freq_smooth %>% 
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>%
+  rename(lexical_class = lexical_class.x) %>%
+  mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
+  select(-lexical_class.y)
 
 # holds even if we filter out many low frequency words
-ch_key <- ch_freq %>% #filter(CHILDES>1, `Children's Books`>1) %>%
+ch_key <- ch_freq %>% #filter(CHILDES>1, Montag>1) %>%
   group_by(on_cdi, lexical_class) %>%
   tidyboot_mean(ch_book_vs_speech)
 
@@ -289,12 +304,12 @@ ch_key_smooth <- ch_freq_smooth %>%
 
 p1 <- ch_key %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.2)) +
   theme_classic() + ylab("Children's Book Keyness") + xlab("")
 
 p2 <- ch_key_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.2)) +
   theme_classic() + ylab("Children's Book Keyness") + xlab("")
 
 ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
@@ -309,12 +324,12 @@ ch_booky_smooth <- ch_freq_smooth %>% group_by(on_cdi, lexical_class) %>%
 
 p1 <- ch_booky %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.2)) +
   theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
 
 p2 <- ch_booky_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
   ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.2)) +
   theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
 
 ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
@@ -327,7 +342,7 @@ Table based on Charlesworth corpora
 ```{r}
 ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
   select(-ch_book_vs_speech) %>%
-  DT::datatable() %>%
+  DT::datatable(options=list(columnDefs = list(list(visible=FALSE, targets=c(1,3))))) %>%
   DT::formatRound(columns=c('books','tv','speech'), digits=0) %>%
   DT::formatPercentage(columns=c('prop_booky'), digits=0)
 ```
@@ -341,20 +356,18 @@ Which corpora contribute unique variance to predicting AoA?
 
 ```{r}
 dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
-  rename(Montag=`Children's Books`) %>% select(-ch_book_vs_speech) %>%
-  filter(word!="child's own name") 
+  select(-ch_book_vs_speech) 
 
 # let's drop prop_booky..
 dd_novels <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
   select(-ch_book_vs_speech) 
 
-dd <- dd %>% select(-prop_booky) %>%
+ddd <- dd %>% select(-prop_booky) %>%
   left_join(dd_novels %>% select(-prop_booky)) %>%
   mutate(Nletters = ifelse(is.na(Nletters), nchar(word), Nletters))
-# ToDo: fix lexical_class for some words -- or better, add back full CDI definition
 
 # Montag book freq vs. Facebook children's books (more novels)
-#cor.test(dd$Montag, dd_novels$books) # .74
+#cor.test(dd$Montag, dd$books) # .98
 #cor.test(dd$prop_booky, dd_novels$prop_booky) # uncorrelated!
 
 
@@ -366,45 +379,37 @@ dd <- dd %>% select(-prop_booky) %>%
 aoas <- readRDS("data/english_(american)_aoa_bydefinition.rds") %>%
   filter(measure=="produces")
 
-aoas <- aoas %>% left_join(cdi_items)
+#aoas <- aoas %>% left_join(cdi_items)
+#aoas[which(is.na(aoas$lexical_class)),]
+# inside and in don't have category/LC defined - go back and fix
 
-aoas[which(is.na(aoas$lexical_class)),]
-# inside and in don't have category/LC defined
-
-summary(dd)
-
-#cdi_acc <- d_en_ws %>% group_by(definition, category, lexical_class) %>%
-#  summarise(mean_produces = mean(produces, na.rm=T)) %>%
-
-cdi_aoa <- aoas %>% left_join(cdi_items) %>% select(-measure)
-
-itdat <- left_join(cdi_aoa, dd)
-# need to fix all the parenthetical / starred / slashed items
-itdat[which(!complete.cases(itdat)),]
-
+# doesn't have category...left_join(cdi_items) if wanted
+ddd <- ddd %>% left_join(aoas %>% select(-measure)) %>%
+  left_join(adult_books %>% 
+              select(word, word_count_norm) %>% 
+              rename(adult_books = word_count_norm))
 # add Google book frequency to df -- use this as "base rate"
-itdat <- itdat %>% left_join(adult_books %>% 
-                               select(word, word_count) %>% 
-                               rename(adult_books = word_count))
 
-ddd <- itdat %>% filter(!is.na(on_cdi)) # 657/680
+summary(ddd)
+
 
 #summary(lm(mean_produces ~ prop_booky, data=ddd)) # r^2 = .21; more booky = harder
 
-summary(lm(aoa ~ log(speech), data=ddd)) # .01
-summary(lm(aoa ~ log(tv), data=ddd))
-summary(lm(aoa ~ log(Montag), data=ddd)) # .0003
-summary(lm(aoa ~ log(books), data=ddd)) # .03
-summary(lm(aoa ~ log(adult_books), data=ddd)) # .03
+summary(lm(aoa ~ log(tv), data=ddd)) # .008
+summary(lm(aoa ~ log(CHILDES), data=ddd)) # .002 CHILDES (Eva/George cleaned)
+summary(lm(aoa ~ log(speech), data=ddd)) # .004 CHILDES (Charlesworth cleaned)
+summary(lm(aoa ~ log(Montag), data=ddd)) # .003 Montag 
+summary(lm(aoa ~ log(books), data=ddd)) # .054 Charlesworth
+summary(lm(aoa ~ log(adult_books), data=ddd)) # .069 Google books
 
 ddd$books = scale(log(ddd$books), center=F)[,1]
 ddd$tv = scale(log(ddd$tv), center=F)[,1]
 ddd$speech = scale(log(ddd$speech), center=F)[,1]
 
 # we should tack on adult_books
-cor.test(itdat$books, itdat$speech) # .73
-cor.test(itdat$tv, itdat$speech) # .83
-cor.test(itdat$tv, itdat$books) # .94
+cor.test(ddd$books, ddd$speech) # .73
+cor.test(ddd$tv, ddd$speech) # .83
+cor.test(ddd$tv, ddd$books) # .94
 # Books and TV are most correlated; books and speech least correlated
 
 # correlations change if we scale and log the frequencies...
@@ -604,20 +609,20 @@ all_freq_long <- rbind(child_speech, adult_speech, child_books, adult_books) %>%
 # wide - no smoothing, only keep subset of words in all corpora
 all_freq <- all_freq_long %>%
   pivot_wider(names_from = source, values_from = word_count_norm) %>%
-  filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(SUBTLEX), !is.na(`Adult Books`)) %>%
+  filter(!is.na(Montag), !is.na(CHILDES), !is.na(SUBTLEX), !is.na(`Adult Books`)) %>%
   mutate(child_vs_adult_speech = CHILDES / SUBTLEX, 
-         child_book_vs_adult_speech = `Children's Books` / SUBTLEX,
+         child_book_vs_adult_speech = Montag / SUBTLEX,
          adult_books_vs_speech = `Adult Books` / SUBTLEX)
-         #ch_book_ad_book_ratio = `Children's Books` / `Adult Books`,
-         #ch_book_ad_book_ratio = `Children's Books` / CHILDES) # are children's books like adult books, or like children's speech?
+         #ch_book_ad_book_ratio = Montag / `Adult Books`,
+         #ch_book_ad_book_ratio = Montag / CHILDES) # are children's books like adult books, or like children's speech?
 
 # Laplace smoothing, alpha=1, keep all 123060 words in any corpus
 all_freq_smooth <- all_freq_long %>% 
   mutate(word_count_norm_smooth = word_count_norm + 1) %>%
   pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=1) %>% 
-  filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(SUBTLEX), !is.na(`Adult Books`)) %>%
+  filter(!is.na(Montag), !is.na(CHILDES), !is.na(SUBTLEX), !is.na(`Adult Books`)) %>%
   mutate(child_vs_adult_speech = CHILDES / SUBTLEX, 
-         child_book_vs_adult_speech = `Children's Books` / SUBTLEX,
+         child_book_vs_adult_speech = Montag / SUBTLEX,
          adult_books_vs_speech = `Adult Books` / SUBTLEX)
 ```
 
@@ -631,18 +636,18 @@ all_freq_long <- rbind(child_speech, adult_speech2, child_books, adult_books) %>
 # wide - no smoothing, only keep subset of 3977 words in all corpora
 all_freq <- all_freq_long %>%
   pivot_wider(names_from = source, values_from = word_count_norm) %>%
-  filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(speech), !is.na(`Adult Books`)) %>%
+  filter(!is.na(Montag), !is.na(CHILDES), !is.na(speech), !is.na(`Adult Books`)) %>%
   mutate(child_vs_adult_speech = CHILDES / speech, 
-         child_book_vs_adult_speech = `Children's Books` / speech,
+         child_book_vs_adult_speech = Montag / speech,
          adult_books_vs_speech = `Adult Books` / speech)
 
 # Laplace smoothing, alpha=10, keep all 115597 words in any corpus
 all_freq_smooth <- all_freq_long %>% 
   mutate(word_count_norm_smooth = word_count_norm + 10) %>%
   pivot_wider(id_cols = c(word, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
-  filter(!is.na(`Children's Books`), !is.na(CHILDES), !is.na(speech), !is.na(`Adult Books`)) %>%
+  filter(!is.na(Montag), !is.na(CHILDES), !is.na(speech), !is.na(`Adult Books`)) %>%
   mutate(child_vs_adult_speech = CHILDES / speech, 
-         child_book_vs_adult_speech = `Children's Books` / speech,
+         child_book_vs_adult_speech = Montag / speech,
          adult_books_vs_speech = `Adult Books` / speech)
 ```
 
