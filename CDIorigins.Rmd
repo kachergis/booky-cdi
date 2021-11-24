@@ -21,6 +21,7 @@ require(lmerTest)
 require(ggeffects)
 require(ggpubr)
 require(tidytext)
+require(GGally)
 ```
 
 
@@ -401,27 +402,67 @@ summary(lm(aoa ~ log(speech), data=ddd)) # .004 CHILDES (Charlesworth cleaned)
 summary(lm(aoa ~ log(Montag), data=ddd)) # .003 Montag 
 summary(lm(aoa ~ log(books), data=ddd)) # .054 Charlesworth
 summary(lm(aoa ~ log(adult_books), data=ddd)) # .069 Google books
+```
 
-ddd$books = scale(log(ddd$books), center=F)[,1]
-ddd$tv = scale(log(ddd$tv), center=F)[,1]
-ddd$speech = scale(log(ddd$speech), center=F)[,1]
+## Correlations between word frequency distributions
 
-# we should tack on adult_books
-cor.test(ddd$books, ddd$speech) # .73
-cor.test(ddd$tv, ddd$speech) # .83
-cor.test(ddd$tv, ddd$books) # .94
-# Books and TV are most correlated; books and speech least correlated
+```{r}
+ddd %>% mutate(CHILDES = log(CHILDES),
+               Montag = log(Montag),
+               books = log(books),
+               tv = log(tv),
+               adult_books = log(adult_books)) %>%
+  ggpairs(columns = c("CHILDES","Montag","books","tv","adult_books"),
+        ggplot2::aes(colour=lexical_class)) + 
+  theme_classic()
+#ggsave("CDIword_frequency_distro_comparisons.pdf", width=9, height=9)
+```
+## Simple AoA regressions
 
-# correlations change if we scale and log the frequencies...
-cor.test(ddd$books, ddd$speech) # .81
-cor.test(ddd$tv, ddd$speech) # .86
-cor.test(ddd$tv, ddd$books) # .87
+```{r}
+summary(lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books), data=ddd)) 
+# R^2 = .277
 
-# with all 3 sources, only speech and books are significant
-summary(lm(mean_produces ~ books + speech + tv, data=ddd)) # 
+summary(lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books), data=ddd)) 
+# R^2=.23, books+, tv- 
 
-summary(lm(mean_produces ~ books + tv + speech, data=ddd))
-summary(lm(mean_produces ~ books + speech, data=ddd))
+# Montag corpus not as good as FB children's books
+#summary(lm(aoa ~ log(Montag) + log(speech) + log(tv) + log(adult_books), data=ddd)) 
+# R^2 = .26
+#summary(lm(aoa ~ log(Montag) + log(speech), data=ddd)) 
+# R^2=.038
+#summary(lm(aoa ~ log(Montag) + log(adult_books), data=ddd))
+# R^2=.146
+```
+
+## Remove collinearity with PCA
+
+
+```{r}
+# replace NAs with minimum for that column
+dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_books),
+                       speech = ifelse(is.na(speech), 10, speech),
+                       books = ifelse(is.na(books), 10, books),
+                       tv = ifelse(is.na(tv), 10, tv)) #%>%
+  #mutate(adult_books = log(adult_books),
+  #       speech = log(speech))
+
+# prcomp better?
+pc_bs <- prcomp(dddc[,c("books","speech")], scale=T)
+summary(pc_bs)
+pc_bs$rotation
+ddbs <- cbind(dddc, data.frame(pc_bs$x))
+
+summary(lm(aoa ~ PC1 + PC2, data=ddbs))
+summary(lm(aoa ~ lexical_class*(PC1 + PC2), data=ddbs))
+
+#pc_bs <- princomp(dddc[,c("books","speech")])
+#summary(pc_bs)
+#plot(pc_bs$scores[,1],pc_bs$scores[,2], pch=".")
+
+pc_bsa <- princomp(dddc[,c("books","speech","adult_books")])
+summary(pc_bsa)
+
 ```
 
 
@@ -431,8 +472,10 @@ summary(lm(mean_produces ~ books + speech, data=ddd))
 
 ```{r}
 # let's take the 200 bookiest CDI items and look at relation of subscore to mom_ed
-booky_items <- itdat %>% arrange(desc(prop_booky)) %>% head(200)
+booky_items <- ddd %>% mutate(prop_booky = books / (speech+books)) %>%
+  arrange(desc(prop_booky)) %>% head(200)
 
+load("data/en_ws_production.Rdata")
 samp <- d_demo %>% filter(!is.na(mom_ed)) # 2773
 
 booky_scores <- d_en_ws %>% filter(is.element(definition, booky_items$definition)) %>%
@@ -448,22 +491,25 @@ summary(lm(production ~ age, data=samp)) # .465
 summary(lm(production ~ age + mom_ed, data=samp)) # r^2 = .477
 #summary(lm(production/age ~ mom_ed, data=samp)) 
 
-summary(lm(booky_production ~ age , data=samp)) # r^2 = .452
-summary(lm(booky_production ~ age + mom_ed, data=samp)) # .462
+summary(lm(booky_production ~ age , data=samp)) # r^2 = .45
+summary(lm(booky_production ~ age + mom_ed, data=samp)) # .46
+
+anova(lm(booky_production ~ age , data=samp),
+      lm(booky_production ~ age + mom_ed, data=samp))
 
 samp %>% 
   mutate(nonbooky_production = production - booky_production) %>%
   ggplot(aes(x=booky_production, y=nonbooky_production, color=mom_ed, shape=mom_ed)) +
-  geom_point(alpha=.3) + theme_classic() + geom_smooth()
+  geom_point(alpha=.3) + theme_classic() #+ geom_smooth()
 
-d_age <- d_en_ws %>% left_join(d_demo %>% select(data_id, age)) %>%
-  filter(!is.na(age)) %>%
-  group_by(definition, category, lexical_class, age) %>%
-  summarise(mean_produces = mean(produces, na.rm=T))
+#d_age <- d_en_ws %>% left_join(d_demo %>% select(data_id, age)) %>%
+#  filter(!is.na(age)) %>%
+#  group_by(definition, category, lexical_class, age) %>%
+#  summarise(mean_produces = mean(produces, na.rm=T))
 
-d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_class)) + 
-  geom_line(alpha=.3) + theme_classic()
-#d50pct <- d_age %>% filter(mean_produces < .55, mean_produces > .45)
+#d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_class)) + 
+#  geom_line(alpha=.3) + theme_classic()
+
 # ToDo: get AoA model fits
 ```
 
