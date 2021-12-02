@@ -397,11 +397,11 @@ summary(ddd)
 #summary(lm(mean_produces ~ prop_booky, data=ddd)) # r^2 = .21; more booky = harder
 
 summary(lm(aoa ~ log(tv), data=ddd)) # .008
-summary(lm(aoa ~ log(CHILDES), data=ddd)) # .002 CHILDES (Eva/George cleaned)
+summary(lm(aoa ~ log(CHILDES), data=ddd)) # .002 CHILDES (Eva/George cleaned) - 698 df
 summary(lm(aoa ~ log(speech), data=ddd)) # .004 CHILDES (Charlesworth cleaned)
 summary(lm(aoa ~ log(Montag), data=ddd)) # .003 Montag 
-summary(lm(aoa ~ log(books), data=ddd)) # .054 Charlesworth
-summary(lm(aoa ~ log(adult_books), data=ddd)) # .069 Google books
+summary(lm(aoa ~ log(books), data=ddd)) # .054 (Charlesworth) FB children's corpus
+summary(lm(aoa ~ log(adult_books), data=ddd)) # .069 Google books - 686 df (look at NAs?) - smooth Google books
 ```
 
 ## Correlations between word frequency distributions
@@ -448,12 +448,12 @@ dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_b
   #       speech = log(speech))
 
 # prcomp better?
-pc_bs <- prcomp(dddc[,c("books","speech")], scale=T)
+pc_bs <- prcomp(dddc[,c("books","speech")], scale=T) # add adult_books ?
 summary(pc_bs)
 pc_bs$rotation
 ddbs <- cbind(dddc, data.frame(pc_bs$x))
 
-summary(lm(aoa ~ PC1 + PC2, data=ddbs))
+summary(lm(aoa ~ PC1 + PC2, data=ddbs)) # PC1- i.e. higher freq, lower AoA; PC2+ ..direction?
 summary(lm(aoa ~ lexical_class*(PC1 + PC2), data=ddbs))
 
 #pc_bs <- princomp(dddc[,c("books","speech")])
@@ -462,6 +462,25 @@ summary(lm(aoa ~ lexical_class*(PC1 + PC2), data=ddbs))
 
 pc_bsa <- princomp(dddc[,c("books","speech","adult_books")])
 summary(pc_bsa)
+
+
+# "partialling out" control
+## Multiple regression analysis
+summary(lm(aoa ~ speech + books, dddc))
+
+## Correlation between covariate and exposure
+with(dddc, cor(speech, books)) # .73
+
+## "Partialling-out" approach
+## Regress exposure on covariate
+summary(lmEC <- lm(speech ~ books, dddc)) # .53
+## Save residuals
+lmEC.resid <- residuals(lmEC)
+## Regress outcome on residuals
+summary(lm(aoa ~ lmEC.resid, dddc))
+
+## Check formula
+sum(lmEC.resid*outcome)/(sum(lmEC.resid^2))
 
 ```
 
