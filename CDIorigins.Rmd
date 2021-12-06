@@ -36,9 +36,8 @@ We will begin with unlemmatized corpora.
 
 
 ```{r word-cdi-definitions, echo=F, message=F, warning=F}
-# move to separate file?
-bigram_definitions = c("a lot","all gone", "buttocks/bottom*", "yum yum", "turn around", "uh oh", "french fries", "gonna/going to", "night night", "hafta/have to", "green beans", "high chair", "ice cream", "inside/in", "lemme/let me", "next to", "on top of", "peanut butter", "quack quack", "rocking chair", "shh/shush/hush", "teddybear", "thank you", "wanna/want to", "woof woof")
-bigrams_to_search = c("a lot", "all gone", "butt", "yum", "turn around", "uh oh", "french fries", "going to", "good night", "have to", "green beans", "high chair", "ice cream", "inside", "let me", "next to", "on top of", "peanut butter", "quack", "rocking chair", "hush", "teddy bear", "thank you", "want to", "woof")
+source("tricky_matches.R")
+# CDI definitions that are tricky to match due to punctuation (*, /, ') and/or being bigrams
 ```
 
 
@@ -100,8 +99,9 @@ table(child_dat$on_cdi, child_dat$source)
 Montag_counts <- read.csv(here("data/Montag-book-corpus/100out.txt"), sep=' ') %>%
   mutate(word = ifelse(word=="i", "I", word)) %>%
   filter(word!="–") %>%
-  bind_rows(tibble(word=bigrams_to_search, 
-                   word_count=c(21, 1, 4, 5, 1, 1, 1, 63, 59, 47, 1, 1, 9, 1003, 12, 12, 9, 4, 28, 1, 7, 3, 36, 65, 17))) %>%
+  bind_rows(tibble(word=tricky_matches$simple_word, 
+                   word_count=c(21, 1, 4, 5, 1, 1, 1, 63, 59, 47, 1, 1, 9, 1003, 12, 12, 9, 4, 28, 1, 7, 3, 36, 65, 17, 24))) %>%
+  group_by(word) %>% summarise(word_count = sum(word_count)) %>%
   left_join(cdi_items) 
 # e.g. "night night" = "goodnight" + "good night" (no actual "night night"s)
 
@@ -134,6 +134,11 @@ adult_aoas <- read_csv("data/AoA_51715_words.csv") %>%
                                    TRUE ~ "bad")) %>%
   filter(lexical_class != "bad") 
 # ToDo: a small number of values in Dom_PoS_SUBTLEX are numeric...looks like copy/paste errors from adjacent cells
+
+# still missing:
+#setdiff(cdi_items$word, subset(child_dat, source=="books")$word) # 54 - "mommy" "garage" ?
+#setdiff(cdi_items$word, subset(child_dat, source=="speech")$word) # 4: "play dough" "belly button" "living room" "play pen"  
+#setdiff(cdi_items$word, subset(child_dat, source=="tv")$word) # 14
 
 ```
 
