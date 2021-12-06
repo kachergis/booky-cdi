@@ -504,7 +504,7 @@ lmEC.resid <- residuals(lmEC)
 summary(lm(aoa ~ lmEC.resid, dddc))
 
 ## Check formula
-sum(lmEC.resid*outcome)/(sum(lmEC.resid^2))
+#sum(lmEC.resid*outcome)/(sum(lmEC.resid^2))
 
 ```
 
@@ -581,7 +581,7 @@ save(m1, m2, file="data/model_fits_scaled.Rdata")
 
 # Unscaled
 
-```{r}
+```{r, eval=F}
 # try just log-scaled...
 m1 <- glmer(produces ~ age_sc + 
               log(books) * mom_ed_sc + 
@@ -635,7 +635,7 @@ m1_books_mom_ed <- ggemmeans(m1, c("mom_ed_sc","books_sc"))
 ggarrange(plot(m1_age_mom_ed), plot(m1_speech_mom_ed), plot(m1_books_mom_ed), nrow=1)
 ```
 
-
+## Examine scaled models
 
 ```{r}
 load("data/model_fits_scaled.Rdata")
