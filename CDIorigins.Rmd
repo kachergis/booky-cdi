@@ -395,14 +395,31 @@ summary(ddd)
 
 
 #summary(lm(mean_produces ~ prop_booky, data=ddd)) # r^2 = .21; more booky = harder
+```
 
-summary(lm(aoa ~ log(tv), data=ddd)) # .008
+### Univariate regressions
+
+```{r}
+summary(lm(aoa ~ log(tv), data=ddd)) # R^2 = .008
 summary(lm(aoa ~ log(CHILDES), data=ddd)) # .002 CHILDES (Eva/George cleaned) - 698 df
 summary(lm(aoa ~ log(speech), data=ddd)) # .004 CHILDES (Charlesworth cleaned)
 summary(lm(aoa ~ log(Montag), data=ddd)) # .003 Montag 
 summary(lm(aoa ~ log(books), data=ddd)) # .054 (Charlesworth) FB children's corpus
 summary(lm(aoa ~ log(adult_books), data=ddd)) # .069 Google books - 686 df (look at NAs?) - smooth Google books
 ```
+
+
+### Lexical class by each frequency distribution
+
+```{r}
+summary(lm(aoa ~ lexical_class * log(tv), data=ddd)) # R^2 = .26
+summary(lm(aoa ~ lexical_class * log(CHILDES), data=ddd)) # R^2=.37 CHILDES (Eva/George cleaned) - 698 df
+summary(lm(aoa ~ lexical_class * log(speech), data=ddd)) # .38 CHILDES (Charlesworth cleaned)
+summary(lm(aoa ~ lexical_class * log(Montag), data=ddd)) # .26 Montag 
+summary(lm(aoa ~ lexical_class * log(books), data=ddd)) # .23 (Charlesworth) FB children's corpus
+summary(lm(aoa ~ lexical_class * log(adult_books), data=ddd)) # .25 Google books - 686 df (look at NAs?) - smooth Google books
+```
+
 
 ## Correlations between word frequency distributions
 
@@ -434,6 +451,7 @@ summary(lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books), data=ddd
 #summary(lm(aoa ~ log(Montag) + log(adult_books), data=ddd))
 # R^2=.146
 ```
+
 
 ## Remove collinearity with PCA
 
@@ -467,6 +485,7 @@ summary(pc_bsa)
 # "partialling out" control
 ## Multiple regression analysis
 summary(lm(aoa ~ speech + books, dddc))
+# summary(lm(aoa ~ speech + books + adult_books, dddc)) # speech*, books**, adult_books n.s.
 
 ## Correlation between covariate and exposure
 with(dddc, cor(speech, books)) # .73
@@ -487,7 +506,8 @@ sum(lmEC.resid*outcome)/(sum(lmEC.resid^2))
 
 ## Predict Booky Vocabulary per child by Mother Education
 
-(also try ses_group)
+
+(could also try ses_group)
 
 ```{r}
 # let's take the 200 bookiest CDI items and look at relation of subscore to mom_ed
@@ -506,8 +526,8 @@ samp <- left_join(samp, booky_scores)
 
 #AoA ~ book_freq * mom_ed + spoken_freq * mom_ed
 
-summary(lm(production ~ age, data=samp)) # .465
-summary(lm(production ~ age + mom_ed, data=samp)) # r^2 = .477
+#summary(lm(production ~ age, data=samp)) #  r^2 = .465
+#summary(lm(production ~ age + mom_ed, data=samp)) # r^2 = .477
 #summary(lm(production/age ~ mom_ed, data=samp)) 
 
 summary(lm(booky_production ~ age , data=samp)) # r^2 = .45
@@ -516,20 +536,11 @@ summary(lm(booky_production ~ age + mom_ed, data=samp)) # .46
 anova(lm(booky_production ~ age , data=samp),
       lm(booky_production ~ age + mom_ed, data=samp))
 
-samp %>% 
-  mutate(nonbooky_production = production - booky_production) %>%
-  ggplot(aes(x=booky_production, y=nonbooky_production, color=mom_ed, shape=mom_ed)) +
-  geom_point(alpha=.3) + theme_classic() #+ geom_smooth()
+#samp %>% 
+#  mutate(nonbooky_production = production - booky_production) %>%
+#  ggplot(aes(x=booky_production, y=nonbooky_production, color=mom_ed, shape=mom_ed)) +
+#  geom_point(alpha=.3) + theme_classic() #+ geom_smooth()
 
-#d_age <- d_en_ws %>% left_join(d_demo %>% select(data_id, age)) %>%
-#  filter(!is.na(age)) %>%
-#  group_by(definition, category, lexical_class, age) %>%
-#  summarise(mean_produces = mean(produces, na.rm=T))
-
-#d_age %>% ggplot(aes(x=age, y=mean_produces, group=definition, color=lexical_class)) + 
-#  geom_line(alpha=.3) + theme_classic()
-
-# ToDo: get AoA model fits
 ```
 
 
@@ -542,13 +553,14 @@ produces ~ lexical_class * book_freq * mom_ed + lexical_class * speech_freq * mo
 ```{r}
 d_samp <- d_en_ws %>% filter(is.element(data_id, samp$data_id)) %>%
   left_join(samp %>% select(data_id, age, production, mom_ed, ses_group)) %>% # vocab? booky_production
-  left_join(itdat %>% select(definition, lexical_class, books, tv, speech, prop_booky, adult_books))
+  left_join(ddd %>% select(definition, lexical_class, books, tv, speech, #prop_booky, 
+                           adult_books))
 
 d_samp <- d_samp %>% mutate(age_sc = scale(age, center=T, scale=F), 
                             books_sc = scale(log(books)),
                             tv_sc = scale(log(tv)),
                             speech_sc = scale(log(speech)),
-                            prop_booky_sc = scale(log(prop_booky)),
+                            #prop_booky_sc = scale(log(prop_booky)),
                             mom_ed_sc = scale(as.numeric(mom_ed), center=T, scale=F))
 ```
 
