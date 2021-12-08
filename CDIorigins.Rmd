@@ -405,12 +405,14 @@ summary(ddd)
 ### Univariate regressions
 
 ```{r}
-summary(lm(aoa ~ log(tv), data=ddd)) # R^2 = .008
+summary(lm(aoa ~ log(tv), data=ddd)) # R^2 = .009
 summary(lm(aoa ~ log(CHILDES), data=ddd)) # .002 CHILDES (Eva/George cleaned) - 698 df
-summary(lm(aoa ~ log(speech), data=ddd)) # .004 CHILDES (Charlesworth cleaned)
+summary(lm(aoa ~ log(speech), data=ddd)) # .003 CHILDES (Charlesworth cleaned)
 summary(lm(aoa ~ log(Montag), data=ddd)) # .003 Montag 
-summary(lm(aoa ~ log(books), data=ddd)) # .054 (Charlesworth) FB children's corpus
+summary(lm(aoa ~ log(books), data=ddd)) # .058 (Charlesworth) FB children's corpus
 summary(lm(aoa ~ log(adult_books), data=ddd)) # .069 Google books - 686 df (look at NAs?) - smooth Google books
+
+summary(lm(aoa ~ Nletters, data=ddd)) # .003  
 ```
 
 
@@ -418,7 +420,7 @@ summary(lm(aoa ~ log(adult_books), data=ddd)) # .069 Google books - 686 df (look
 
 ```{r}
 summary(lm(aoa ~ lexical_class * log(tv), data=ddd)) # R^2 = .26
-summary(lm(aoa ~ lexical_class * log(CHILDES), data=ddd)) # R^2=.37 CHILDES (Eva/George cleaned) - 698 df
+summary(lm(aoa ~ lexical_class * log(CHILDES), data=ddd)) # R^2=.36 CHILDES (Eva/George cleaned) - 698 df
 summary(lm(aoa ~ lexical_class * log(speech), data=ddd)) # .38 CHILDES (Charlesworth cleaned)
 summary(lm(aoa ~ lexical_class * log(Montag), data=ddd)) # .26 Montag 
 summary(lm(aoa ~ lexical_class * log(books), data=ddd)) # .23 (Charlesworth) FB children's corpus
@@ -443,25 +445,32 @@ ddd %>% mutate(CHILDES = log(CHILDES),
 
 ```{r}
 summary(lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books), data=ddd)) 
-# R^2 = .277
+# R^2 = .291 books+, speech-, adult_books+
 
-summary(lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books), data=ddd)) 
-# R^2=.23, books+, tv- 
+lm1 <- lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books) + Nletters, data=ddd)
+summary(lm1) 
+# R^2 = .314
+
+car::vif(lm1)
+#       log(books)      log(speech)         log(tv)  log(adult_books)     Nletters 
+#        7.790248         4.369128         6.228620         6.404063      1.393000 
+
 
 # Montag corpus not as good as FB children's books
 #summary(lm(aoa ~ log(Montag) + log(speech) + log(tv) + log(adult_books), data=ddd)) 
-# R^2 = .26
+# R^2 = .25
 #summary(lm(aoa ~ log(Montag) + log(speech), data=ddd)) 
-# R^2=.038
+# R^2=.042
 #summary(lm(aoa ~ log(Montag) + log(adult_books), data=ddd))
-# R^2=.146
+# R^2=.141
 ```
 
 
 ## Remove collinearity with PCA
 
+For interpretability, we'll first just use children's books and CHILDES.
 
-```{r}
+```{r, pca-2d}
 # replace NAs with minimum for that column
 dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_books),
                        speech = ifelse(is.na(speech), 10, speech),
@@ -470,23 +479,96 @@ dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_b
   #mutate(adult_books = log(adult_books),
   #       speech = log(speech))
 
-# prcomp better?
+save(dddc, file=here("data","CDI_cleaned_freqs.Rdata"))
+
+
 pc_bs <- prcomp(dddc[,c("books","speech")], scale=T) # add adult_books ?
 summary(pc_bs)
 pc_bs$rotation
 ddbs <- cbind(dddc, data.frame(pc_bs$x))
 
+ddbs %>% ggplot(aes(x=PC1, y=PC2)) + 
+  geom_text(aes(label=word)) + theme_classic()
+```
+
+
+```{r, pca-2d-regressions}
 summary(lm(aoa ~ PC1 + PC2, data=ddbs)) # PC1- i.e. higher freq, lower AoA; PC2+ ..direction?
 summary(lm(aoa ~ lexical_class*(PC1 + PC2), data=ddbs))
+```
 
-#pc_bs <- princomp(dddc[,c("books","speech")])
-#summary(pc_bs)
-#plot(pc_bs$scores[,1],pc_bs$scores[,2], pch=".")
+Let's try adding the adult (Google books) corpus frequencies.
 
-pc_bsa <- princomp(dddc[,c("books","speech","adult_books")])
-summary(pc_bsa)
+```{r, pca-3d}
+pc_bsa <- prcomp(log(dddc[,c("books","speech","tv","adult_books")]))
+summary(pc_bsa) # 
+pc_bsa$rotation # PC1 = all freq, PC2 =
+ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
+```
+
+```{r}
+
+ggplot(ddbsa, 
+       aes(x = PC1, y = aoa, col = lexical_class)) + 
+  geom_point()+
+  geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word)) + 
+  facet_wrap(~lexical_class)
+
+ggplot(ddbsa, 
+       aes(x = PC2, y = aoa, col = lexical_class)) + 
+  geom_point()+
+  geom_smooth(method = "lm") + 
+  # geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word)) + 
+  facet_wrap(~lexical_class)
+
+```
 
 
+85% on 1st component, 13% on 2nd, 2.5% on 3rd component
+
+
+```{r}
+ggplot(ddbsa, 
+       aes(x = PC1, y = PC2, col = lexical_class)) + 
+  geom_point() + 
+  facet_wrap(~lexical_class) + 
+  geom_text_repel(data = filter(ddbsa, PC2< -4 | PC1 > 5), aes(label = word), max.overlaps = 50, size =3)
+```
+
+
+
+
+
+
+```{r, pca-3d-regressions}
+ddbsa$lexical_class <- fct_relevel(ddbsa$lexical_class, "nouns")
+summary(lm(aoa ~ PC1 + PC2 + PC3 + PC4, data=ddbsa)) 
+```
+
+
+
+```{r}
+lexclass_mod <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * lexical_class, data=ddbsa)
+summary(lexclass_mod)
+```
+
+
+
+```{r}
+ddbsa$hatvals <- hatvalues(lexclass_mod)
+
+arrange(ddbsa,desc(hatvals)) %>%
+  ungroup() %>%
+  select(word, lexical_class, aoa, starts_with("PC"), hatvals) %>%
+  slice(1:20) %>%
+  knitr::kable(digits = 2)
+```
+
+
+Different approach to controlling for multicollinearity:
+
+```{r}
 # "partialling out" control
 ## Multiple regression analysis
 summary(lm(aoa ~ speech + books, dddc))
@@ -502,10 +584,6 @@ summary(lmEC <- lm(speech ~ books, dddc)) # .53
 lmEC.resid <- residuals(lmEC)
 ## Regress outcome on residuals
 summary(lm(aoa ~ lmEC.resid, dddc))
-
-## Check formula
-#sum(lmEC.resid*outcome)/(sum(lmEC.resid^2))
-
 ```
 
 
@@ -569,6 +647,12 @@ d_samp <- d_samp %>% mutate(age_sc = scale(age, center=T, scale=F),
                             mom_ed_sc = scale(as.numeric(mom_ed), center=T, scale=F))
 ```
 
+```{r, small-test-sample, eval=T}
+subj_ids = sample(unique(d_samp$data_id), 100)
+d_samp <- d_samp %>% filter(is.element(data_id, subj_ids))
+```
+
+
 ```{r fit-big-models, eval=F}
 m1 <- glmer(produces ~ age_sc + books_sc * mom_ed_sc + speech_sc * mom_ed_sc + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
 
@@ -614,12 +698,12 @@ save(m1, m2, m3, m4, file="data/model_fits.Rdata")
 ```
 
 
-```{r}
+```{r, eval=F}
 load("data/model_fits.Rdata")
 ```
 
 
-```{r}
+```{r, eval=F}
 summary(m1)
 summary(m2)
 summary(m3)

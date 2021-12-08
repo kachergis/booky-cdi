@@ -33,76 +33,46 @@ library(png)
 library(grid)
 library(ggplot2)
 library(xtable)
+library(here)
 ```
 
 # Introduction
 
+Word usage varies significantly by context: you don't speak to your boss the same way as you do to your dog.
 
+Frequency matters for children's language learning
+- ambridge 
+- dale goodman li etc. 
 
-# First-Level Headings
+But - not all frequencies created equal
+- books vs. speech vs. etc. 
+- montag 
+- nation paper
 
-First level headings should be in 12 point , initial caps, bold and
-centered. Leave one line space above the heading and 1/4~line space
-below the heading.
+SES variation in register, language source
 
-## Second-Level Headings
+Our goals
+- examine shared and unique variance in frequency across sources 
+- consider relation with learning outcomes
+- consider relation to SES (momed)
 
-Second level headings should be 11 point , initial caps, bold, and
-flush left. Leave one line space above the heading and 1/4~ line
-space below the heading.
+# Analysis 1: frequency components
+- french and english
+- PCA, show words that pop out as relatively more speech/booky, kid/adult
+- predict kuperman aoa? (maybe)
 
-### Third-Level Headings
+# Analysis 2: predicting aoa 
+- french and english
+- aoa regressions - specific effects of bookiness/kidiness & interactions
 
-Third-level headings should be 10 point , initial caps, bold, and flush
-left. Leave one line space above the heading, but no space after the
-heading.
+# Analysis 3
+- english
+- does relative proportion bookines interaction with momed
 
-# Formalities, Footnotes, and Floats
-
-Use standard APA citation format. Citations within the text should
-include the author's last name and year. If the authors' names are
-included in the sentence, place only the year in parentheses, as in
-[-@NewellSimon1972a], but otherwise place the entire reference in
-parentheses with the authors and year separated by a comma
-[@NewellSimon1972a]. List multiple references alphabetically and
-separate them by semicolons [@ChalnickBillman1988a; @NewellSimon1972a]. 
-Use the et. al. construction only after listing all the authors to a
-publication in an earlier reference and for citations with four or
-more authors.
-
-For more information on citations in RMarkdown, see **[here](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html#citations).**
-
-## Footnotes
-
-Indicate footnotes with a number\footnote{Sample of the first
-footnote.} in the text. Place the footnotes in 9 point type at the
-bottom of the page on which they appear. Precede the footnote with a
-horizontal rule.\footnote{Sample of the second footnote.} You can also use 
-markdown formatting to include footnotes using this syntax [^1].
-
-[^1]: Sample of a markdown footnote.
-
-## Figures
-
-All artwork must be very dark for purposes of reproduction and should
-not be hand drawn. Number figures sequentially, placing the figure
-number and caption, in 10 point, after the figure with one line space
-above the caption and one line space below it. If necessary, leave extra white space at
-the bottom of the page to avoid splitting the figure and figure
-caption. You may float figures to the top or bottom of a column, or
-set wide figures across both columns.
-
-## Two-column images
-
-You can read local images using png package for example and plot 
-it like a regular plot using grid.raster from the grid package. 
-With this method you have full control of the size of your image. **Note: Image must be in .png file format for the readPNG function to work.**
-
-You might want to display a wide figure across both columns. To do this, you change the `fig.env` chunk option to `figure*`. To align the image in the center of the page, set `fig.align` option to `center`. To format the width of your caption text, you set the `num.cols.cap` option to `2`.
-
-```{r 2-col-image, fig.env = "figure*", fig.pos = "h", fig.width=4, fig.height=2, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "This image spans both columns. And the caption text is limited to 0.8 of the width of the document."}
-img <- png::readPNG("figs/walrus.png")
-grid::grid.raster(img)
+```{r 2-col-image, fig.env = "figure*", fig.pos = "h", fig.width=7, fig.height=4.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "This image spans both columns. And the caption text is limited to 0.8 of the width of the document."}
+#img <- png::readPNG("figs/walrus.png")
+#grid::grid.raster(img)
+knitr::include_graphics("../CHILDES_smoothed_norm_freqs_vs_books_TV.pdf")
 ```
 
 ## One-column images
@@ -119,16 +89,6 @@ grid::grid.raster(img)
 
 You can use R chunks directly to plot graphs. And you can use latex floats in the
 fig.pos chunk option to have more control over the location of your plot on the page. For more information on latex placement specifiers see **[here](https://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions)**
-
-```{r plot, fig.env="figure", fig.pos = "H", fig.align = "center", fig.width=2, fig.height=2, fig.cap = "R plot" }
-x <- 0:100
-y <- 2 * (x + rnorm(length(x), sd = 3) + 3)
-
-ggplot2::ggplot(data = data.frame(x, y), 
-                aes(x = x, y = y)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
-```
 
 
 ## Tables
