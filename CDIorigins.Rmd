@@ -283,22 +283,48 @@ ggpubr::ggarrange(p1, p2, p3, nrow=1, common.legend = T)
 #ggsave("CHILDES_smoothed_norm_freqs_vs_books_TV.pdf", width=16, height=9)
 ```
 
+```{r, save-for-cogsci, echo=F}
+ch_freq <- ch_freq %>% 
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>% # AoA_Kup_lem
+  mutate(lexical_class = ifelse(is.na(lexical_class.x), lexical_class.y, lexical_class.x)) %>%
+  select(-lexical_class.x, -lexical_class.y) %>%
+  left_join(adult_books %>% 
+              select(word, word_count_norm) %>% 
+              rename(adult_books = word_count_norm))
+# ToDo: look at disagreements on lexical class
+
+ch_freq_smooth <- ch_freq_smooth %>% 
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>%
+  mutate(lexical_class = ifelse(is.na(lexical_class.x), lexical_class.y, lexical_class.x)) %>%
+  select(-lexical_class.x, -lexical_class.y) %>%
+  left_join(adult_books %>% 
+              select(word, word_count_norm) %>% 
+              rename(adult_books = word_count_norm))
+
+
+ch_freq_charles <- ch_freq_charles %>% 
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>% # AoA_Kup_lem
+  mutate(lexical_class = ifelse(is.na(lexical_class.x), lexical_class.y, lexical_class.x)) %>%
+  select(-lexical_class.x, -lexical_class.y) %>%
+  left_join(adult_books %>% 
+              select(word, word_count_norm) %>% 
+              rename(adult_books = word_count_norm))
+  
+ch_freq_smooth_charles <- ch_freq_smooth_charles %>% 
+  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>%
+  mutate(lexical_class = ifelse(is.na(lexical_class.x), lexical_class.y, lexical_class.x)) %>%
+  select(-lexical_class.x, -lexical_class.y) %>%
+  left_join(adult_books %>% 
+              select(word, word_count_norm) %>% 
+              rename(adult_books = word_count_norm))
+
+
+save(ch_freq, ch_freq_smooth,
+     ch_freq_charles, ch_freq_smooth_charles, file="data/merged_word_freqs.Rdata")
+```
 
 
 ```{r}
-ch_freq <- ch_freq %>% 
-  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>% # AoA_Kup_lem
-  rename(lexical_class = lexical_class.x) %>%
-  mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
-  select(-lexical_class.y)
-# ToDo: look at disagreements on lexical class
-  
-ch_freq_smooth <- ch_freq_smooth %>% 
-  left_join(adult_aoas %>% select(word, lexical_class, Nletters), by="word") %>%
-  rename(lexical_class = lexical_class.x) %>%
-  mutate(lexical_class = ifelse(is.na(lexical_class), lexical_class.y, lexical_class)) %>%
-  select(-lexical_class.y)
-
 # holds even if we filter out many low frequency words
 ch_key <- ch_freq %>% #filter(CHILDES>1, Montag>1) %>%
   group_by(on_cdi, lexical_class) %>%
