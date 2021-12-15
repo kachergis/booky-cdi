@@ -1,0 +1,186 @@
+---
+title: "English-cogsci-results"
+author: "George & Georgia"
+date: "12/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(glue)
+library(wordbankr)
+require(tidyverse)
+require(here)
+require(ggrepel)
+require(kableExtra)
+require(tidyboot)
+require(readr)
+require(tokenizers)
+require(lme4)
+require(lmerTest)
+require(ggeffects)
+require(ggpubr)
+require(tidytext)
+require(GGally)
+```
+
+## Load Data
+
+First we load in the frequency data from several corpora preprocessed in CDIorigins.Rmd.
+The frequencies are already normalized to counts per million tokens.
+
+```{r load-data}
+load("data/merged_word_freqs_fr.Rdata")
+
+ch_freq_smooth <- ch_freq_smooth1 %>%
+  rename("books" ="child_book") %>%
+  rename("speech" = "child_speech") %>%
+  rename("word" = "token") %>%
+  rename("lexical_class" = "lexical_category")
+  
+aoas <- readRDS("data/aoas_token_fr.rds") %>%
+  filter(measure=="produces") %>% 
+  rename("word" = "token")
+
+#some correspond to more than one uni_lemma, two aoas
+```
+
+## Word frequency table
+
+Use to pick compelling examples.
+
+```{r, echo=F}
+ch_freq_smooth %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech) %>%
+  DT::datatable(options=list(columnDefs = list(list(visible=FALSE, targets=c(1,3))))) %>%
+  DT::formatRound(columns=c('books','speech'), digits=0) %>%
+  DT::formatPercentage(columns=c('prop_booky'), digits=0)
+```
+
+
+## Prepare data
+
+```{r}
+dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech)  %>%
+  mutate(Nletters=NA) %>%
+  mutate(Nletters = ifelse(is.na(Nletters), nchar(word), Nletters)) %>%
+  left_join(aoas %>% select(-measure))
+ 
+head(dd)
+
+```
+
+
+
+## Correlations between word frequency distributions
+
+```{r}
+
+list<- c("adjectives", "other", "nouns", "verbs", "function_words")
+#some have two lexical categories
+dd <- dd %>% filter(!(length(lexical_class)>1)) %>%
+  filter(lexical_class %in% list)
+
+dd$lexical_class <- as.factor(as.character(dd$lexical_class))
+
+dd %>%
+  na.omit %>%
+  mutate(speech = log(speech),
+               books = log(books)) %>%
+  ggpairs(columns = c("speech","books"),
+        ggplot2::aes(colour=lexical_class)) + 
+  theme_classic()
+#ggsave("CDIword_frequency_distro_comparisons.pdf", width=9, height=9)
+```
+## Basic AoA regression
+
+Significant contributions of children's books, children's speech, adult book frequencies, and number of letters.
+
+```{r}
+
+#what is dddc?
+
+lm1 <- lm(aoa ~ log(books) + log(speech) + Nletters, data=dd)
+summary(lm1) 
+# R^2 = .314
+```
+
+```{r}
+car::vif(lm1)
+```
+
+But VIFs are >>1: the word frequency distributions are highly correlated, so we will use PCA to disentangle.
+
+## PCA 
+
+We will use all relevant frequency distributions and try to understand the composition of the principal components.
+
+```{r, pca-3d}
+pc_bsa <- prcomp(log(dd[,c("books","speech")]))
+summary(pc_bsa)
+```
+
+
+```{r}
+pc_bsa$rotation 
+ddbsa <- cbind(dd, data.frame(pc_bsa$x))
+```
+
+
+```{r, plot-pca, fig.width=9, fig.height=5}
+ddbsa$lexical_class <- as.factor(as.character(ddbsa$lexical_class))
+
+
+p1 <- ggplot(ddbsa, 
+       aes(x = PC1, y = aoa, col = lexical_class)) + 
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word)) + 
+  facet_wrap(~lexical_class) + theme_classic()
+
+p2 <- ggplot(ddbsa, 
+       aes(x = PC2, y = aoa, col = lexical_class)) + 
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  # geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word)) + 
+  facet_wrap(~lexical_class) + theme_classic()
+
+ggarrange(p1, p2, nrow=1, common.legend = T)
+```
+
+
+```{r}
+ggplot(ddbsa, 
+       aes(x = PC1, y = PC2, col = lexical_class)) + 
+  geom_point() + theme_classic() +
+  facet_wrap(~lexical_class) + 
+  geom_text_repel(data = filter(ddbsa, PC2< -4 | PC1 > 5), aes(label = word), max.overlaps = 50, size =3)
+```
+
+## Regression on PCA Loadings
+
+```{r, pca-regressions}
+ddbsa$lexical_class <- fct_relevel(ddbsa$lexical_class, "nouns")
+summary(lm(aoa ~ PC1 + PC2, data=ddbsa)) 
+```
+
+Now with lexical class.
+
+```{r}
+lexclass_mod <- lm(aoa ~ (PC1 + PC2) * lexical_class, data=ddbsa)
+summary(lexclass_mod)
+```
+
+
+```{r}
+ddbsa$hatvals <- hatvalues(lexclass_mod)
+
+arrange(ddbsa,desc(hatvals)) %>%
+  ungroup() %>%
+  select(word, lexical_class, aoa, starts_with("PC"), hatvals) %>%
+  slice(1:20) %>%
+  knitr::kable(digits = 2)
+```
+
+
