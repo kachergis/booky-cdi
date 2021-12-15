@@ -86,6 +86,13 @@ wb_data_def <- wb_data %>% unnest(items) %>% dplyr::select(-uni_lemma)
 aoas_def <- fit_aoas(wb_data_def)
 aoas_unilemma <- fit_aoas(wb_data)
 
+#check overlapping uni_lemma // childes
+#childesfr<-readRDS("data/uni_metrics_french_(french).rds")
+#cdifr<-readRDS("data/french_(french).rds")
+#cdi_items <- unique(wb_data$uni_lemma) #609 items
+#cdi_matched = intersect(cdi_items, childesfr$uni_lemma) 
+#cdi_unmatched = setdiff(cdi_items, childesfr$uni_lemma)
+
 #saveRDS(aoas_def, "data/fr_aoas_definition.rds")
 
 ```
