@@ -75,8 +75,8 @@ summary(ddd)
 
 ## Correlations between word frequency distributions
 
-```{r}
-ddd %>% mutate(CHILDES = log(CHILDES),
+```{r, fig.width=9, fig.height=9, warning=F}
+dddc %>% mutate(CHILDES = log(CHILDES),
                Montag = log(Montag),
                books = log(books),
                tv = log(tv),
@@ -95,12 +95,13 @@ Significant contributions of children's books, children's speech, adult book fre
 ```{r}
 lm1 <- lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books) + Nletters, data=dddc)
 summary(lm1) 
-# R^2 = .314
+# R^2 = .31
 ```
 
 
 ```{r}
-car::vif(lm1)
+car::vif(lm1) %>%
+  knitr::kable(digits = 3, format = "html", table.attr = "style='width:20%;'")
 ```
 
 But VIFs are >>1: the word frequency distributions are highly correlated, so we will use PCA to disentangle.
@@ -108,58 +109,101 @@ But VIFs are >>1: the word frequency distributions are highly correlated, so we 
 
 ## PCA 
 
+```{r add-other-adult-freqs}
+load("data/Charlesworth-unlemmatized-counts.Rdata") 
+
+adult_dat <- adult_dat %>% filter(source!="books") %>%
+  select(source, word, word_count_norm) %>%
+  pivot_wider(id_col = word, names_from = source, values_from = word_count_norm) %>%
+  rename(`Adult Speech` = speech,
+         `Adult TV` = TV)
+
+dddc <- dddc %>% 
+  rename(`Adult Books` = adult_books, # Google books
+         `Child Books` = books, # Facebooks children's books (novels..)
+         `Child TV` = tv,
+         `Child Speech` = speech) %>% 
+  select(-CHILDES) %>% # less well-cleaned version
+  left_join(adult_dat)
+
+dddc <- dddc %>% replace_na(list(`Adult Speech` = 0.32,
+                                 `Adult TV` = 0.32))
+```
+
+
 We will use all relevant frequency distributions and try to understand the composition of the principal components.
 
-```{r, pca-3d}
-pc_bsa <- prcomp(log(dddc[,c("books","speech","tv","adult_books")]))
-summary(pc_bsa)
+```{r, pca}
+pc_bsa <- prcomp(log(dddc[,c("Adult Books","Child Books",
+                             "Adult Speech","Child Speech",
+                             "Adult TV", "Child TV")])) # add Montag separately?
+summary(pc_bsa)$importance %>%
+  knitr::kable(digits = 3, format = "html", table.attr = "style='width:50%;'")
 ```
 
+The first component explains the bulk the variance (89%), and the first four components capture 98% of the variance.
+What do these components look like?
+PC1 captures overall frequency, but loads somewhat higher on adult distributions.
+PC2 (3.8% of variance) differentiates adult books and TV, especially from children's speech.
+PC3 (3.1% of variance) differentiates adult speech and to a small extent adult books from everything else.
+PC4 (2.2% of variance) captures similarity of child and adult books.
+PC5 adult books and child speech similarity?
 
 ```{r}
-pc_bsa$rotation 
+#pc_bsa$rotation  * -1
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
+pc_bsa$rotation %>% 
+  knitr::kable(digits = 2, format = "html", table.attr = "style='width:50%;'")
 ```
 
 
-```{r, plot-pca, fig.width=9, fig.height=5}
-p1 <- ggplot(ddbsa, 
-       aes(x = PC1, y = aoa, col = lexical_class)) + 
-  geom_point() +
-  geom_smooth(method = "lm") + 
-  geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word)) + 
+```{r, plot-pca, fig.width=10, fig.height=10, warning=F}
+outlier_thresh = 5
+
+p1 <- ggplot(ddbsa, aes(x = PC1, y = aoa, col = lexical_class)) + 
+  geom_point() + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC1 < -outlier_thresh | PC1 > outlier_thresh), aes(label = word)) + 
   facet_wrap(~lexical_class) + theme_classic()
 
-p2 <- ggplot(ddbsa, 
-       aes(x = PC2, y = aoa, col = lexical_class)) + 
-  geom_point() +
-  geom_smooth(method = "lm") + 
-  # geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word)) + 
+p2 <- ggplot(ddbsa, aes(x = PC2, y = aoa, col = lexical_class)) + 
+  geom_point() + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC2 < -outlier_thresh | PC2 > outlier_thresh), aes(label = word)) + 
   facet_wrap(~lexical_class) + theme_classic()
 
-ggarrange(p1, p2, nrow=1, common.legend = T)
+p3 <- ggplot(ddbsa, aes(x = PC3, y = aoa, col = lexical_class)) + 
+  geom_point() + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC3 < -outlier_thresh | PC3 > outlier_thresh), aes(label = word)) + 
+  facet_wrap(~lexical_class) + theme_classic()
+
+p4 <- ggplot(ddbsa, aes(x = PC4, y = aoa, col = lexical_class)) + 
+  geom_point() + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC4 < -outlier_thresh | PC4 > outlier_thresh), aes(label = word)) + 
+  facet_wrap(~lexical_class) + theme_classic()
+
+ggarrange(p1, p2, p3, p4, nrow=2, ncol=2, common.legend = T)
 ```
 
 
-```{r}
-ggplot(ddbsa, 
-       aes(x = PC1, y = PC2, col = lexical_class)) + 
+```{r, fig.width=8, fig.height=4, warning=F}
+ggplot(ddbsa, aes(x = PC1, y = PC2, col = lexical_class)) + 
   geom_point() + theme_classic() +
   facet_wrap(~lexical_class) + 
-  geom_text_repel(data = filter(ddbsa, PC2< -4 | PC1 > 5), aes(label = word), max.overlaps = 50, size =3)
+  geom_text_repel(data = filter(ddbsa, PC1 < -outlier_thresh, PC1 > outlier_thresh, 
+                                PC2 < -outlier_thresh, PC2 > outlier_thresh), 
+                  aes(label = word), max.overlaps = 10, size =3)
 ```
 
 ## Regression on PCA Loadings
 
 ```{r, pca-regressions}
 ddbsa$lexical_class <- fct_relevel(ddbsa$lexical_class, "nouns")
-summary(lm(aoa ~ PC1 + PC2 + PC3 + PC4, data=ddbsa)) 
+summary(lm(aoa ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6, data=ddbsa)) 
 ```
 
 Now with lexical class.
 
 ```{r}
-lexclass_mod <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * lexical_class, data=ddbsa)
+lexclass_mod <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * lexical_class, data=ddbsa)
 summary(lexclass_mod)
 ```
 
@@ -171,7 +215,7 @@ arrange(ddbsa,desc(hatvals)) %>%
   ungroup() %>%
   select(word, lexical_class, aoa, starts_with("PC"), hatvals) %>%
   slice(1:20) %>%
-  knitr::kable(digits = 2)
+  knitr::kable(digits = 2, format = "html", table.attr = "style='width:80%;'")
 ```
 
 
