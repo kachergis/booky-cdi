@@ -228,6 +228,53 @@ load("data/en_ws_production.Rdata")
 samp <- d_demo %>% filter(!is.na(mom_ed)) # 2773
 ```
 
+
+```{r}
+d_samp <- d_en_ws %>% filter(is.element(data_id, samp$data_id)) %>%
+  left_join(samp %>% select(data_id, age, production, mom_ed, ses_group)) %>% # vocab? booky_production
+  left_join(ddbsa %>% select(definition, lexical_class, PC1, PC2, PC3, PC4, PC5, Nletters))
+
+d_samp <- d_samp %>% mutate(age_sc = scale(age, center=T, scale=F), 
+                            Nletters_sc = scale(Nletters),
+                            mom_ed_sc = scale(as.numeric(mom_ed), center=T, scale=F))
+```
+
+
+```{r fit-big-models, eval=F}
+m <- glmer(produces ~ age_sc + lexical_class * mom_ed_sc * (PC1 + PC2 + PC3 + PC4 + PC5) + Nletters + (1|item_id) + (1|data_id), family=binomial, data=d_samp)
+# failure to converge in 10000 evaluationsconvergence code 4 from Nelder_Mead: failure to converge in 10000 evaluationsunable to evaluate scaled gradientModel failed to converge: degenerate  Hessian with 3 negative eigenvalues>
+save(m, file="data/model_fits_PCA.Rdata")
+```
+
+
+```{r}
+load("data/model_fits_PCA.Rdata")
+summary(m)
+```
+Convergence issues...try only PC1-PC4? Or just the PCs involving child books / child-directed speech?
+
+```{r}
+m_pred <- ggpredict(m)
+m_eff <- ggeffect(m)
+
+m_age_mom_ed <- ggemmeans(m, c("age_sc", "mom_ed_sc"))
+mom_ed_PC2 <- ggemmeans(m, c("mom_ed_sc","PC2"))
+mom_ed_PC3 <- ggemmeans(m, c("mom_ed_sc","PC3"))
+mom_ed_PC4 <- ggemmeans(m, c("mom_ed_sc","PC4"))
+mom_ed_PC5 <- ggemmeans(m, c("mom_ed_sc","PC5"))
+
+ggarrange(plot(m_age_mom_ed), 
+          plot(mom_ed_PC2), 
+          plot(mom_ed_PC3),
+          plot(mom_ed_PC4),
+          plot(mom_ed_PC5), nrow=1)
+```
+
+
+### OLD
+
+Trouble fitting these due to collinearity.
+
 produces ~ book_freq * mom_ed + speech_freq * mom_ed + (1|item) + (1|child)
 produces ~ lexical_class * book_freq * mom_ed + lexical_class * speech_freq * mom_ed + (1|item) + (1|child)
 
