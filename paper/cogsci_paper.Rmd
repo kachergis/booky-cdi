@@ -12,7 +12,10 @@ abstract: >
     Children's early vocabulary learning must to a large extent be driven by the prevalence 
     of words: they can't learn a word if they haven't heard it. Indeed, previous research 
     has found that higher word frequency is a good predictor of earlier learning. However,
-    
+    despite considerable overlap, word frequency distributions also vary significantly 
+    by source: child-directed speech, books, and television have distinct profiles. Children
+    receive a mixture of these different frequency distributions, and here we attempt to 
+    discern the varying impact of these input sources on children's early word learning.
     
 keywords: >
     early language learning; CDI; vocabulary development.
@@ -34,27 +37,57 @@ library(grid)
 library(ggplot2)
 library(xtable)
 library(here)
+library(glue)
+library(wordbankr)
+require(tidyverse)
+require(here)
+require(ggrepel)
+require(kableExtra)
+require(tidyboot)
+require(readr)
+require(tokenizers)
+require(lme4)
+require(lmerTest)
+require(ggeffects)
+require(ggpubr)
+require(tidytext)
+require(GGally)
 ```
 
 # Introduction
 
 Word usage varies significantly by context: you don't speak to your boss the same way as you do to your dog.
 
+
 Frequency matters for children's language learning
-- ambridge 
-- dale goodman li etc. 
+- [for a review, see @ambridge2015ubiquity] 
+- [@goodman2008]
 
 But - not all frequencies created equal
 - books vs. speech vs. etc. 
 - montag 
 - nation paper
 
+Some of the large differences between frequency distributions are intuitive: for example, "mommy" is 
+But some of the differences are less intuitive: 
+
 SES variation in register, language source
 
-Our goals
-- examine shared and unique variance in frequency across sources 
-- consider relation with learning outcomes
-- consider relation to SES (momed)
+The primary goal of this paper is to examine shared and unique variance in frequency across sources of input, ranging from children's books and movies to child-directed speech and adult books and movies, which we accomplish via principle components analysis (PCA).
+After characterizing the structure of the principle components of frequency from different sources, we will investigate how well these components predict children's early word learning, using aggregate CDI data from Wordbank.
+Finally, we also examine how well the frequency components predict individual children's word learning in combination with their mother's education, which may be related to how much children are read to at home.
+
+
+# Method
+
+## Datasets
+
+```{r load-data}
+load("../data/merged_word_freqs.Rdata")
+
+aoas <- readRDS("../data/english_(american)_aoa_bydefinition.rds") %>%
+  filter(measure=="produces")
+```
 
 # Analysis 1: frequency components
 - french and english
@@ -75,13 +108,10 @@ Our goals
 knitr::include_graphics("../CHILDES_smoothed_norm_freqs_vs_books_TV.pdf")
 ```
 
-## One-column images
 
-Single column is the default option, but if you want set it explicitly, set `fig.env` to `figure`. Notice that the `num.cols` option for the caption width is set to `1`.
 
 ```{r image, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=2, fig.height=2, set.cap.width=T, num.cols.cap=1, fig.cap = "One column image."}
-img <- png::readPNG("figs/lab_logo_stanford.png")
-grid::grid.raster(img)
+
 ```
 
 
