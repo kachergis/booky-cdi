@@ -87,7 +87,44 @@ load("../data/merged_word_freqs.Rdata")
 
 aoas <- readRDS("../data/english_(american)_aoa_bydefinition.rds") %>%
   filter(measure=="produces")
+
+load("../data/Charlesworth-unlemmatized-counts.Rdata") 
+
+total_child_tokens <- child_dat %>% group_by(source) %>%
+    summarise(word_count = sum(word_count),
+              n = n())
+
+total_adult_tokens <- adult_dat %>% group_by(source) %>%
+    summarise(word_count = sum(word_count),
+              n = n())
 ```
+
+### Child-directed speech.
+Utterances of child-directed speech (CDS) were extracted from the CHILDES corpus [@macwhinney2000childes], a collection of transcripts of dyadic interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years).
+After cleaning, the CHILDES corpus yielded a total of `r subset(total_child_tokens, source=="speech")$word_count` tokens across `r subset(total_child_tokens, source=="speech")$n` word types.
+
+### Child-directed books.
+We used a sample of 98 children's books from Project Gutenberg's open-source database of books that has been used in prior machine learning research on language comprehension [@hill2015goldilocks]. 
+These books were published between 1820 and 1922, but include such well-known titles as *The Legend of Sleep Hollow*.
+After cleaning, this children's book corpus totals `r subset(total_child_tokens, source=="books")$word_count` tokens across `r subset(total_child_tokens, source=="books")$n` word types.
+
+### Child-directed media.
+Transcripts from television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes were taken from @charlesworth2021gender (available here: (https://osf.io/kqux5/)[https://osf.io/kqux5/].
+After cleaning, this children's media corpus totals `r subset(total_child_tokens, source=="tv")$word_count` tokens across `r subset(total_child_tokens, source=="tv")$n` word types.
+
+### Adult-directed speech.
+
+After cleaning, the adult-directed speech corpus yielded a total of `r subset(total_adult_tokens, source=="speech")$word_count` tokens across `r subset(total_adult_tokens, source=="speech")$n` word types.
+
+### Adult-directed books.
+
+The adult-directed book corpus is comprised of `r subset(total_adult_tokens, source=="books")$word_count` tokens across `r subset(total_adult_tokens, source=="books")$n` word types.
+
+
+### Adult-directed media.
+
+The adult-directed media corpus is comprised of `r subset(total_adult_tokens, source=="TV")$word_count` tokens across `r subset(total_adult_tokens, source=="TV")$n` word types.
+
 
 # Analysis 1: frequency components
 - french and english
