@@ -68,8 +68,8 @@ But - not all frequencies created equal
 - montag 
 - nation paper
 
-Some of the large differences between frequency distributions are intuitive: for example, "mommy" is 
-But some of the differences are less intuitive: 
+Some of the large differences between frequency distributions are intuitive: for example, "mommy" is quite frequent in child-directed speech (2,260 tokens per million; TPM), yet not so common in children's books (10 TPM), and even more rare in books meant for all ages (2 TPM).
+But some of the differences are less intuitive: "of" is quite frequent in books meant for all ages (41,630 TPM), and while still frequent in child-directed speech (5,900 TPM), relatively less so as compared to children's books (20,400 TPM).
 
 SES variation in register, language source
 

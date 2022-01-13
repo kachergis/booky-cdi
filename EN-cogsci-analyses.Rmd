@@ -157,6 +157,39 @@ pc_bsa$rotation %>%
 ```
 
 
+### Univariate correlations between PCs and AoA
+
+```{r}
+cor(ddbsa[,c("aoa",paste0("PC",1:5))])[2:6,"aoa"] %>% kable(digits=3)
+```
+
+
+Can also look at delta residuals when adding PC2 to the model - see which things 
+
+## Lasso Regression
+
+Regularize to see which PCs survive.
+
+```{r}
+library(glmnet)
+
+#perform k-fold cross-validation to find optimal lambda value
+cv_model <- cv.glmnet(x, y, alpha = 1)
+
+#find optimal lambda value that minimizes test MSE
+best_lambda <- cv_model$lambda.min
+best_lambda
+
+#produce plot of test MSE by lambda value
+plot(cv_model) 
+
+#find coefficients of best model
+best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda)
+coef(best_model)
+```
+
+
+
 ```{r, plot-pca, fig.width=10, fig.height=10, warning=F}
 outlier_thresh = 5
 
