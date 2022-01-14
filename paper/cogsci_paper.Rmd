@@ -77,6 +77,7 @@ The primary goal of this paper is to examine shared and unique variance in frequ
 After characterizing the structure of the principle components of frequency from different sources, we will investigate how well these components predict children's early word learning, using aggregate CDI data from Wordbank.
 Finally, we also examine how well the frequency components predict individual children's word learning in combination with their mother's education, which may be related to how much children are read to at home.
 
+introduce CDI [@fenson2007] and AoA analysis [@braginsky2019consistency]
 
 # Method
 
@@ -99,6 +100,7 @@ total_adult_tokens <- adult_dat %>% group_by(source) %>%
               n = n())
 ```
 
+
 ### Child-directed Speech.
 Utterances of child-directed speech (ChS) were extracted from the CHILDES corpus [@macwhinney2000childes], a collection of transcripts of dyadic interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years).
 After cleaning, the CHILDES corpus yielded a total of `r subset(total_child_tokens, source=="speech")$word_count` tokens across `r subset(total_child_tokens, source=="speech")$n` word types.
@@ -113,16 +115,14 @@ Transcripts from television shows (e.g., from PBS Kids and Nickelodeon) and movi
 After cleaning, this children's media corpus totals `r subset(total_child_tokens, source=="tv")$word_count` tokens across `r subset(total_child_tokens, source=="tv")$n` word types.
 
 ### Adult-directed Speech (AdS).
-
+Adult-directed speech was obtained from the Switchboard-1 Telephone Speech Corpus (Godfrey & Holliman, 1993), a corpus of transcripts from dyadic telephone conversations in which 543 adult speakers were assigned to discuss a randomly-assigned topic.
 After cleaning, the adult-directed speech corpus (AdS) yielded a total of `r subset(total_adult_tokens, source=="speech")$word_count` tokens across `r subset(total_adult_tokens, source=="speech")$n` word types.
 
 ### Adult-directed Books (AdB).
-
 The adult-directed book corpus (AdB) is comprised of `r subset(total_adult_tokens, source=="books")$word_count` tokens across `r subset(total_adult_tokens, source=="books")$n` word types.
 
 
 ### Adult-directed Media (AdM).
-
 The adult-directed media corpus (AdM) is comprised of `r subset(total_adult_tokens, source=="TV")$word_count` tokens across `r subset(total_adult_tokens, source=="TV")$n` word types.
 
 
@@ -167,10 +167,14 @@ dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
                                  `AdM` = 0.32))
 ```
 
+All word frequencies were normalized to number of tokens per million (TPM).
+We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
+We were unable to match 6 CDI items in any of the corpora, including "babysitter's name", "child's own name", ...
+For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
+`r sum(is.na(ddd$books))` missing word was replaced in each of ChB, ChM, and ChS, while `r sum(is.na(ddd$adult_books))` missing words were replaced in AdB. ...
 
 # Results
 
-We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
 
 ## Cross-corpus Frequency Correlations 
 
@@ -185,10 +189,10 @@ cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
 
 ## Age of Acquisition Regression
 
-Despite the strong correlations of word frequency across these different corpora, we will attempt a simple regression predicting each CDI word's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2016].
+Despite the strong correlations of word frequency across these different corpora, we will attempt a simple regression predicting each CDI word's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency].
 We also include the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word.
 Table 2 below displays the estimated coefficients of this regression, showing significant contributions of all child-directed distributions (speech, books, and media), and of adult speech frequencies, as well as the number of letters.
-However, the variance inflation factor (VIF) values for all of the frequency distributions are all $>>1$, indicating that these variables show strong multicollinearity which may influence the regression results.
+However, the variance inflation factor (VIF) values for all of the frequency distributions are all $>>1$ (and many $>5$ or $>10$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results.
 Thus, we turned to principal components analysis (PCA) to disentangle these correlated distributions and to understand their interrelations.
 
 ```{r, results='asis'}
@@ -219,9 +223,31 @@ pc_imp %>%
 ```
 
 
-# Results: Predicting Age of Acquisition 
-(french and english)
+The first component explains the bulk the variance (89%), and the first four components capture 98% of the variance.
+What do these components look like?
+PC1 captures overall frequency, but loads somewhat higher on adult distributions.
+PC2 (3.8% of variance) differentiates adult books and TV, especially from children's speech.
+PC3 (3.1% of variance) differentiates adult speech and to a small extent adult books from everything else.
+PC4 (2.2% of variance) captures similarity of child and adult books.
+PC5 adult books and child speech similarity?
+
+```{r}
+#pc_bsa$rotation  * -1
+ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
+pc_bsa$rotation %>%
+    papaja::apa_table(digits=2, caption="Principal component loadings.", placement='h')
+```
+
+
+## PCA-based Prediction of Age of Acquisition 
+
 aoa regressions - specific effects of bookiness/kidiness & interactions
+
+```{r}
+
+```
+
+
 
 # Analysis 3
 (english) does relative proportion bookines interaction with momed
