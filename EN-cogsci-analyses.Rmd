@@ -175,7 +175,7 @@ Regularize to see which PCs survive.
 ```{r}
 library(glmnet)
 
-PCs <- data.matrix(ddbsa[,paste0("PC",1:5)])
+PCs <- data.matrix(ddbsa[,paste0("PC",1:6)])
 
 #perform k-fold cross-validation to find optimal lambda value
 cv_model <- cv.glmnet(PCs, ddbsa$aoa, alpha = 1)
@@ -242,6 +242,27 @@ Now with lexical class.
 ```{r}
 lexclass_mod <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * lexical_class, data=ddbsa)
 summary(lexclass_mod)
+```
+
+
+### Lasso Regression
+
+Not sure how to include interactions with lexical class...
+
+```{r}
+x_train <- model.matrix( ~ .-1, ddbsa[,c("PC1","PC2","PC3","PC4","PC5","lexical_class")])
+lm = cv.glmnet(x=x_train, y=ddbsa$aoa, alpha=1, nfolds=7) # intercept=FALSE,
+# which.min(lm$cvm) # 67
+plot(lm) 
+best_lambda <- lm$lambda[which.min(lm$cvm)] # .005
+
+best_model <- glmnet(x_train, ddbsa$aoa, alpha = 1, lambda = best_lambda) # , intercept=FALSE
+print(best_model)
+coef(best_model)
+
+library(gglasso)
+cv <- cv.gglasso(x=colon$x, y=colon$y, group=group, loss="logit", pred.loss="misclass",
+                 lambda.factor=0.05, nfolds=5)
 ```
 
 
