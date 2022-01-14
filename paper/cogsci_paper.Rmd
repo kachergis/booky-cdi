@@ -210,22 +210,23 @@ print(xtable(tab, digits=2,
 
 ## Principal Components of Frequency
 
-PCA, show words that pop out as relatively more speech/booky, kid/adult
-predict kuperman aoa? (maybe)
+We use PCA to examine the principal components of the six word frequency distributions ([adult- vs. child-directed] x [speech, books, media]).
+Table 3 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6).
+PC1 already explains the bulk the variance (89%), and PC2-PC4 each only capture an additional 2-4% of the variance.
+In total, the first four components capture >98% of the variance.
 
 ```{r}
 pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
                              "AdM","AdB","AdS")])) # add Montag separately?
+#eigenvalues = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
 pc_imp <- summary(pc_bsa)$importance 
 row.names(pc_imp) = c("Std Dev","Prop Var","Cum Prop Var")
 pc_imp %>%
     papaja::apa_table(digits=2, caption="Importance of components from PCA.", placement='h')
 ```
 
-
-The first component explains the bulk the variance (89%), and the first four components capture 98% of the variance.
-What do these components look like?
-PC1 captures overall frequency, but loads somewhat higher on adult distributions.
+Table 4 shows the rotation of each principal component (PC) with respect to the original six frequency distributions.
+It is clear that PC1 captures overall frequency, but loads somewhat higher on adult distributions.
 PC2 (3.8% of variance) differentiates adult books and TV, especially from children's speech.
 PC3 (3.1% of variance) differentiates adult speech and to a small extent adult books from everything else.
 PC4 (2.2% of variance) captures similarity of child and adult books.
@@ -236,6 +237,14 @@ PC5 adult books and child speech similarity?
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
 pc_bsa$rotation %>%
     papaja::apa_table(digits=2, caption="Principal component loadings.", placement='h')
+```
+
+
+
+```{r, include=F}
+## Correlation of PCA with original Frequency Distributions
+cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>%
+  papaja::apa_table(digits=2, caption="Correlation of PCs with frequency distributions.", placement='h')
 ```
 
 
@@ -269,15 +278,8 @@ ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
 
 
 ```{r, include=F, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.2, fig.height=3.2, set.cap.width=T, num.cols.cap=1, fig.cap = "PC1 vs. AoA by lexical class."}
-outlier_thresh = 5
 
-p1 <- ggplot(ddbsa, aes(x = PC1, y = aoa, col = lexical_class)) + 
-  geom_point() + geom_smooth(method = "lm") + 
-  geom_text_repel(data = filter(ddbsa, PC1 < -outlier_thresh | PC1 > outlier_thresh), aes(label = word)) + 
-  facet_wrap(~lexical_class) + 
-  theme_classic()
 
-p1
 ```
 
 ## Regression on PCA Loadings
