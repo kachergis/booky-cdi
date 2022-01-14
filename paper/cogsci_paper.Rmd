@@ -60,13 +60,13 @@ Word usage varies significantly by context: you don't speak to your boss the sam
 
 
 Frequency matters for children's language learning
-- [for a review, see @ambridge2015ubiquity] 
-- [@goodman2008]
+[for a review, see @ambridge2015ubiquity] 
+[@goodman2008]
 
 But - not all frequencies created equal
-- books vs. speech vs. etc. 
-- montag 
-- nation paper
+books vs. speech vs. etc. 
+montag 
+nation paper
 
 Some of the large differences between frequency distributions are intuitive: for example, "mommy" is quite frequent in child-directed speech (2,260 tokens per million; TPM), yet not so common in children's books (10 TPM), and even more rare in books meant for all ages (2 TPM).
 But some of the differences are less intuitive: "of" is quite frequent in books meant for all ages (41,630 TPM), and while still frequent in child-directed speech (5,900 TPM), relatively less so as compared to children's books (20,400 TPM).
@@ -109,7 +109,7 @@ These books were published between 1820 and 1922, but include such well-known ti
 After cleaning, this children's book corpus totals `r subset(total_child_tokens, source=="books")$word_count` tokens across `r subset(total_child_tokens, source=="books")$n` word types.
 
 ### Child-directed media.
-Transcripts from television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes were taken from @charlesworth2021gender (available here: (https://osf.io/kqux5/)[https://osf.io/kqux5/].
+Transcripts from television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes were taken from @charlesworth2021gender (available here: [https://osf.io/kqux5/](https://osf.io/kqux5/).
 After cleaning, this children's media corpus totals `r subset(total_child_tokens, source=="tv")$word_count` tokens across `r subset(total_child_tokens, source=="tv")$n` word types.
 
 ### Adult-directed speech.
@@ -126,18 +126,70 @@ The adult-directed book corpus is comprised of `r subset(total_adult_tokens, sou
 The adult-directed media corpus is comprised of `r subset(total_adult_tokens, source=="TV")$word_count` tokens across `r subset(total_adult_tokens, source=="TV")$n` word types.
 
 
-# Analysis 1: frequency components
-- french and english
-- PCA, show words that pop out as relatively more speech/booky, kid/adult
-- predict kuperman aoa? (maybe)
+## Merging the Corpora
 
-# Analysis 2: predicting aoa 
-- french and english
-- aoa regressions - specific effects of bookiness/kidiness & interactions
+
+
+# Results
+
+We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
+
+## Simple Age of Acquisition 
+
+```{r, fig.cap="Correlation table of word frequency distributions for CDI words."}
+# Montag corpus
+dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech) 
+
+# Charlesworth (FB children's books)
+dd_novels <- ch_freq_smooth_charles %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech) 
+
+ddd <- dd %>% select(-prop_booky) %>%
+  left_join(dd_novels %>% select(-prop_booky)) %>%
+  mutate(Nletters = ifelse(is.na(Nletters), nchar(word), Nletters)) %>%
+  left_join(aoas %>% select(-measure))
+
+dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_books),
+                       speech = ifelse(is.na(speech), 10, speech),
+                       books = ifelse(is.na(books), 10, books),
+                       tv = ifelse(is.na(tv), 10, tv)) %>%
+    distinct() 
+
+#summary(ddd)
+
+
+cor(dddc[,c("speech","books","tv","adult_books")]) %>%
+    papaja::apa_table(digits=2)
+```
+
+
+Significant contributions of children's books, children's speech, adult book frequencies, and number of letters.
+
+```{r, results="as.is"}
+lm1 <- lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books) + Nletters, data=dddc)
+# R^2 = .31
+tab <- data.frame(summary(lm1)$coefficients)
+tab$VIF = c(NA, car::vif(lm1))
+
+xtable(tab, digits=3)
+```
+
+
+
+But VIFs are >>1: the word frequency distributions are highly correlated, so we will use PCA to disentangle.
+
+## Principal Components of Frequency
+(french and english)
+PCA, show words that pop out as relatively more speech/booky, kid/adult
+predict kuperman aoa? (maybe)
+
+# Results: Predicting Age of Acquisition 
+(french and english)
+aoa regressions - specific effects of bookiness/kidiness & interactions
 
 # Analysis 3
-- english
-- does relative proportion bookines interaction with momed
+(english) does relative proportion bookines interaction with momed
 
 ```{r 2-col-image, fig.env = "figure*", fig.pos = "h", fig.width=7, fig.height=4.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "This image spans both columns. And the caption text is limited to 0.8 of the width of the document."}
 #img <- png::readPNG("figs/walrus.png")

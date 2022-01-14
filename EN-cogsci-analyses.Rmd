@@ -68,7 +68,8 @@ ddd <- dd %>% select(-prop_booky) %>%
 dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_books),
                        speech = ifelse(is.na(speech), 10, speech),
                        books = ifelse(is.na(books), 10, books),
-                       tv = ifelse(is.na(tv), 10, tv))
+                       tv = ifelse(is.na(tv), 10, tv)) %>%
+  distinct()
 
 summary(ddd)
 ```
