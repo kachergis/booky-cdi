@@ -241,28 +241,78 @@ pc_bsa$rotation %>%
 
 ## PCA-based Prediction of Age of Acquisition 
 
-aoa regressions - specific effects of bookiness/kidiness & interactions
+```{r 2-col-image, fig.env = "figure*", fig.pos = "h", fig.width=7, fig.height=8.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "Principal components vs. age of acquisition, by lexical class."}
+#knitr::include_graphics("../CHILDES_smoothed_norm_freqs_vs_books_TV.pdf")
 
-```{r}
+p1 <- ggplot(ddbsa, aes(x = PC1, y = aoa, col = lexical_class)) + 
+  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word)) + 
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
+p2 <- ggplot(ddbsa, aes(x = PC2, y = aoa, col = lexical_class)) + 
+  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC2 < -2 | PC2 > 2), aes(label = word)) + 
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
+
+p3 <- ggplot(ddbsa, aes(x = PC3, y = aoa, col = lexical_class)) + 
+  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC3 < -1 | PC3 > 1), aes(label = word)) + 
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
+
+p4 <- ggplot(ddbsa, aes(x = PC4, y = aoa, col = lexical_class)) + 
+  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC4 < -1 | PC4 > 1), aes(label = word)) + 
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
+
+ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
 ```
 
 
+```{r, include=F, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.2, fig.height=3.2, set.cap.width=T, num.cols.cap=1, fig.cap = "PC1 vs. AoA by lexical class."}
+outlier_thresh = 5
+
+p1 <- ggplot(ddbsa, aes(x = PC1, y = aoa, col = lexical_class)) + 
+  geom_point() + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa, PC1 < -outlier_thresh | PC1 > outlier_thresh), aes(label = word)) + 
+  facet_wrap(~lexical_class) + 
+  theme_classic()
+
+p1
+```
+
+## Regression on PCA Loadings
+
+```{r, pca-regressions, results='asis'}
+ddbsa$lexical_class <- fct_relevel(ddbsa$lexical_class, "nouns")
+pca_reg1 <- lm(aoa ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6, data=ddbsa) 
+#summary(pca_reg1)
+# R^2 = .321
+pca_tab1 <- data.frame(pca_reg1$coefficients) 
+
+print(xtable(pca_tab1, digits=2,
+             caption = "Regression predicting AoA with PCs.",
+             table.placement = "H"), comment=F)
+```
+
+Now with lexical class.
+
+```{r, results='asis'}
+pca_lc_reg <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * lexical_class, data=ddbsa)
+#summary(pca_lc_reg) 
+# R^2 = .576
+pca_tab2 <- data.frame(pca_lc_reg$coefficients) 
+
+print(xtable(pca_tab2, digits=2,
+             caption = "Regression predicting AoA with PCs and lexical class.",
+             table.placement = "H"), comment=F)
+```
 
 # Analysis 3
 (english) does relative proportion bookines interaction with momed
 
-```{r 2-col-image, fig.env = "figure*", fig.pos = "h", fig.width=7, fig.height=4.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "This image spans both columns. And the caption text is limited to 0.8 of the width of the document."}
-#img <- png::readPNG("figs/walrus.png")
-#grid::grid.raster(img)
-knitr::include_graphics("../CHILDES_smoothed_norm_freqs_vs_books_TV.pdf")
-```
 
 
 
-```{r image, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=2, fig.height=2, set.cap.width=T, num.cols.cap=1, fig.cap = "One column image."}
-
-```
 
 # Discussion
 

@@ -161,7 +161,8 @@ pc_bsa$rotation %>%
 ### Univariate correlations between PCs and AoA
 
 ```{r}
-cor(ddbsa[,c("aoa",paste0("PC",1:5))])[2:6,"aoa"] %>% kable(digits=3)
+cor(ddbsa[,c("aoa",paste0("PC",1:6))])[2:7,"aoa"] %>% 
+  kable(digits=3, col.names="AoA")
 ```
 
 
@@ -174,18 +175,19 @@ Regularize to see which PCs survive.
 ```{r}
 library(glmnet)
 
+PCs <- data.matrix(ddbsa[,paste0("PC",1:5)])
+
 #perform k-fold cross-validation to find optimal lambda value
-cv_model <- cv.glmnet(x, y, alpha = 1)
+cv_model <- cv.glmnet(PCs, ddbsa$aoa, alpha = 1)
 
 #find optimal lambda value that minimizes test MSE
-best_lambda <- cv_model$lambda.min
-best_lambda
+best_lambda <- cv_model$lambda.min # 0.007130127
 
 #produce plot of test MSE by lambda value
 plot(cv_model) 
 
 #find coefficients of best model
-best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda)
+best_model <- glmnet(PCs, ddbsa$aoa, alpha = 1, lambda = best_lambda)
 coef(best_model)
 ```
 
@@ -197,24 +199,25 @@ outlier_thresh = 5
 p1 <- ggplot(ddbsa, aes(x = PC1, y = aoa, col = lexical_class)) + 
   geom_point() + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC1 < -outlier_thresh | PC1 > outlier_thresh), aes(label = word)) + 
-  facet_wrap(~lexical_class) + theme_classic()
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p2 <- ggplot(ddbsa, aes(x = PC2, y = aoa, col = lexical_class)) + 
   geom_point() + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC2 < -outlier_thresh | PC2 > outlier_thresh), aes(label = word)) + 
-  facet_wrap(~lexical_class) + theme_classic()
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p3 <- ggplot(ddbsa, aes(x = PC3, y = aoa, col = lexical_class)) + 
   geom_point() + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC3 < -outlier_thresh | PC3 > outlier_thresh), aes(label = word)) + 
-  facet_wrap(~lexical_class) + theme_classic()
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p4 <- ggplot(ddbsa, aes(x = PC4, y = aoa, col = lexical_class)) + 
   geom_point() + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC4 < -outlier_thresh | PC4 > outlier_thresh), aes(label = word)) + 
-  facet_wrap(~lexical_class) + theme_classic()
+  facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
-ggarrange(p1, p2, p3, p4, nrow=2, ncol=2, common.legend = T)
+ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, common.legend = T)
+#ggsave("AoA_vs_PCs1-4_by_lexical_class.pdf", width=8, height=8)
 ```
 
 
