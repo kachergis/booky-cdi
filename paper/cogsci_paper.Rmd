@@ -172,34 +172,52 @@ dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
 
 We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
 
-## Simple Age of Acquisition 
+## Cross-corpus Frequency Correlations 
 
-```{r, fig.cap="Correlation table of word frequency distributions for CDI words."}
+Table 1 shows the cross-corpus word frequency correlations for the `r nrow(dddc)` CDI words.
 
+```{r}
 cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
-    papaja::apa_table(digits=2)
+    papaja::apa_table(digits=2, placement='h',
+                      caption="Correlation table of word frequency distributions for CDI words.")
 ```
 
 
-Significant contributions of children's books, children's speech, adult book frequencies, and number of letters.
+## Age of Acquisition Regression
+
+Despite the strong correlations of word frequency across these different corpora, we will attempt a simple regression predicting each CDI word's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2016].
+We also include the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word.
+Table 2 below displays the estimated coefficients of this regression, showing significant contributions of all child-directed distributions (speech, books, and media), and of adult speech frequencies, as well as the number of letters.
+However, the variance inflation factor (VIF) values for all of the frequency distributions are all $>>1$, indicating that these variables show strong multicollinearity which may influence the regression results.
+Thus, we turned to principal components analysis (PCA) to disentangle these correlated distributions and to understand their interrelations.
 
 ```{r, results='asis'}
 lm1 <- lm(aoa ~ log(ChS) + log(ChM) + log(ChB) + log(AdS) + log(AdM) + log(AdB) + Nletters, data=dddc)
 # R^2 = 0.3433
 tab <- data.frame(summary(lm1)$coefficients)
 tab$VIF = c(NA, car::vif(lm1))
-
-print(xtable(tab, digits=2), comment=F)
+names(tab) = c("Beta","SE","t-val","p-val","VIF")
+#tab %>% kable(digits=2)
+print(xtable(tab, digits=2,
+             caption = "Coefficients for corpora frequencies predicting AoA.",
+             table.placement = "H"), comment=F)
 ```
 
 
-
-But VIFs are >>1: the word frequency distributions are highly correlated, so we will use PCA to disentangle.
-
 ## Principal Components of Frequency
-(french and english)
+
 PCA, show words that pop out as relatively more speech/booky, kid/adult
 predict kuperman aoa? (maybe)
+
+```{r}
+pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
+                             "AdM","AdB","AdS")])) # add Montag separately?
+pc_imp <- summary(pc_bsa)$importance 
+row.names(pc_imp) = c("Std Dev","Prop Var","Cum Prop Var")
+pc_imp %>%
+    papaja::apa_table(digits=2, caption="Importance of components from PCA.", placement='h')
+```
+
 
 # Results: Predicting Age of Acquisition 
 (french and english)
@@ -220,34 +238,9 @@ knitr::include_graphics("../CHILDES_smoothed_norm_freqs_vs_books_TV.pdf")
 
 ```
 
-
-## R Plots
-
-You can use R chunks directly to plot graphs. And you can use latex floats in the
-fig.pos chunk option to have more control over the location of your plot on the page. For more information on latex placement specifiers see **[here](https://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions)**
+# Discussion
 
 
-## Tables
-
-Number tables consecutively; place the table number and title (in
-10 point) above the table with one line space above the caption and
-one line space below it, as in Table 1. You may float
-tables to the top or bottom of a column, set wide tables across both
-columns.
-
-You can use the xtable function in the xtable package.
-
-```{r xtable, results="asis"}
-n <- 100
-x <- rnorm(n)
-y <- 2*x + rnorm(n)
-out <- lm(y ~ x)
-
-tab1 <- xtable::xtable(summary(out)$coef, digits=c(0, 2, 2, 1, 2), 
-                       caption = "This table prints across one column.")
-
-print(tab1, type="latex", comment = F, table.placement = "H")
-```
 
 # Acknowledgements
 
