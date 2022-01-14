@@ -116,19 +116,19 @@ load("data/Charlesworth-unlemmatized-counts.Rdata")
 adult_dat <- adult_dat %>% filter(source!="books") %>%
   select(source, word, word_count_norm) %>%
   pivot_wider(id_col = word, names_from = source, values_from = word_count_norm) %>%
-  rename(`Adult Speech` = speech,
-         `Adult TV` = TV)
+  rename(`AdS` = speech,
+         `AdM` = TV)
 
 dddc <- dddc %>% 
-  rename(`Adult Books` = adult_books, # Google books
-         `Child Books` = books, # Facebooks children's books (novels..)
-         `Child TV` = tv,
-         `Child Speech` = speech) %>% 
+  rename(`AdB` = adult_books, # Google books
+         `ChB` = books, # Facebooks children's books (novels..)
+         `ChM` = tv,
+         `ChS` = speech) %>% 
   select(-CHILDES) %>% # less well-cleaned version
   left_join(adult_dat)
 
-dddc <- dddc %>% replace_na(list(`Adult Speech` = 0.32,
-                                 `Adult TV` = 0.32))
+dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
+                                 `AdM` = 0.32))
 ```
 
 

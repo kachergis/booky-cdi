@@ -99,44 +99,37 @@ total_adult_tokens <- adult_dat %>% group_by(source) %>%
               n = n())
 ```
 
-### Child-directed speech.
-Utterances of child-directed speech (CDS) were extracted from the CHILDES corpus [@macwhinney2000childes], a collection of transcripts of dyadic interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years).
+### Child-directed Speech.
+Utterances of child-directed speech (ChS) were extracted from the CHILDES corpus [@macwhinney2000childes], a collection of transcripts of dyadic interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years).
 After cleaning, the CHILDES corpus yielded a total of `r subset(total_child_tokens, source=="speech")$word_count` tokens across `r subset(total_child_tokens, source=="speech")$n` word types.
 
-### Child-directed books.
+### Child-directed books (ChdB).
 We used a sample of 98 children's books from Project Gutenberg's open-source database of books that has been used in prior machine learning research on language comprehension [@hill2015goldilocks]. 
 These books were published between 1820 and 1922, but include such well-known titles as *The Legend of Sleep Hollow*.
 After cleaning, this children's book corpus totals `r subset(total_child_tokens, source=="books")$word_count` tokens across `r subset(total_child_tokens, source=="books")$n` word types.
 
-### Child-directed media.
+### Child-directed Media (ChM).
 Transcripts from television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes were taken from @charlesworth2021gender (available here: [https://osf.io/kqux5/](https://osf.io/kqux5/).
 After cleaning, this children's media corpus totals `r subset(total_child_tokens, source=="tv")$word_count` tokens across `r subset(total_child_tokens, source=="tv")$n` word types.
 
-### Adult-directed speech.
+### Adult-directed Speech (AdS).
 
-After cleaning, the adult-directed speech corpus yielded a total of `r subset(total_adult_tokens, source=="speech")$word_count` tokens across `r subset(total_adult_tokens, source=="speech")$n` word types.
+After cleaning, the adult-directed speech corpus (AdS) yielded a total of `r subset(total_adult_tokens, source=="speech")$word_count` tokens across `r subset(total_adult_tokens, source=="speech")$n` word types.
 
-### Adult-directed books.
+### Adult-directed Books (AdB).
 
-The adult-directed book corpus is comprised of `r subset(total_adult_tokens, source=="books")$word_count` tokens across `r subset(total_adult_tokens, source=="books")$n` word types.
+The adult-directed book corpus (AdB) is comprised of `r subset(total_adult_tokens, source=="books")$word_count` tokens across `r subset(total_adult_tokens, source=="books")$n` word types.
 
 
-### Adult-directed media.
+### Adult-directed Media (AdM).
 
-The adult-directed media corpus is comprised of `r subset(total_adult_tokens, source=="TV")$word_count` tokens across `r subset(total_adult_tokens, source=="TV")$n` word types.
+The adult-directed media corpus (AdM) is comprised of `r subset(total_adult_tokens, source=="TV")$word_count` tokens across `r subset(total_adult_tokens, source=="TV")$n` word types.
 
 
 ## Merging the Corpora
 
-
-
-# Results
-
-We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
-
-## Simple Age of Acquisition 
-
-```{r, fig.cap="Correlation table of word frequency distributions for CDI words."}
+```{r}
+#load("../data/Charlesworth-unlemmatized-counts.Rdata") 
 # Montag corpus
 dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
   select(-ch_book_vs_speech) 
@@ -154,25 +147,49 @@ dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_b
                        speech = ifelse(is.na(speech), 10, speech),
                        books = ifelse(is.na(books), 10, books),
                        tv = ifelse(is.na(tv), 10, tv)) %>%
-    distinct() 
+  distinct()
 
-#summary(ddd)
+adult_dat <- adult_dat %>% filter(source!="books") %>%
+  select(source, word, word_count_norm) %>%
+  pivot_wider(id_col = word, names_from = source, values_from = word_count_norm) %>%
+  rename(`AdS` = speech,
+         `AdM` = TV)
+
+dddc <- dddc %>% 
+  rename(`AdB` = adult_books, # Google books
+         `ChB` = books, # Facebooks children's books (novels..)
+         `ChM` = tv,
+         `ChS` = speech) %>% 
+  select(-CHILDES) %>% # less well-cleaned version
+  left_join(adult_dat)
+
+dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
+                                 `AdM` = 0.32))
+```
 
 
-cor(dddc[,c("speech","books","tv","adult_books")]) %>%
+# Results
+
+We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
+
+## Simple Age of Acquisition 
+
+```{r, fig.cap="Correlation table of word frequency distributions for CDI words."}
+
+cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
     papaja::apa_table(digits=2)
 ```
 
 
 Significant contributions of children's books, children's speech, adult book frequencies, and number of letters.
 
-```{r, results="as.is"}
-lm1 <- lm(aoa ~ log(books) + log(speech) + log(tv) + log(adult_books) + Nletters, data=dddc)
-# R^2 = .31
+```{r, results='asis'}
+lm1 <- lm(aoa ~ log(ChS) + log(ChM) + log(ChB) + log(AdS) + log(AdM) + log(AdB) + Nletters, data=dddc)
+# R^2 = 0.3433
 tab <- data.frame(summary(lm1)$coefficients)
 tab$VIF = c(NA, car::vif(lm1))
 
-xtable(tab, digits=3)
+print(xtable(tab, digits=2), comment=F)
 ```
 
 
