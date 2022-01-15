@@ -284,7 +284,10 @@ ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
 ## Regularized Regression on PCA Loadings
 
 Next we used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA.
-First, we did a regularized (lasso) regression predicting AoA with just PC1 through PC6.
+First, we did a L1-regularized (i.e., LASSO) regression predicting AoA with all of the principal components, to test which of the PCs should be included in the regression with lexical class.
+We used cross-validation to find the $\lambda$ value (penalty for outsized coefficients) that minimized mean-squared error of the test set, resulting in $\lambda=0.006$, a small value which will result in coefficients that would be quite close to those obtained in ordinary least squares regression (i.e., when $\lambda=0$).
+Table 5 displays the estimated coefficients using this best-fitting $\lambda$, showing that all of the PCs have non-zero values.
+This model has $R^2 = 0.32$.
 
 ```{r, pca-regression, include=F, results='asis'}
 ddbsa$lexical_class <- fct_relevel(ddbsa$lexical_class, "nouns")
@@ -308,13 +311,13 @@ cv_model <- cv.glmnet(PCs, ddbsa$aoa, alpha = 1)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda <- cv_model$lambda.min # 0.006 (very close to linear regression)
-best_lambda <- cv_model$lambda.1se # 0.323 1SE above MSE
+#best_lambda <- cv_model$lambda.1se # 0.323 1SE above MSE
 
 #find coefficients of best model
 best_model <- glmnet(PCs, ddbsa$aoa, alpha = 1, lambda = best_lambda)
 lg_tab <- as.matrix(coef(best_model))
 print(xtable(lg_tab, digits=2,
-             caption = "Regression predicting AoA with PCs.",
+             caption = "LASSO AoA regression coefficients.",
              table.placement = "H"), comment=F)
 ```
 
