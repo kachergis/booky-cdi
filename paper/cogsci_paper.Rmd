@@ -353,11 +353,11 @@ pca_lc4 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa)
 pca_lc5 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa) # 0.576
 pca_lc6 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6) * LC, data=ddbsa)
 
-anova(pca_lc1, pca_lc2) # 2***
-anova(pca_lc2, pca_lc3) # 3***
-anova(pca_lc3, pca_lc4) # 4***
-anova(pca_lc4, pca_lc5) # 5***
-anova(pca_lc5, pca_lc6) # 6*
+ttt <- anova(pca_lc1, pca_lc2) # 2***
+ttt <- rbind(ttt, anova(pca_lc2, pca_lc3)[2,]) # 3***
+ttt <- rbind(ttt, anova(pca_lc3, pca_lc4)[2,]) # 4***
+ttt <- rbind(ttt, anova(pca_lc4, pca_lc5)[2,]) # 5***
+ttt <- rbind(ttt, anova(pca_lc5, pca_lc6)[2,]) # 6*
 
 #summary(pca_lc6) 
 # R^2 = .584
