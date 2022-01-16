@@ -328,22 +328,63 @@ print(xtable(lg_tab, digits=2,
 plot(cv_model) 
 ```
 
-Now with lexical class.
+Given that past research has found that lexical class strongly modulates influences of word frequency, we next examine the interaction of lexical class (LC) with PC1 - PC6. 
+To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA.
+Thus, the R syntax for the sequence of regressions was `AoA~PC1*LC`, `AoA~(PC1+PC2)*LC`, ..., `AoA~(PC1 + PC2+PC3+PC4+PC5+PC6)*LC`.
+The more complex model was always significantly preferred, including up to the inclusion of PC6.
+Table X shows the results of this final regression, which yielded $R^2 = .584$.
 
 ```{r, results='asis'}
-pca_lc_reg <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * lexical_class, data=ddbsa)
-#summary(pca_lc_reg) 
-# R^2 = .576
-pca_tab2 <- data.frame(pca_lc_reg$coefficients) 
+# could try adding in PCs one by one..
+
+ddbsa <- ddbsa %>%
+  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
+                        lexical_class=="verbs" ~ "verb",
+                        lexical_class=="adjectives" ~ "adj",
+                        lexical_class=="function_words" ~ "func",
+                        lexical_class=="other" ~ "other",
+                        TRUE ~ as.character(lexical_class)))
+ddbsa$LC <- fct_relevel(ddbsa$LC, "noun")
+
+pca_lc1 <- lm(aoa ~ PC1 * LC, data=ddbsa) # R^2=.26
+pca_lc2 <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa) # R^2=.47
+pca_lc3 <- lm(aoa ~ (PC1 + PC2 + PC3) * LC, data=ddbsa)
+pca_lc4 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa)
+pca_lc5 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa) # 0.576
+pca_lc6 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6) * LC, data=ddbsa)
+
+anova(pca_lc1, pca_lc2) # 2***
+anova(pca_lc2, pca_lc3) # 3***
+anova(pca_lc3, pca_lc4) # 4***
+anova(pca_lc4, pca_lc5) # 5***
+anova(pca_lc5, pca_lc6) # 6*
+
+#summary(pca_lc6) 
+# R^2 = .584
+pca_tab2 <- data.frame(summary(pca_lc6)$coefficients)
+#car::vif(pca_lc_reg)
+names(pca_tab2) = c("Beta","SE","t-val","p-val")
 
 print(xtable(pca_tab2, digits=2,
              caption = "Regression predicting AoA with PCs and lexical class.",
              table.placement = "H"), comment=F)
 ```
 
-# Analysis 3
-(english) does relative proportion bookines interaction with momed
+## Combining distributions with demographic data
 
+Past research has found that young children from higher-SES households tend to have larger vocabulary.
+Parents with higher-SES tend to also report reading more to their young children than parents with lower SES. 
+Together, this suggests that the vocabulary composition of children from higher-SES households may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
+To test this idea, we regressed 
+
+```{r}
+# Mike: PC1 + PC2 * mom_ed
+# group_by(age, mom_ed, item)
+# summaries successes and failures
+# glmer(cbind(produces, doesn't produce) ~ age * PC1 + age * PC2 * mom_ed + (1|item))
+
+
+```
 
 
 
