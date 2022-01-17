@@ -22,11 +22,11 @@ require(ggeffects)
 require(ggpubr)
 library(stringi)
 library(arm)
+library(SnowballC)
 
 lang <- "French (French)"
 
 wb_data <- readRDS("/Users/loukatou/Documents/booky-cdi/data/french_(french).rds")
-uni_lemmas <- read_csv("fr_uni_lemmas.csv")
 
 walk(list.files("*", pattern = "*.R$", full.names = TRUE), source)
 
@@ -61,16 +61,6 @@ fit_bglm <- function(df, max_steps = 200) {
   tibble(intercept = intercept, slope = slope, aoa = -intercept / slope)
 }
 
-fit_aoas <- function(wb_data, max_steps = 200, min_aoa = 0, max_aoa = 72) {
-  aoas <- wb_data |>
-    mutate(num_false = total - num_true) |>
-    nest(data = -c(language, measure, uni_lemma)) |>
-    mutate(aoas = map(data, fit_bglm)) |>
-    dplyr::select(-data) |>
-    unnest(aoas) |>
-    filter(aoa >= min_aoa, aoa <= max_aoa)
-}
-
 fit_aoas_def <- function(wb_data, max_steps = 200, min_aoa = 0, max_aoa = 72) {
   aoas <- wb_data |>
     mutate(num_false = total - num_true) |>
@@ -83,17 +73,8 @@ fit_aoas_def <- function(wb_data, max_steps = 200, min_aoa = 0, max_aoa = 72) {
 
 wb_data_def <- wb_data %>% unnest(items) %>% dplyr::select(-uni_lemma)
 
-aoas_def <- fit_aoas(wb_data_def)
-aoas_unilemma <- fit_aoas(wb_data)
-
-#check overlapping uni_lemma // childes
-#childesfr<-readRDS("data/uni_metrics_french_(french).rds")
-#cdifr<-readRDS("data/french_(french).rds")
-#cdi_items <- unique(wb_data$uni_lemma) #609 items
-#cdi_matched = intersect(cdi_items, childesfr$uni_lemma) 
-#cdi_unmatched = setdiff(cdi_items, childesfr$uni_lemma)
-
-#saveRDS(aoas_def, "data/fr_aoas_definition.rds")
+aoas_def <- fit_aoas_def(wb_data_def) %>% filter(measure=="produces")
+#aoas_unilemma <- fit_aoas(wb_data)
 
 ```
 
@@ -110,26 +91,8 @@ We will begin with unlemmatized corpora, and disregard part-of-speech classifica
 
 
 ```{r unilemma functions, echo=F, message=F, warning=F}
-build_special_case_map <- function(lang) {
-  norm_lang <- normalize_language(lang)
-  special_case_file <- glue("resources/special_cases/{norm_lang}.csv")
-  if (file.exists(special_case_file)) {
-    special_case_map <- read_csv(special_case_file, col_names = FALSE) |>
-      rename(uni_lemma = X1, definition = X2) |>
-      pivot_longer(-c(uni_lemma, definition),
-                   names_to = "x", values_to = "option") |>
-      filter(!is.na(option)) |>
-      dplyr::select(-x) |>
-      mutate(language = lang)
-  } else {
-    special_case_map <- tibble(language = character(), uni_lemma = character(),
-                               definition = character(), option = character())
-  }
-  return(special_case_map)
-}
-
-build_options <- function(language, word, special_cases) {
-  opts <- c(word, special_cases)
+build_options <- function(language, word) {
+  opts <- c(word)
   opts <- c(opts, word |> str_split("[,/]") |> unlist()) # "foo, bar", "foo/bar"
   opts <- c(opts, map(transforms, \(t) t(opts)))
   opts <- opts |> unlist() |> unique() |> str_trim()
@@ -143,32 +106,9 @@ transforms <- list(
   \(s) str_replace_all(s, "(.+) \\1", "\\1") # (foo) bar -> bar
 )
 
-build_definition_map <- function(uni_lemmas) {
-  special_case_map <- unique(uni_lemmas$language) |>
-    map_df(build_special_case_map) |>
-    group_by(language, uni_lemma, definition) |>
-    summarise(special_cases = list(option))
-  uni_lemmas |>
-    left_join(special_case_map) |>
-    mutate(option = pmap(list(language, definition, special_cases),
-                         build_options)) |>
-    dplyr::select(language, definition, option) |>
-    unnest(option) |>
-    mutate(option = tolower(option))
-}
-
-build_uni_lemma_map <- function(uni_lemmas) {
-  special_case_map <- unique(uni_lemmas$language) |>
-    map_df(build_special_case_map) |>
-    group_by(language, uni_lemma, definition) |>
-    summarise(special_cases = list(option))
-  uni_lemmas |>
-    left_join(special_case_map) |>
-    mutate(option = pmap(list(language, definition, special_cases),
-                         build_options)) |>
-    dplyr::select(language, uni_lemma, option) |>
-    unnest(option) |>
-    mutate(option = tolower(option))
+stem <- function(words, language) {
+  #lang_snowball <- convert_lang_stemmer(language, "snowball")
+  SnowballC::wordStem(words, language)
 }
 ```
 
@@ -176,10 +116,18 @@ build_uni_lemma_map <- function(uni_lemmas) {
 # ToDo: remove book-reading corpora from CHILDES data!
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 
-definition_map <- build_definition_map(uni_lemmas)
-uni_lemma_map <- build_uni_lemma_map(uni_lemmas)
+#Unilemmas
+uni_lemma_map <- read_csv("data/fr_uni_lemmas.csv")    |> 
+  mutate(option = pmap(list("french", definition),
+                         build_options)) |>
+  dplyr::select(language, definition, option, lexical_class) |>
+  unnest(option) |>
+  mutate(option = tolower(option))
 
+#CHILDES tokens arranging 
 child_speech <- readRDS(here("data/token_metrics_french_(french).rds")) %>%
+  #mutate(token = gsub('[[:punct:] ]+',' ',token))%>%
+  #separate_rows(token, sep = ' ') %>%
   rename(word_count = count ) %>%
   filter(!word_count==1) %>%
   mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
@@ -188,45 +136,60 @@ child_speech <- readRDS(here("data/token_metrics_french_(french).rds")) %>%
   distinct() %>%
   mutate(rank = 1:n()) 
   
-cdi_items <- unique(wb_data$uni_lemma)
+#cdi_items <- unique(wb_data$uni_lemma)
 
+#Stem CHILDES tokens and matched to stemmed cdi definitions
 child_speech_mapped <- child_speech |>
    dplyr::select(token) |>
    filter(!token=="")|>
     mutate(token_self = token,
-           token_stemmed = stem(token, lang)) |>
+           token_stemmed = stem(token, "french")) |>
     pivot_longer(c(token_self, token_stemmed), names_to = "src",
                  values_to = "option") |>
-    filter(!is.na(option), option != "") |>
+    #filter(!is.na(option), option != "") |>
     dplyr::select(-src) |>
     distinct() |>
     inner_join(uni_lemma_map) |>
     dplyr::select(-option)|>
     distinct()|>
-    filter(!is.na(uni_lemma)) |>
-   left_join(aoas_unilemma) |>
-   dplyr::select(token, measure, aoa, uni_lemma)
+    filter(!is.na(definition)) |>
+   left_join(aoas_def) |>
+   dplyr::select(token, aoa, definition, lexical_class)
 
-#child_speech_matched <-unique(list(child_speech_mapped$token))
-  
+ child_speech_matched <-unique(list(child_speech_mapped$token))
+
+aoa_df<- child_speech_mapped %>% dplyr::select(token, aoa) 
+aoa_df <- aoa_df[!duplicated(aoa_df$token),]
+
  
+ lex_cat <- child_speech_mapped |> dplyr::select(token, lexical_class) |> distinct()
+ lex_cat <- lex_cat[-c(1631, 1621, 1607, 1604, 1597, 1587, 1585, 1581, 1579, 1572, 1555, 1548, 1546, 1446, 1427, 1425, 1416, 1409, 1373, 1360, 1341,1305,1295, 1292, 1257,1241, 1234, 1224, 1151,1148,1146,1134,1107,1221, 1219, 1187, 1182, 1165, 1193, 1090, 1069, 1049, 1028, 1007, 934, 914, 906, 893, 881, 868, 846, 829, 753, 726, 716, 687, 672,625, 608, 588, 578, 552, 544, 540, 508, 476,  462, 457, 435, 426, 409, 403, 397, 381, 353, 340, 332, 178, 155, 152, 151, 100, 80, 71, 25 ),] 
+ 
+#Mark CHILDES tokens matched to cdi with 'on_cdi' column  
 child_speech <- child_speech |>
-    mutate(on_cdi = ifelse(as.character(token) %in% child_speech_matched[[1]], 1, 0),
-           source="child_speech") 
+    mutate(on_cdi = ifelse(as.character(token) %in% child_speech_mapped[[1]], 1, 0),
+           source="child_speech")  |> distinct() |>
+    left_join(lex_cat) |>
+  left_join(aoa_df)
 
-saveRDS(child_speech_mapped, "data/aoas_token_fr.rds")
+#saveRDS(child_speech_mapped, "data/aoas_token_fr.rds")
 
-##############################################
-adult_speech <- readLines("data/fr_adult_speech/try1.txt")
+
 
 ```
 
 ```{r adult_speech, echo=F, message=F, warning=F}
+
+##############################################
+adult_speech <- readLines("data/fr_adult_speech_TCOF.txt")
+
+
 dat <- map(adult_speech, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 
 adult_speech <- do.call(rbind.data.frame, dat) %>%
+  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
@@ -242,27 +205,36 @@ adult_speech <- do.call(rbind.data.frame, dat) %>%
 adult_speech_mapped <- adult_speech |>
    filter(!token=="")|>
     mutate(token_self = token,
-           token_stemmed = stem(token, lang)) |>
+           token_stemmed = stem(token, "french")) |>
     pivot_longer(c(token_self,  token_stemmed), names_to = "src",
                  values_to = "option") |>
     dplyr::select(-src) |>
     inner_join(uni_lemma_map) |>
     dplyr::select(-option)|>
     distinct()|>
-    filter(!is.na(uni_lemma))
+    filter(!is.na(definition)) |>
+    left_join(aoas_def) |>
+   dplyr::select(token, aoa, definition, lexical_class)
+
 
  adult_speech_matched <-unique(list(adult_speech_mapped$token))
  
  adult_speech <- adult_speech |>
     mutate(on_cdi = ifelse(as.character(token) %in% adult_speech_matched[[1]], 1, 0),
-           source="adult_speech") 
+           source="adult_speech") |> distinct() |>
+    left_join(lex_cat) |>
+    left_join(aoa_df) 
 
-######################################################
-adult_book <- readLines(here("data/fr_adult_book/adult_books_voltaire.txt")) 
+```
+
+```{r adult_book, echo=F, message=F, warning=F} 
+ 
+adult_book <- readLines(here("data/le_roi_du_klondike.txt")) 
 dat <- map(adult_book, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 adult_book <- do.call(rbind.data.frame, dat) %>%
+  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
@@ -277,26 +249,72 @@ adult_book <- do.call(rbind.data.frame, dat) %>%
 adult_book_mapped <- adult_book |>
    filter(!token=="")|>
     mutate(token_self = token,
-           token_stemmed = stem(token, lang)) |>
+           token_stemmed = stem(token, "french")) |>
     pivot_longer(c(token_self,  token_stemmed), names_to = "src",
                  values_to = "option") |>
     dplyr::select(-src) |>
     inner_join(uni_lemma_map) |>
     dplyr::select(-option)|>
     distinct()|>
-    filter(!is.na(uni_lemma))
+    filter(!is.na(definition))
 
  adult_book_matched <-unique(list(adult_book_mapped$token))
   
  adult_book <- adult_book |>
     mutate(on_cdi = ifelse(as.character(token) %in% adult_book_matched[[1]], 1, 0),
-           source="adult_book")
+           source="adult_book") |> distinct() |>
+    left_join(lex_cat)|>
+    left_join(aoa_df) 
+
 ########################################################
  
 ```
 
- 
- 
+
+
+```{r adult_tv, echo=F, message=F, warning=F} 
+adult_tv <- readLines(here("data/fr_adult_tv.txt")) 
+dat <- map(adult_tv, function(x) {
+  tibble(text = unlist(str_split(x, pattern = "\\n"))) 
+})
+adult_tv <- do.call(rbind.data.frame, dat) %>%
+  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  separate_rows(text, sep = ' ') %>%
+  group_by(word = tolower(text)) %>%
+  summarise(word_count = n(),
+      sum_count = sum(word_count))%>%
+  mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
+  filter(!word_count==1) %>%
+  arrange(desc(word_count_norm)) %>%
+  mutate(rank = 1:n()) %>%
+  dplyr::select(word, word_count, word_count_norm, rank) %>%
+  rename(token=word) 
+
+adult_tv_mapped <- adult_tv |>
+   filter(!token=="")|>
+    mutate(token_self = token,
+           token_stemmed = stem(token, "french")) |>
+    pivot_longer(c(token_self,  token_stemmed), names_to = "src",
+                 values_to = "option") |>
+    dplyr::select(-src) |>
+    inner_join(uni_lemma_map) |>
+    dplyr::select(-option)|>
+    distinct()|>
+    filter(!is.na(definition))|>
+    left_join(aoas_def) |>
+   dplyr::select(token, aoa, definition, lexical_class)
+
+
+ adult_tv_matched <-unique(list(adult_tv_mapped$token))
+  
+ adult_tv <- adult_tv |>
+    mutate(on_cdi = ifelse(as.character(token) %in% adult_tv_matched[[1]], 1, 0),
+           source="adult_tv") |> distinct() |>
+    left_join(lex_cat)|>
+    left_join(aoa_df) 
+  
+```
+
 ```{r child_book, echo=F, message=F, warning=F}
 
 child_books <- readLines(here("data/web_stories_french.txt"))
@@ -305,6 +323,7 @@ dat <- map(child_books, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 child_book <- do.call(rbind.data.frame, dat) %>%
+  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
@@ -319,29 +338,72 @@ child_book <- do.call(rbind.data.frame, dat) %>%
 child_book_mapped <- child_book |>
    filter(!token=="")|>
     mutate(token_self = token,
-           token_stemmed = stem(token, lang)) |>
+           token_stemmed = stem(token, "french")) |>
     pivot_longer(c(token_self,  token_stemmed), names_to = "src",
                  values_to = "option") |>
     dplyr::select(-src) |>
     left_join(uni_lemma_map) |>
     dplyr::select(-option)|>
     distinct()|>
-    filter(!is.na(uni_lemma))
+    filter(!is.na(definition))
 
 child_book_matched <-unique(list(child_book_mapped$token))
   
 child_book <- child_book |>
     mutate(on_cdi = ifelse(as.character(token) %in% child_book_matched[[1]], 1, 0),
-           source="child_book")
+           source="child_book") |> distinct() |>
+    left_join(lex_cat)|>
+    left_join(aoa_df) 
 
 ```
 
+```{r child_tv, echo=F, message=F, warning=F}
+
+child_tv <- readLines(here("data/fr_child_tv.txt"))
+                        
+dat <- map(child_tv, function(x) {
+  tibble(text = unlist(str_split(x, pattern = "\\n"))) 
+})
+child_tv <- do.call(rbind.data.frame, dat) %>%
+  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  separate_rows(text, sep = ' ') %>%
+  group_by(word = tolower(text)) %>%
+  summarise(word_count = n(),
+      sum_count = sum(word_count))%>%
+  mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
+   filter(!word_count==1) %>%
+  arrange(desc(word_count_norm)) %>%
+  mutate(rank = 1:n()) %>%
+  dplyr::select(word, word_count, word_count_norm, rank) %>%
+  rename(token=word)                        
+                      
+child_tv_mapped <- child_tv |>
+   filter(!token=="")|>
+    mutate(token_self = token,
+           token_stemmed = stem(token, "french")) |>
+    pivot_longer(c(token_self,  token_stemmed), names_to = "src",
+                 values_to = "option") |>
+    dplyr::select(-src) |>
+    left_join(uni_lemma_map) |>
+    dplyr::select(-option)|>
+    distinct()|>
+    filter(!is.na(definition))
+
+child_tv_matched <-unique(list(child_tv_mapped$token))
+  
+child_tv <- child_tv |>
+    mutate(on_cdi = ifelse(as.character(token) %in% child_tv_matched[[1]], 1, 0),
+           source="child_tv")|> distinct() |>
+    left_join(lex_cat)|>
+    left_join(aoa_df) 
+
+```
 Our data sources:
 
-- Adult speech: `r nrow(adult_speech)` types, `r sum(adult_speech$word_count)` tokens from the orpus (`r sum(adult_speech$on_cdi)` CDI words)
+- Adult speech: `r nrow(adult_speech)` types, `r sum(adult_speech$word_count)` tokens from the corpus collection TCOF (`r sum(adult_speech$on_cdi)` CDI words)
 - Children speech: `r nrow(child_speech)` types, `r sum(child_speech$word_count)` tokens from the CHILDES corpus (`r sum(child_speech$on_cdi)` CDI words)
-- Adult books: `r nrow(adult_book)` types, `r sum(adult_book$word_count)` tokens from the books corpus
-- Children's books: `r nrow(child_book)` types, `r sum(child_book$word_count)` tokens from the CHILDES corpus (`r sum(child_book$on_cdi)` CDI words)
+- Adult books: `r nrow(adult_book)` types, `r sum(adult_book$word_count)` tokens from the Gutemberg books corpus "le roi du Klondike"
+- Children's books: `r nrow(child_book)` types, `r sum(child_book$word_count)` tokens from the children stories online corpus (`r sum(child_book$on_cdi)` CDI words)
 
 
 ## Normalize Word Frequencies
@@ -355,21 +417,22 @@ For now, we will use the subset of words that are found in all four corpora (N=4
 
 ```{r keyness-childes-vs-montag, echo=F}
 # CHILDES and Stories books
-ch_freq_long <- rbind(child_speech, child_book) %>%
-  dplyr::select(token, source, on_cdi, word_count_norm, word_count)  
+ch_freq_long <- rbind(child_speech, child_book, child_tv, adult_speech, adult_book, adult_tv)  %>%
+  dplyr::select(token, source, on_cdi, word_count_norm, word_count, lexical_class, aoa)  
 
 # wide - no smoothing, only keep subset of words in all corpora
 ch_freq <- ch_freq_long %>% dplyr::select(-word_count) %>%
   pivot_wider(names_from = source, values_from = word_count_norm) %>%
-  filter(!is.na(`child_book`), !is.na(child_speech)) %>%
+  #filter(!is.na(`child_book`), !is.na(child_speech), !is.na(child_tv)) %>%
   mutate(ch_book_vs_speech = `child_book` / child_speech,
          prop_booky = `child_book` / (`child_book` + child_speech)) 
 
 # Laplace smoothing, alpha=10, keep all words in any corpus
-ch_freq_smooth <- ch_freq_long %>% 
+ch_freq_smooth <- ch_freq_long %>% dplyr::select(-word_count) %>%
   mutate(word_count_norm_smooth = word_count_norm + 10) %>%
-  pivot_wider(id_cols = c(token, on_cdi), names_from = source, values_from = word_count_norm_smooth, values_fill=10) %>% 
-  filter(!is.na(`child_book`), !is.na(child_speech)) %>%
+  dplyr::select(-word_count_norm) %>%
+  pivot_wider(names_from = source, values_from = word_count_norm_smooth) %>% 
+  #filter(!is.na(`child_book`), !is.na(child_speech), !is.na(child_tv)) %>%
   mutate(ch_book_vs_speech = `child_book` / child_speech,
          prop_booky = `child_book` / (`child_book` + child_speech))
 ```
@@ -381,36 +444,36 @@ ch_freq_smooth <- ch_freq_long %>%
 #ch_freq %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
 #ch_freq_smooth %>% arrange(desc(ch_book_vs_speech)) %>% head(10) %>% kable(digits=2)
 
-p1 <- ch_freq %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
-  ggplot(aes(x=child_speech, y=`child_book`, color=Word)) + 
-  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
-  scale_x_log10() + scale_y_log10() + ggtitle("Raw Frequencies (intersection)")
+#p1 <- ch_freq %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
+#  ggplot(aes(x=child_speech, y=`child_book`, color=Word)) + 
+#  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+#  scale_x_log10() + scale_y_log10() + ggtitle("Raw Frequencies (intersection)")
 
-p2 <- ch_freq_smooth %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
-  ggplot(aes(x=child_speech, y=`child_book`, color=Word)) + 
-  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
-  scale_x_log10() + scale_y_log10() + ggtitle("Smoothed Frequencies (union)")
+#p2 <- ch_freq_smooth %>% mutate(Word = ifelse(on_cdi==1, "CDI", "Non-CDI")) %>%
+#  ggplot(aes(x=child_speech, y=`child_book`, color=Word)) + 
+#  geom_point(alpha=.3) + theme_classic() + geom_smooth(method='lm') +
+#  scale_x_log10() + scale_y_log10() + ggtitle("Smoothed Frequencies (union)")
 
-ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
+#ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 ```
 
 
 ```{r}
-cor(subset(ch_freq, on_cdi==1)$child_speech, subset(ch_freq, on_cdi==1)$`child_book`) # .62
-cor(subset(ch_freq, on_cdi==0)$child_speech, subset(ch_freq, on_cdi==0)$`child_book`) # .44
+#cor(subset(ch_freq, on_cdi==1)$child_speech, subset(ch_freq, on_cdi==1)$`child_book`) # .62
+#cor(subset(ch_freq, on_cdi==0)$child_speech, subset(ch_freq, on_cdi==0)$`child_book`) # .44
 ```
 
 ### Which CDI words are more booky/speechy?
 
 ```{r, fig.width=10, fig.height=5}
-p1 <- ch_freq_smooth %>% filter(on_cdi==1) %>%
-  ggplot(aes(x=child_speech, y=`child_book`)) + 
-  geom_point(alpha=.3) + theme_classic() + 
-  scale_x_log10() + scale_y_log10() +
-  geom_text_repel(aes(label=token)) +
-  geom_abline(intercept = 0, slope = 1, linetype="dashed") +
-  ggtitle("CHILDES vs. Stories corpus")
-p1
+#p1 <- ch_freq_smooth %>% filter(on_cdi==1) %>%
+#  ggplot(aes(x=child_speech, y=`child_book`)) + 
+#  geom_point(alpha=.3) + theme_classic() + 
+#  scale_x_log10() + scale_y_log10() +
+#  geom_text_repel(aes(label=token)) +
+#  geom_abline(intercept = 0, slope = 1, linetype="dashed") +
+#  ggtitle("CHILDES vs. Stories corpus")
+#p1
 ```
 
 
@@ -422,21 +485,21 @@ library(udpipe)
 ud_model <- udpipe_download_model(language = "french")
 ud_model <- udpipe_load_model(ud_model$file_model)
 
-child_speech_mapped <- child_speech_mapped %>% filter(measure=="produces")
+#child_speech_mapped <- child_speech_mapped %>% filter(measure=="produces")
 
-mappings <- child_book_mapped %>% 
-  dplyr::select(token, uni_lemma) %>% 
-  rbind(child_speech_mapped %>% dplyr::select(token, uni_lemma)) %>% 
-  distinct() %>% 
-  full_join(uni_lemmas) %>%
-  dplyr::select(token, lexical_class, uni_lemma) %>% 
-  distinct()
+#mappings <- child_book_mapped %>% 
+#  dplyr::select(token, uni_lemma) %>% 
+#  rbind(child_speech_mapped %>% dplyr::select(token, uni_lemma)) %>% 
+#  distinct() %>% 
+#  full_join(uni_lemmas) %>%
+#  dplyr::select(token, lexical_class, uni_lemma) %>% 
+#  distinct()
 
-ch_freq_ <- ch_freq %>% left_join(mappings)
+ch_freq_ <- ch_freq
 x_<-((ch_freq_ %>% filter(is.na(lexical_class))))
 
 x__ <- udpipe_annotate(ud_model, x = x_$token, doc_id = x_$token)
-x <- as.data.frame(x___) %>%
+x <- as.data.frame(x__) %>%
   mutate(lexical_class1=ifelse(upos=="VERB", "verbs", upos),
          lexical_class1=ifelse(upos=="NOUN", "nouns", lexical_class1),
          lexical_class1=ifelse(upos=="AUX", "verbs", lexical_class1),
@@ -456,74 +519,70 @@ x <- as.data.frame(x___) %>%
         filter(!is.na(lexical_class1)) %>%
         rename("token"="doc_id")
 
+x1 <- x[!duplicated(x$token),]
 
-ch_freq_new <- ch_freq_ %>% left_join(x) %>% 
+ch_freq_new <- ch_freq_ %>% left_join(x1) %>% 
   mutate(lexical_class=ifelse(is.na(lexical_class), lexical_class1, lexical_class )) %>%
-  dplyr::select(-uni_lemma, -lexical_class1) %>%
+  dplyr::select(-lexical_class1) %>%
   distinct() 
 
-ch_freq_smooth_ <- ch_freq_smooth %>% left_join(mappings)
-ch_freq_smooth_new<- ch_freq_ %>% left_join(x) %>% 
-  dplyr::select(-uni_lemma) %>%
-  distinct() %>%
+ch_freq_smooth_new<- ch_freq_smooth %>% left_join(x1) %>% 
   mutate(lexical_class=ifelse(is.na(lexical_class), lexical_class1, lexical_class )) %>%
   dplyr::select(-lexical_class1) %>%
   distinct() 
 
 # holds even if we filter out many low frequency words
-ch_key <- ch_freq_new %>% filter(child_speech>1, `child_book`>1) %>%
-  group_by(on_cdi, lexical_class) %>%
-  tidyboot_mean(ch_book_vs_speech)
+#ch_key <- ch_freq_new %>% filter(child_speech>1, `child_book`>1) %>%
+#  group_by(on_cdi, lexical_class) %>%
+#  tidyboot_mean(ch_book_vs_speech)
 
-ch_key_smooth <- ch_freq_smooth_new %>% 
-  group_by(on_cdi, lexical_class) %>%
-  tidyboot_mean(ch_book_vs_speech)
+#ch_key_smooth <- ch_freq_smooth_new %>% 
+#  group_by(on_cdi, lexical_class) %>%
+#  tidyboot_mean(ch_book_vs_speech)
 
-p1 <- ch_key %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
-  theme_classic() + ylab("Children's Book Keyness") + xlab("")
+#p1 <- ch_key %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+#  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+#  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+#  theme_classic() + ylab("Children's Book Keyness") + xlab("")
 
-p2 <- ch_key_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
-  theme_classic() + ylab("Children's Book Keyness") + xlab("")
+#p2 <- ch_key_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+#  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+#  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+#  theme_classic() + ylab("Children's Book Keyness") + xlab("")
 
-ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
+#ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 
-
-
-ch_freq_smooth1<- ch_freq_smooth_new |>
-  group_by(token, prop_booky, on_cdi, child_speech, child_book,ch_book_vs_speech) |>
-    summarise(
-      lexical_category = list(lexical_class)) |>
-  distinct()
+#ch_freq_smooth1<- ch_freq_smooth_new |>
+#  group_by(token, prop_booky, on_cdi, child_speech, child_book,ch_book_vs_speech) |>
+#    summarise(
+#      lexical_category = list(lexical_class)) |>
+#  distinct()
 
 
 
-save(ch_freq, ch_freq_smooth1, file="data/merged_word_freqs_fr.Rdata")
+save(ch_freq_new, ch_freq_smooth_new, file="word_freqs_fr.Rdata")
 
 
 ```
 
 ```{r}
-ch_booky <- ch_freq_new %>% group_by(on_cdi, lexical_class) %>%
-  tidyboot_mean(prop_booky)
+#ch_booky <- ch_freq_new %>% group_by(on_cdi, lexical_class) %>%
+#  tidyboot_mean(prop_booky)
 
-ch_booky_smooth <- ch_freq_smooth_new %>% group_by(on_cdi, lexical_class) %>%
-  tidyboot_mean(prop_booky)
+#ch_booky_smooth <- ch_freq_smooth_new %>% group_by(on_cdi, lexical_class) %>%
+#  tidyboot_mean(prop_booky)
 
-p1 <- ch_booky %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
-  theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
+#p1 <- ch_booky %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+#  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+#  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+#  theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
 
-p2 <- ch_booky_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
-  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
-  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
-  theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
+#p2 <- ch_booky_smooth %>% mutate(CDI = ifelse(on_cdi==1, "CDI Words", "non-CDI Words")) %>%
+#  ggplot(aes(x=CDI, y=mean, color=lexical_class)) + 
+#  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper), position = position_jitter(w=0.1)) +
+#  theme_classic() + ylab("Proportion of Book Occurrences") + xlab("")
 
-ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
+#ggpubr::ggarrange(p1, p2, nrow=1, common.legend = T)
 ```
 
 ## Predicting AoA
@@ -533,17 +592,17 @@ Which corpora contribute unique variance to predicting AoA?
 (Does the book corpus interact with SES, since we expect high-SES parents read more to their children?)
 
 ```{r}
-dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
-  dplyr::select(-ch_book_vs_speech) %>% left_join(mappings) %>% left_join(aoas_unilemma)
+#dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
+#  dplyr::select(-ch_book_vs_speech) %>% left_join(mappings) %>% left_join(aoas_unilemma)
   
-dd_produces <- dd %>% filter(measure=="produces")
-summary(lm(aoa ~ prop_booky, data=dd_produces)) # r^2 = .05; more booky = harder (significant)
+#dd_produces <- dd %>% filter(measure=="produces")
+#summary(lm(aoa ~ prop_booky, data=dd_produces)) # r^2 = .05; more booky = harder (significant)
 
-dd_understands <- dd %>% filter(measure=="understands")
-summary(lm(aoa ~ prop_booky, data=dd_understands)) # r^2 = .04; more booky = harder (significant)
+#dd_understands <- dd %>% filter(measure=="understands")
+#summary(lm(aoa ~ prop_booky, data=dd_understands)) # r^2 = .04; more booky = harder (significant)
 
 # with the 2 sources, only books are significant
-summary(lm(aoa ~ child_book + child_speech , data=dd_produces)) 
+#summary(lm(aoa ~ child_book + child_speech , data=dd_produces)) 
 ```
 
 
@@ -553,7 +612,7 @@ summary(lm(aoa ~ child_book + child_speech , data=dd_produces))
 
 ```{r}
 # let's take the 200 bookiest CDI items and look at relation of subscore to mom_ed
-booky_items <- dd %>% arrange(desc(prop_booky)) %>% head(200)
+#booky_items <- dd %>% arrange(desc(prop_booky)) %>% head(200)
 
 ```
 

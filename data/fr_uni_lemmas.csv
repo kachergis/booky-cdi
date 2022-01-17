@@ -1,0 +1,561 @@
+language,uni_lemma,lexical_class,category,definition
+French (French),a,function_words,quantifiers,un/une
+French (French),a lot,function_words,quantifiers,plein/beaucoup
+French (French),above,function_words,prepositions,au dessus de
+French (French),after,other,time_words,après
+French (French),again,function_words,quantifiers,encore
+French (French),airplane,nouns,vehicles,avion
+French (French),all,function_words,quantifiers,tous/tout
+French (French),all gone,adjectives,descriptive_words,parti
+French (French),also,function_words,quantifiers,aussi
+French (French),and,function_words,connecting_words,et
+French (French),animal,nouns,animals,animal
+French (French),another,function_words,quantifiers,un autre
+French (French),ant,nouns,animals,fourmi
+French (French),apple,nouns,food_drink,pomme
+French (French),arm,nouns,body_parts,bras
+French (French),armchair,nouns,furniture_rooms,fauteuil
+French (French),asleep,adjectives,descriptive_words,endormi
+French (French),at,function_words,prepositions,à
+French (French),aunt,other,people,tante
+French (French),awake,adjectives,descriptive_words,être réveillé
+French (French),baby,other,people,bébé
+French (French),babysitter,other,people,nounou
+French (French),babysitter's name,other,people,nom de la nounou
+French (French),bag,nouns,household,sac
+French (French),ball,nouns,toys,balle
+French (French),ball,nouns,toys,ballon
+French (French),banana,nouns,food_drink,banane
+French (French),basket,nouns,household,panier
+French (French),bath,other,games_routines,bain
+French (French),bath,nouns,furniture_rooms,baignoire
+French (French),bathroom,nouns,furniture_rooms,salle de bain
+French (French),beach,other,outside_places,plage
+French (French),beach,other,places,plage
+French (French),beads,nouns,clothing,perles
+French (French),bear,nouns,animals,ours
+French (French),beautiful,adjectives,descriptive_words,beau/belle
+French (French),beautiful,adjectives,descriptive_words,joli
+French (French),because,function_words,connecting_words,parce que
+French (French),bed,nouns,furniture_rooms,lit
+French (French),bedroom,nouns,furniture_rooms,chambre
+French (French),bee,nouns,animals,abeille
+French (French),before,other,time_words,avant
+French (French),behind,function_words,prepositions,derrière
+French (French),belly button,nouns,body_parts,nombril
+French (French),bib,nouns,clothing,bavoir/bavette
+French (French),bicycle,nouns,vehicles,vélo
+French (French),big,adjectives,descriptive_words,grand
+French (French),big,adjectives,descriptive_words,grand/grande
+French (French),bird,nouns,animals,oiseau
+French (French),bite,verbs,action_words,mordre
+French (French),black,adjectives,descriptive_words,noir
+French (French),blanket,nouns,household,couverture
+French (French),blow,verbs,action_words,souffler
+French (French),blue,adjectives,descriptive_words,bleu
+French (French),boat,nouns,vehicles,bateau
+French (French),book,nouns,toys,livre
+French (French),boots,nouns,clothing,bottes
+French (French),bottle,nouns,household,biberon
+French (French),bottle,nouns,household,bouteille
+French (French),bowl,nouns,household,bol
+French (French),box,nouns,household,boîte
+French (French),boy,other,people,garçon
+French (French),bravo,other,games_routines,bravo
+French (French),bread,nouns,food_drink,pain
+French (French),break,verbs,action_words,casser
+French (French),breakfast,other,games_routines,petit déjeuner
+French (French),bring,verbs,action_words,apporter
+French (French),broken,adjectives,descriptive_words,cassé
+French (French),broom,nouns,household,balai
+French (French),brother,other,people,frère
+French (French),brown,adjectives,descriptive_words,marron
+French (French),brush (object),nouns,household,brosse
+French (French),bubbles,nouns,toys,bulles
+French (French),bucket,nouns,household,seau
+French (French),build,verbs,action_words,construire
+French (French),bunny,nouns,animals,lapin
+French (French),bus,nouns,vehicles,bus
+French (French),butt,nouns,body_parts,fesses
+French (French),butter,nouns,food_drink,beurre
+French (French),butterfly,nouns,animals,papillon
+French (French),button,nouns,clothing,boutons
+French (French),buy,verbs,action_words,acheter
+French (French),bye,other,games_routines,au revoir
+French (French),cake,nouns,food_drink,gâteau
+French (French),camera,nouns,household,appareil photo
+French (French),candy,nouns,food_drink,bonbons
+French (French),car,nouns,vehicles,voiture
+French (French),carrots,nouns,food_drink,carotte
+French (French),carry,verbs,action_words,porter
+French (French),cat,nouns,animals,chat
+French (French),catch,verbs,action_words,attraper
+French (French),cereal,nouns,food_drink,céréales
+French (French),chair,nouns,furniture_rooms,chaise
+French (French),chalk,nouns,toys,craie
+French (French),chase,verbs,action_words,courir après
+French (French),cheek,nouns,body_parts,joue
+French (French),cheese,nouns,food_drink,fromage
+French (French),chicken (animal),nouns,animals,poule
+French (French),chicken (food),nouns,food_drink,poulet
+French (French),child,other,people,enfant
+French (French),child's own name,other,people,nom de l'enfant
+French (French),chin,nouns,body_parts,menton
+French (French),chips,nouns,food_drink,chips
+French (French),chocolate,nouns,food_drink,chocolat
+French (French),choo choo,other,sounds,tchou tchou
+French (French),church,other,outside_places,église
+French (French),church,other,places,église
+French (French),clean (action),verbs,action_words,nettoyer
+French (French),clean (description),adjectives,descriptive_words,propre
+French (French),clementine,nouns,food_drink,clémentine
+French (French),climb,verbs,action_words,grimper
+French (French),clock,nouns,household,horloge
+French (French),close,verbs,action_words,fermer
+French (French),cloud,nouns,outside,nuage
+French (French),clown,other,people,clown
+French (French),coat,nouns,clothing,manteau
+French (French),cockadoodledoo,other,sounds,cocorico
+French (French),coffee,nouns,food_drink,café
+French (French),cold,adjectives,descriptive_words,froid
+French (French),comb (object),nouns,household,peigne
+French (French),compote,nouns,food_drink,compote
+French (French),cook,verbs,action_words,cuisiner
+French (French),couch,nouns,furniture_rooms,canapé
+French (French),country,other,places,campagne
+French (French),cover,verbs,action_words,couvrir
+French (French),cow,nouns,animals,vache
+French (French),cradle,nouns,furniture_rooms,berceau
+French (French),crocodile,nouns,animals,crocodile
+French (French),cry,verbs,action_words,pleurer
+French (French),cup,nouns,household,tasse
+French (French),cut,verbs,action_words,couper
+French (French),cute,adjectives,descriptive_words,mignon/mignonne
+French (French),daddy,other,people,papa
+French (French),dance,verbs,action_words,danser
+French (French),dark,adjectives,descriptive_words,sombre
+French (French),day,other,time_words,jour
+French (French),deer,nouns,animals,biche
+French (French),diaper,nouns,clothing,couche
+French (French),dinner,other,games_routines,dîner
+French (French),dirty,adjectives,descriptive_words,sale
+French (French),dish,nouns,household,plat
+French (French),do,function_words,helping_verbs,fait
+French (French),doctor,other,people,docteur
+French (French),dog,nouns,animals,chien
+French (French),doll,nouns,toys,poupée
+French (French),donkey,nouns,animals,âne
+French (French),door,nouns,furniture_rooms,porte
+French (French),down,function_words,prepositions,en bas
+French (French),draw,verbs,action_words,dessiner
+French (French),drawer,nouns,furniture_rooms,tiroir
+French (French),dress (object),nouns,clothing,robe
+French (French),drink (action),verbs,action_words,boire
+French (French),drink (beverage),nouns,food_drink,boisson
+French (French),drive,verbs,action_words,conduire
+French (French),dry (action),verbs,action_words,sécher
+French (French),dry (description),adjectives,descriptive_words,sec/s�che
+French (French),duck,nouns,animals,canard
+French (French),dump,verbs,action_words,jeter
+French (French),ear,nouns,body_parts,oreille
+French (French),eat,verbs,action_words,manger
+French (French),egg,nouns,food_drink,œuf
+French (French),elephant,nouns,animals,éléphant
+French (French),empty,adjectives,descriptive_words,vide
+French (French),eye,nouns,body_parts,yeux
+French (French),face,nouns,body_parts,figure
+French (French),face,nouns,body_parts,figure/visage
+French (French),fall,verbs,action_words,tomber
+French (French),far,function_words,prepositions,loin
+French (French),far,function_words,prepositions,au loin
+French (French),fast,adjectives,descriptive_words,vite
+French (French),feed,verbs,action_words,nourrir
+French (French),find,verbs,action_words,trouver
+French (French),finger,nouns,body_parts,doigt
+French (French),finish,verbs,action_words,finir
+French (French),firefighter,other,people,pompier
+French (French),firetruck,nouns,vehicles,camion de pompier
+French (French),first,adjectives,descriptive_words,premier/premi�re
+French (French),flower,other,outside_places,fleur
+French (French),flower,nouns,outside,fleur
+French (French),food,nouns,food_drink,nourriture
+French (French),foot,nouns,body_parts,pied
+French (French),fork,nouns,household,fourchette
+French (French),friend,other,people,copain/copine
+French (French),frog,nouns,animals,grenouille
+French (French),full,adjectives,descriptive_words,plein/e
+French (French),garage,nouns,furniture_rooms,garage
+French (French),garden,other,outside_places,jardin
+French (French),garden,nouns,outside,jardin
+French (French),gas station,other,places,station service
+French (French),gas station,other,places,station-service
+French (French),get up,verbs,action_words,être debout
+French (French),giraffe,nouns,animals,girafe
+French (French),girl,other,people,fille
+French (French),give,verbs,action_words,donner
+French (French),glass,nouns,household,verre
+French (French),glasses,nouns,household,lunettes
+French (French),gloves,nouns,clothing,gants
+French (French),glue,nouns,toys,colle
+French (French),go,verbs,action_words,aller
+French (French),goat,nouns,animals,chèvre
+French (French),good,adjectives,descriptive_words,bien
+French (French),good,adjectives,descriptive_words,bon/bonne
+French (French),good night,other,games_routines,bonne nuit
+French (French),goose,nouns,animals,oie
+French (French),grandma,other,people,grand-mère
+French (French),grandpa,other,people,grand-père
+French (French),grapes,nouns,food_drink,raisin
+French (French),grass,nouns,outside,herbe
+French (French),green,adjectives,descriptive_words,vert/verte
+French (French),grrr,other,sounds,grrrr
+French (French),hair,nouns,body_parts,cheveux
+French (French),hammer,nouns,household,marteau
+French (French),hand,nouns,body_parts,main
+French (French),happy,adjectives,descriptive_words,content/contente
+French (French),hard,adjectives,descriptive_words,dur
+French (French),hat,nouns,clothing,chapeau
+French (French),have,verbs,action_words,avoir
+French (French),he,function_words,pronouns,Il
+French (French),he,function_words,pronouns,il
+French (French),head,nouns,body_parts,tête
+French (French),hear,verbs,action_words,entendre
+French (French),heavy,adjectives,descriptive_words,lourd/lourde
+French (French),helicopter,nouns,vehicles,hélicoptère
+French (French),help,verbs,action_words,aider
+French (French),here,function_words,prepositions,ici
+French (French),hers,function_words,pronouns,à elle/sa
+French (French),hi,other,games_routines,bonjour
+French (French),hi,other,games_routines,salut
+French (French),hide,verbs,action_words,cacher
+French (French),high,adjectives,descriptive_words,haut/e
+French (French),high chair,nouns,furniture_rooms,chaise haute
+French (French),him,function_words,pronouns,lui
+French (French),his,function_words,pronouns,à lui/son
+French (French),his,function_words,pronouns,ses
+French (French),hit,verbs,action_words,taper
+French (French),hold,verbs,action_words,tenir
+French (French),horse,nouns,animals,cheval
+French (French),hot,adjectives,descriptive_words,chaud/chaude
+French (French),house,other,outside_places,maison
+French (French),house,other,places,maison
+French (French),how,function_words,question_words,comment
+French (French),hug,verbs,action_words,prendre dans ses bras
+French (French),hungry,adjectives,descriptive_words,avoir faim
+French (French),hurt (description),adjectives,descriptive_words,blessé
+French (French),i,function_words,pronouns,je
+French (French),ice cream,nouns,food_drink,glace
+French (French),if,function_words,connecting_words,si
+French (French),in,function_words,prepositions,dans
+French (French),inside,function_words,prepositions,dedans
+French (French),inside,function_words,prepositions,à l'intérieur de
+French (French),jacket,nouns,clothing,veste
+French (French),jam,nouns,food_drink,confiture
+French (French),jeans,nouns,clothing,jeans
+French (French),juice,nouns,food_drink,jus de fruit
+French (French),jump,verbs,action_words,sauter
+French (French),keys,nouns,household,clefs
+French (French),kick,verbs,action_words,donner un coup de pied
+French (French),kick,verbs,action_words,donner un coup
+French (French),kiss,verbs,action_words,faire un bisou
+French (French),kitchen,nouns,furniture_rooms,cuisine
+French (French),kitty,nouns,animals,bébé chat
+French (French),knee,nouns,body_parts,genou
+French (French),knife,nouns,household,couteau
+French (French),knock,verbs,action_words,frapper à la porte
+French (French),ladder,nouns,outside,échelle
+French (French),lady,other,people,dame
+French (French),lamb,nouns,animals,agneau
+French (French),lamp,nouns,household,lampe
+French (French),lawn mower,nouns,outside,tondeuse à gazon
+French (French),leg,nouns,body_parts,jambe
+French (French),lick,verbs,action_words,lécher
+French (French),light,nouns,household,lumière
+French (French),lion,nouns,animals,lion
+French (French),lips,nouns,body_parts,lèvre
+French (French),listen,verbs,action_words,écouter
+French (French),little (amount),function_words,quantifiers,un peu
+French (French),little (description),adjectives,descriptive_words,petit/petite
+French (French),little (description),adjectives,descriptive_words,minuscule
+French (French),living room,nouns,furniture_rooms,salon
+French (French),long,adjectives,descriptive_words,long/longue
+French (French),look,verbs,action_words,regarder
+French (French),loud,adjectives,descriptive_words,bruyant/bruyante
+French (French),love,verbs,action_words,aimer
+French (French),lunch,other,games_routines,déjeuner
+French (French),man,other,people,monsieur
+French (French),me,function_words,pronouns,moi
+French (French),meat,nouns,food_drink,viande
+French (French),medicine,nouns,household,médicaments
+French (French),meow,other,sounds,miaou
+French (French),milk,nouns,food_drink,lait
+French (French),mine,function_words,pronouns,à moi
+French (French),mittens,nouns,clothing,moufles
+French (French),mommy,other,people,maman
+French (French),money,nouns,household,argent
+French (French),monkey,nouns,animals,singe
+French (French),moo,other,sounds,meuh
+French (French),moon,other,outside_places,lune
+French (French),moon,nouns,outside,lune
+French (French),morning,other,time_words,matin
+French (French),motorcycle,nouns,vehicles,moto
+French (French),mouse,nouns,animals,souris
+French (French),mouth,nouns,body_parts,bouche
+French (French),music,nouns,household,musique
+French (French),my,function_words,pronouns,ma/mon/mes
+French (French),myself,function_words,pronouns,moi-même
+French (French),nail (object),nouns,household,clou
+French (French),nap,other,games_routines,sieste
+French (French),naughty,adjectives,descriptive_words,coquin/coquine
+French (French),necklace,nouns,clothing,collier
+French (French),new,adjectives,descriptive_words,neuf/neuve
+French (French),nice,adjectives,descriptive_words,gentil/gentille
+French (French),night,other,time_words,nuit
+French (French),no,other,games_routines,non
+French (French),none,function_words,quantifiers,aucun/aucune
+French (French),nose,nouns,body_parts,nez
+French (French),not,function_words,quantifiers,pas
+French (French),not,function_words,helping_verbs,ne pas
+French (French),now,other,time_words,maintenant
+French (French),nurse,other,people,infirmière
+French (French),of,function_words,prepositions,de
+French (French),old,adjectives,descriptive_words,vieux/vieille
+French (French),on,function_words,prepositions,sur
+French (French),open (action),verbs,action_words,ouvrir
+French (French),other,function_words,quantifiers,autre
+French (French),ouch,other,sounds,aie
+French (French),our,function_words,pronouns,notre
+French (French),oven,nouns,furniture_rooms,four
+French (French),overalls,nouns,clothing,salopette
+French (French),owie,nouns,body_parts,aïe bobo
+French (French),owie,nouns,body_parts,bobo
+French (French),owl,nouns,animals,hibou
+French (French),paint (action),verbs,action_words,faire de la peinture
+French (French),pajamas,nouns,clothing,pyjama
+French (French),pants,nouns,clothing,pantalon
+French (French),paper,nouns,household,feuille
+French (French),paper,nouns,household,papier
+French (French),pasta,nouns,food_drink,pâtes
+French (French),pasta,nouns,food_drink,spaghetti
+French (French),peas,nouns,food_drink,petits pois
+French (French),peas,nouns,food_drink,petits pots
+French (French),peekaboo,other,games_routines,coucou
+French (French),pen/pencil,nouns,toys,crayon
+French (French),pen/pencil,nouns,toys,stylo
+French (French),penguin,nouns,animals,pingouin
+French (French),penguin,nouns,animals,pinguoin
+French (French),penis,nouns,body_parts,pénis/zizi…
+French (French),people,other,people,gens
+French (French),person,other,people,personne
+French (French),pet's name,other,people,nom de l'animal domestique
+French (French),photos,nouns,household,photo
+French (French),pig,nouns,animals,cochon
+French (French),pillow,nouns,household,oreiller
+French (French),pizza,nouns,food_drink,pizza
+French (French),plant,nouns,household,plante
+French (French),plate,nouns,household,assiette
+French (French),play,verbs,action_words,jouer
+French (French),playground,other,places,terrain de jeux
+French (French),please,other,games_routines,s'il te plait
+French (French),police,other,people,police
+French (French),pony,nouns,animals,poney
+French (French),pool,other,outside_places,piscine
+French (French),pool,nouns,outside,piscine
+French (French),popsicle,nouns,food_drink,esquimau
+French (French),potato,nouns,food_drink,pomme de terre
+French (French),potty,nouns,furniture_rooms,wc
+French (French),pour,verbs,action_words,verser
+French (French),present,nouns,toys,cadeau
+French (French),pretend,verbs,action_words,faire semblant
+French (French),pretzel,nouns,food_drink,bretzel
+French (French),pull,verbs,action_words,tirer
+French (French),puppy,nouns,animals,bébé chien
+French (French),push,verbs,action_words,pousser
+French (French),put,verbs,action_words,mettre
+French (French),put,verbs,action_words,déposer
+French (French),quack quack,other,sounds,coin coin
+French (French),radio,nouns,household,radio
+French (French),rain,other,outside_places,pluie
+French (French),rain,nouns,outside,pluie
+French (French),raisin,nouns,food_drink,raisins secs
+French (French),read,verbs,action_words,lire
+French (French),red,adjectives,descriptive_words,rouge
+French (French),refrigerator,nouns,furniture_rooms,frigo
+French (French),remote control,nouns,household,télécommande
+French (French),road,nouns,outside,rue/route
+French (French),rock (object),other,outside_places,caillou
+French (French),rock (object),nouns,outside,rocher
+French (French),roof,nouns,outside,toit
+French (French),room,nouns,furniture_rooms,pièce
+French (French),rooster,nouns,animals,coq
+French (French),run,verbs,action_words,courir
+French (French),sad,adjectives,descriptive_words,triste
+French (French),same,function_words,quantifiers,même
+French (French),sandwich,nouns,food_drink,sandwich
+French (French),sauce,nouns,food_drink,sauce
+French (French),say,verbs,action_words,dire
+French (French),scared,adjectives,descriptive_words,avoir peur
+French (French),scarf,nouns,clothing,écharpe
+French (French),scissors,nouns,household,ciseaux
+French (French),see,verbs,action_words,voir
+French (French),shake,verbs,action_words,secouer
+French (French),share,verbs,action_words,partager
+French (French),she,function_words,pronouns,elle
+French (French),sheep,nouns,animals,mouton
+French (French),shh,other,games_routines,chut
+French (French),shirt,nouns,clothing,chemise
+French (French),shoe,nouns,clothing,chaussure
+French (French),shorts,nouns,clothing,short
+French (French),shovel,other,outside_places,pelle
+French (French),shovel,nouns,outside,pelle
+French (French),show,verbs,action_words,montrer
+French (French),shower,nouns,furniture_rooms,douche
+French (French),sick,adjectives,descriptive_words,malade
+French (French),sing,verbs,action_words,chanter
+French (French),sink,nouns,furniture_rooms,évier
+French (French),sink,nouns,furniture_rooms,lavabo
+French (French),sister,other,people,sœur
+French (French),sit,verbs,action_words,s'asseoir
+French (French),sky,other,outside_places,ciel
+French (French),sky,nouns,outside,ciel
+French (French),sled,nouns,vehicles,traîneau
+French (French),sled,nouns,vehicles,traineau
+French (French),sleep,verbs,action_words,dormir
+French (French),sleepy,verbs,action_words,avoir sommeil
+French (French),sleepy,adjectives,descriptive_words,avoir sommeil
+French (French),slide (action),verbs,action_words,glisser
+French (French),slide (object),other,outside_places,toboggan
+French (French),slide (object),nouns,outside,toboggan
+French (French),slipper,nouns,clothing,chausson/pantoufle
+French (French),slow,adjectives,descriptive_words,lent/e
+French (French),smile,verbs,action_words,sourire
+French (French),snow,other,outside_places,neige
+French (French),snow,nouns,outside,neige
+French (French),snowman,nouns,outside,bonhomme de neige
+French (French),soap,nouns,household,savon
+French (French),sock,nouns,clothing,chaussettes
+French (French),soft,adjectives,descriptive_words,doux/douce
+French (French),some,function_words,quantifiers,du/de la/des
+French (French),soup,nouns,food_drink,soupe
+French (French),spill,verbs,action_words,renverser
+French (French),splash,verbs,action_words,éclabousser
+French (French),spoon,nouns,household,cuillère
+French (French),squirrel,nouns,animals,écureuil
+French (French),stairs,nouns,furniture_rooms,escalier
+French (French),star,other,outside_places,étoile
+French (French),star,nouns,outside,étoile
+French (French),stay,verbs,action_words,rester
+French (French),stick,nouns,outside,bâton
+French (French),stick,nouns,outside,baton
+French (French),stone,nouns,outside,pierre
+French (French),stone,nouns,outside,caillou
+French (French),stop,verbs,action_words,arrêter
+French (French),store,other,places,magasin
+French (French),story,nouns,toys,histoire
+French (French),stroller,nouns,vehicles,poussette
+French (French),sugar,nouns,food_drink,sucre
+French (French),sun,other,outside_places,soleil
+French (French),sun,nouns,outside,soleil
+French (French),sweater,nouns,clothing,pull
+French (French),sweater,nouns,clothing,sweat
+French (French),sweep,verbs,action_words,balayer
+French (French),swim,verbs,action_words,nager
+French (French),swing (action),verbs,action_words,balancer
+French (French),swing (object),other,outside_places,balançoire
+French (French),swing (object),nouns,outside,balançoire
+French (French),t-shirt,nouns,clothing,tee-shirt
+French (French),table,nouns,furniture_rooms,table
+French (French),take,verbs,action_words,prendre
+French (French),talk,verbs,action_words,parler
+French (French),teacher,other,people,maître/ma�tresse
+French (French),tear,verbs,action_words,déchirer
+French (French),teddybear,nouns,animals,nounours
+French (French),telephone,nouns,household,téléphone
+French (French),thank you,other,games_routines,merci
+French (French),that,function_words,pronouns,ça
+French (French),the,function_words,quantifiers,le/la/les
+French (French),their,function_words,pronouns,leur
+French (French),them,function_words,pronouns,eux
+French (French),there,function_words,prepositions,là
+French (French),there,function_words,prepositions,là-bas
+French (French),these,function_words,pronouns,ces
+French (French),they,function_words,pronouns,ils/elles
+French (French),they,function_words,pronouns,on
+French (French),think,verbs,action_words,penser
+French (French),thirsty,adjectives,descriptive_words,avoir soif
+French (French),those,function_words,pronouns,ceux
+French (French),thumb,nouns,body_parts,pouce
+French (French),tickle,verbs,action_words,chatouiller
+French (French),tiger,nouns,animals,tigre
+French (French),tights,nouns,clothing,collants
+French (French),time,other,time_words,heure
+French (French),tired,adjectives,descriptive_words,fatigué
+French (French),tissue,nouns,household,mouchoir
+French (French),today,other,time_words,aujourd'hui
+French (French),toe,nouns,body_parts,doigt de pied
+French (French),toe,nouns,body_parts,doigt de pieds
+French (French),tomorrow,other,time_words,demain
+French (French),tongue,nouns,body_parts,langue
+French (French),tonight,other,time_words,ce soir
+French (French),tooth,nouns,body_parts,dent
+French (French),toothbrush,nouns,household,brosse à dent
+French (French),touch,verbs,action_words,toucher
+French (French),towel,nouns,household,serviette
+French (French),toy (object),nouns,toys,jouet
+French (French),tractor,nouns,vehicles,tracteur
+French (French),train,nouns,vehicles,train
+French (French),trash,nouns,household,ordures
+French (French),tree,other,outside_places,arbre
+French (French),tree,nouns,outside,arbre
+French (French),truck,nouns,vehicles,camion
+French (French),tummy,nouns,body_parts,ventre
+French (French),turkey,nouns,animals,dindon
+French (French),turtle,nouns,animals,tortue
+French (French),tv,nouns,furniture_rooms,télé
+French (French),uh oh,other,sounds,oh oh
+French (French),uncle,other,people,oncle
+French (French),under,function_words,prepositions,sous
+French (French),underpants,nouns,clothing,culotte/slip
+French (French),up,function_words,prepositions,en haut
+French (French),vacuum,nouns,household,aspirateur
+French (French),vagina,nouns,body_parts,vagin/zezette…
+French (French),vagina,nouns,body_parts,vagin/zezette
+French (French),vroom,other,sounds,vroum
+French (French),wait,other,games_routines,attends
+French (French),wait,verbs,action_words,attendre
+French (French),wake,verbs,action_words,se réveiller
+French (French),walk,verbs,action_words,marcher
+French (French),wash,verbs,action_words,laver
+French (French),washing machine,nouns,furniture_rooms,machine à laver
+French (French),watch (object),nouns,household,montre
+French (French),watch out,adjectives,descriptive_words,attention
+French (French),we,function_words,pronouns,nous
+French (French),wet (description),adjectives,descriptive_words,mouillé
+French (French),what,function_words,question_words,quoi
+French (French),when (question),function_words,question_words,quand
+French (French),where (question),function_words,question_words,où
+French (French),which (question),function_words,question_words,le/la/les/quel(les)
+French (French),white,adjectives,descriptive_words,blanc/blanche
+French (French),who,function_words,question_words,qui
+French (French),why,function_words,question_words,pourquoi
+French (French),wind,nouns,outside,vent
+French (French),window,nouns,furniture_rooms,fenêtre
+French (French),wipe,verbs,action_words,essuyer
+French (French),with,function_words,prepositions,avec
+French (French),wolf,nouns,animals,loup
+French (French),work (action),verbs,action_words,travailler
+French (French),work (place),other,outside_places,travail
+French (French),work (place),other,places,travail
+French (French),write,verbs,action_words,écrire
+French (French),yard,other,outside_places,cour
+French (French),yard,other,places,cour
+French (French),yellow,adjectives,descriptive_words,jaune
+French (French),yes,other,games_routines,oui
+French (French),yesterday,other,time_words,hier
+French (French),yogurt,nouns,food_drink,yaourt
+French (French),you,function_words,pronouns,vous/tu
+French (French),your,function_words,pronouns,votre/ta/ton
+French (French),yum yum,other,sounds,miam miam
+French (French),zebra,nouns,animals,zèbre
+French (French),zoo,other,outside_places,zoo
+French (French),zoo,other,places,zoo
