@@ -7,6 +7,7 @@ document-params: "10pt, letterpaper"
 author-information: > 
     \author{{\large \bf George Kachergis* (kachergis@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
     \AND {\large \bf Georgia Loukatou (@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA}
+    \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA}
 
 abstract: >
     Children's early vocabulary learning must to a large extent be driven by the prevalence 
@@ -14,11 +15,13 @@ abstract: >
     has found that higher word frequency is a good predictor of earlier learning. However,
     despite considerable overlap, word frequency distributions also vary significantly 
     by source: child-directed speech, books, and television have distinct profiles. Children
-    receive a mixture of these different frequency distributions, and here we attempt to 
-    discern the varying impact of these input sources on children's early word learning.
+    receive a mixture of these different frequency distributions, and the ratios of the mixture
+    may be predictive of their early word learning. The goal of this paper is to better understand
+    the shared and unique variance in these sources of input--in both English and French--and 
+    to evaluate how predictive these input frequencies are of children's early word learning.
     
 keywords: >
-    early language learning; CDI; vocabulary development.
+    early language learning; CDI; vocabulary development; word frequency distributions.
     
 output: cogsci2016::cogsci_paper
 #final-submission: \cogscifinalcopy
@@ -56,11 +59,20 @@ require(GGally)
 
 # Introduction
 
-Previous studies have shown that frequency matters for children's word learning [for a review, see @ambridge2015ubiquity], and have observed an association between word frequency in children's language environments and age of acquisition [@goodman2008]. However, input word frequency varies significantly depending on the context. For instance, word frequency in books is not the same as frequency in conversational speech [@montag2015words]. Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech (2,260 tokens per million; TPM), yet not so common in children's books (10 TPM), and even more rare in books meant for all ages (2 TPM). But other differences are less intuitive: "of" is frequent in books meant for all ages (41,630 TPM), and while still frequent in child-directed speech (5,900 TPM), relatively less so as compared to children's books (20,400 TPM).
+Previous studies have shown that frequency matters for children's word learning [for a review, see @ambridge2015ubiquity], and have observed an association between word frequency in children's language environments and age of acquisition [@goodman2008]. 
+However, input word frequency varies significantly depending on the context. 
+For instance, word frequency in books is not the same as frequency in conversational speech [@dawson2021features; @montag2015words]. 
+Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech (2,260 tokens per million; TPM), yet not so common in children's books (10 TPM), and even more rare in books meant for all ages (2 TPM). 
+But other differences are less intuitive: "of" is frequent in books meant for all ages (41,630 TPM), and while still frequent in child-directed speech (5,900 TPM), relatively less so as compared to children's books (20,400 TPM).
+In general, speech--both directed to children, and to adults--contains relatively fewer function words, and tends to score lower on measures of lexical diversity than books [@dawson2021features].
 
-Different language input sources, such as the use of child-directed register or book reading time, can lead to variance in input speech heard by child during their everyday lives. This input variance has often been interpreted as a function of the families' socioeconomic status (SES)[@rowe2018understanding]. Importantly, this variance has been found to relate to children's language development and could predict aspects of word learning [@hoff2003specificity]. 
+Different language input sources, such as the use of child-directed register or book reading time, can lead to variance in input speech heard by child during their everyday lives. 
+This input variance has often been interpreted as a function of the families' socioeconomic status [SES; @rowe2018understanding]. 
+Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. 
 
-The primary goal of this paper is to examine shared and unique variance in word frequency across different sources of input, ranging from children's books and movies to child-directed speech and adult books and movies, which we accomplish via principle components analysis (PCA). After characterizing the structure of the principle components of frequency from different sources, we investigate how well these components predict children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. Finally, we examine how well the frequency components predict individual children's word learning in combination with their mother's education, which may be related to how much children are read to at home.
+The primary goal of this paper is to examine shared and unique variance in word frequency across different sources of input, ranging from children's books and movies to child-directed speech and adult-directed books, movies, and speech, which we accomplish via principle components analysis (PCA). 
+After characterizing the structure of the principle components of frequency from different sources in both English and French, we investigate how well these components predict children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. 
+Finally, we examine how well the frequency components predict individual children's word learning in combination with their mother's education, which may be related to how much children are read to at home.
 
 # Method
 
@@ -379,8 +391,9 @@ To test this idea, we regressed
 
 # Acknowledgements
 
-Place acknowledgments (including funding information) in a section at
-the end of the paper.
+This research was funded in part by (Georgia's grant).
+We thank members of the Language and Cognition lab for their feedback.
+
 
 # References 
 
