@@ -56,28 +56,12 @@ require(GGally)
 
 # Introduction
 
-Word usage varies significantly by context: you don't speak to your boss the same way as you do to your dog.
+Previous studies have shown that frequency matters for children's word learning
+[for a review, see @ambridge2015ubiquity], and have observed an association between word frequency in children's language environments and age of acquisition [@goodman2008]. However, input word frequency varies significantly depending on the context. For instance, word frequency in books is not the same as frequency in conversational speech [@montag2015words]. Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech (2,260 tokens per million; TPM), yet not so common in children's books (10 TPM), and even more rare in books meant for all ages (2 TPM). But other differences are less intuitive: "of" is frequent in books meant for all ages (41,630 TPM), and while still frequent in child-directed speech (5,900 TPM), relatively less so as compared to children's books (20,400 TPM).
 
+Different language input sources, such as the use of child-directed register or book reading time, can lead to variance in input speech heard by child during their everyday lives. This input variance has often been interpreted as a function of the families' socioeconomic status (SES)[@rowe2018understanding]. Importantly, this variance has been found to relate to children's language development and could predict aspects of word learning [@hoff2003specificity]. 
 
-Frequency matters for children's language learning
-[for a review, see @ambridge2015ubiquity] 
-[@goodman2008]
-
-But - not all frequencies created equal
-books vs. speech vs. etc. 
-montag 
-nation paper
-
-Some of the large differences between frequency distributions are intuitive: for example, "mommy" is quite frequent in child-directed speech (2,260 tokens per million; TPM), yet not so common in children's books (10 TPM), and even more rare in books meant for all ages (2 TPM).
-But some of the differences are less intuitive: "of" is quite frequent in books meant for all ages (41,630 TPM), and while still frequent in child-directed speech (5,900 TPM), relatively less so as compared to children's books (20,400 TPM).
-
-SES variation in register, language source
-
-The primary goal of this paper is to examine shared and unique variance in frequency across sources of input, ranging from children's books and movies to child-directed speech and adult books and movies, which we accomplish via principle components analysis (PCA).
-After characterizing the structure of the principle components of frequency from different sources, we will investigate how well these components predict children's early word learning, using aggregate CDI data from Wordbank.
-Finally, we also examine how well the frequency components predict individual children's word learning in combination with their mother's education, which may be related to how much children are read to at home.
-
-introduce CDI [@fenson2007] and AoA analysis [@braginsky2019consistency]
+The primary goal of this paper is to examine shared and unique variance in word frequency across different sources of input, ranging from children's books and movies to child-directed speech and adult books and movies, which we accomplish via principle components analysis (PCA). After characterizing the structure of the principle components of frequency from different sources, we investigate how well these components predict children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. Finally, we examine how well the frequency components predict individual children's word learning in combination with their mother's education, which may be related to how much children are read to at home.
 
 # Method
 
@@ -166,6 +150,7 @@ dddc <- dddc %>%
 dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
                                  `AdM` = 0.32))
 ```
+Children's early word learning data is drrawn from the CDIs [@fenson2007]. CDIs are parental reports on their children’s lexical development, proven to be reliable indicators of a child’s language. CDIs are survey instruments, where parents mark whether their child (age ranges 8-15 and 16-30 months old) understands or produces particular words out of a list of several hundred words.
 
 All word frequencies were normalized to number of tokens per million (TPM).
 We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
