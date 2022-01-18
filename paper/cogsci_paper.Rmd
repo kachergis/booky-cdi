@@ -178,14 +178,32 @@ dddc <- dddc %>%
 
 dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
                                  `AdM` = 0.32))
+                                 
+dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech, -prop_booky) %>%
+  mutate(Nletters = nchar(token)) %>%
+  mutate(adult_book = ifelse(is.na(adult_book), 10, adult_book),
+         adult_speech = ifelse(is.na(adult_speech), 10, adult_speech),
+         child_book = ifelse(is.na(child_book), 10, child_book),
+         adult_tv = ifelse(is.na(adult_tv), 10, adult_tv),
+         child_tv = ifelse(is.na(child_tv), 10, child_tv),
+         child_speech = ifelse(is.na(child_speech), 10, child_speech)) %>%
+         distinct()
+
+dddc_fr <- dd_fr %>% 
+  rename(`AdB` = adult_book,  
+         `ChB` = child_book, 
+         `AdM` = adult_tv,
+         `AdS` = adult_speech,
+         `ChS` = child_speech,
+         `ChM` = child_tv)                                  
 ```
-Children's early word learning data is drrawn from the CDIs [@fenson2007]. CDIs are parental reports on their children’s lexical development, proven to be reliable indicators of a child’s language. CDIs are survey instruments, where parents mark whether their child (age ranges 8-15 and 16-30 months old) understands or produces particular words out of a list of several hundred words.
+Children's early word learning data is drawn from the CDIs [@fenson2007]. CDIs are parental reports on their children’s lexical development, proven to be reliable indicators of a child’s language. CDIs are survey instruments, where parents mark whether their child (age ranges 8-15 and 16-30 months old) understands or produces particular words out of a list of several hundred words.
 
 All word frequencies were normalized to number of tokens per million (TPM).
-We focus our analysis on the 674 words from the CDI that we were able to find in at least some of the corpora.
-We were unable to match 6 CDI items in any of the corpora, including "babysitter's name", "child's own name", ...
+We focus our analysis on the 674 words from the English CDI that we were able to find in at least some of the corpora, and 470 words from the French CDI (for French, words were matched to related words in corpora via a stemmer).
 For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
-`r sum(is.na(ddd$books))` missing word was replaced in each of ChB, ChM, and ChS, while `r sum(is.na(ddd$adult_books))` missing words were replaced in AdB. ...
+
 
 # Results
 
@@ -197,8 +215,11 @@ Table 1 shows the cross-corpus word frequency correlations for the `r nrow(dddc)
 ```{r}
 cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
     papaja::apa_table(digits=2, placement='h',
-                      caption="Correlation table of word frequency distributions for CDI words.")
-```
+                      caption="Correlation table of word frequency distributions for English CDI words.")
+
+cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
+    papaja::apa_table(digits=2, placement='h',
+                      caption="Correlation table of word frequency distributions for French CDI words.")```
 
 
 ## Age of Acquisition Regression
@@ -219,6 +240,17 @@ names(tab) = c("Beta","SE","t-val","p-val","VIF")
 print(xtable(tab, digits=2,
              caption = "Coefficients for corpora frequencies predicting AoA.",
              table.placement = "H"), comment=F)
+
+lm1_fr <- lm(aoa ~ log(ChS) + log(ChM) + log(ChB) + log(AdS) + log(AdM) + log(AdB) + Nletters, data=dddc_fr)
+# R^2 = 0.3433
+tab_fr <- data.frame(summary(lm1_fr)$coefficients)
+tab_fr$VIF = c(NA, car::vif(lm1_fr))
+names(tab_fr) = c("Beta","SE","t-val","p-val","VIF")
+print(xtable(tab_fr, digits=2,
+             caption = "Coefficients for French corpora frequencies predicting AoA.",
+             table.placement = "H"), comment=F)
+             
+             
 ```
 
 
@@ -236,7 +268,14 @@ pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
 pc_imp <- summary(pc_bsa)$importance 
 row.names(pc_imp) = c("Std Dev","Prop Var","Cum Prop Var")
 pc_imp %>%
-    papaja::apa_table(digits=2, caption="Importance of components from PCA.", placement='h')
+    papaja::apa_table(digits=2, caption="Importance of components from English PCA.", placement='h')
+pc_bsa_fr <- prcomp(log(dddc_fr[,c("ChM","ChB","ChS",
+                             "AdM","AdB","AdS")])) # add Montag separately?
+#eigenvalues = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
+pc_imp_fr <- summary(pc_bsa_fr)$importance 
+row.names(pc_imp_fr) = c("Std Dev","Prop Var","Cum Prop Var")
+pc_imp_fr %>%
+    papaja::apa_table(digits=2, caption="Importance of components from French PCA.", placement='h')
 ```
 
 Table 4 shows the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions.
@@ -255,6 +294,11 @@ Although even PC5 and PC6 seem interpretable, given limited space and the fact t
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
 pc_bsa$rotation %>%
     papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system.", placement='h')
+    
+#pc_bsa$rotation  * -1
+ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
+pc_bsa_fr$rotation %>%
+    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system. (French)", placement='h')    
 ```
 
 
