@@ -507,16 +507,16 @@ fr_ws <- get_item_data(language="French (French)", form="WS") %>%
 fr_long_ws <- fr_long_ws %>% left_join(fr_ws %>% select(num_item_id, definition)) %>%
   filter(!is.na(definition))
 
+table(fr_demo$mom_ed) # small amount of French data with mom_ed: 46 secondary, 112 college, 64 grad
+
 save(fr_ws, fr_demo, fr_long_ws, file=here("data/fr_ws.Rdata"))
 ```
 
 
 ```{r en-momed-regression}
 load(here("data/en_ws.Rdata"))
-# Mike: PC1 + PC2 * mom_ed
-# glmer(cbind(produces, doesn't produce) ~ age * PC1 + age * PC2 * mom_ed + (1|item))
 
-mom_ed = table(en_demo$mom_ed)
+en_mom_ed = table(en_demo$mom_ed)
 # None = 0, Primary = 8, Some Secondary = 123
 
 en_dat <- en_long_ws %>% left_join(en_demo) %>%
@@ -541,14 +541,11 @@ en_dat <- en_dat %>% left_join(ddbsa %>% select(definition, Nletters, PC1, PC2, 
 # using centered age (age_sc) makes model singular ??
 
 
-en2 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2), 
-                   data=en_dat)
+#en2 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2), data=en_dat)
 
-en3 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2 + PC3), 
-                   data=en_dat)
+#en3 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2 + PC3), data=en_dat)
 
-en4 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2 + PC3 + PC4), 
-                   data=en_dat)
+en4 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2 + PC3 + PC4), data=en_dat)
 
 #anova(en2, en3)
 #anova(en3, en4)
@@ -557,23 +554,21 @@ en4 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2 
 #summary(en3)
 en_manova_tab <- summary(en4)
 
-# proportions..want to get the coefficients
-len2 <- lm(total_prod/(total_prod+total_not_prod) ~ age * mom_ed_num * (PC1 + PC2), 
-                   data=en_dat)
+# lm with proportions? we want to get coefficient values to report...
+#len2 <- lm(total_prod/(total_prod+total_not_prod) ~ age * mom_ed_num * (PC1 + PC2), 
+#                   data=en_dat)
 #summary(len2)
-
-
-#summary(en3) 
-#summary(en4) 
-
-
 ```
-
 
 
 
 # Discussion
 
+We set out to investigate the sources of linguistic input that children may experience using word frequency distributions garnered from child-directed and adult-directed corpora of speech, books, and media (TV and movies).
+In both English and French corpora, we found the principal components (PCs) of these distributions, and described how these PCs capture variation both in adult- vs. child-directedness, as well as between modalities (e.g., books and speech).
+Moreover, in both English and French we found that multiple components are predictive of children's age of acquisition of words from the CDI.
+
+Finally, we used English Wordbank data to examine how well the frequency components combine with mother's education--a measure of SES that has been found in the past to be positively related to early word learning, and to more child-directed reading--to predict children's early word learning.
 
 
 # Acknowledgements
