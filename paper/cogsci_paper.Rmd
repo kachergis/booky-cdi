@@ -366,9 +366,8 @@ print(xtable(pca_tab1, digits=2,
              caption = "Regression predicting AoA with PCs.",
              table.placement = "H"), comment=F)
              
-ddbsa_fr1<- ddbsa_fr %>%  filter(!lexical_class=="other")
-ddbsa_fr1$lexical_class <- fct_relevel(ddbsa_fr1$lexical_class, "nouns") 
-pca_reg1_fr <- lm(aoa ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6, data=ddbsa_fr1) 
+ddbsa_fr$lexical_class <- fct_relevel(ddbsa_fr$lexical_class, "nouns") 
+pca_reg1_fr <- lm(aoa ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6, data=ddbsa_fr) 
 #summary(pca_reg1)
 # R^2 = .321
 pca_tab1_fr <- data.frame(pca_reg1_fr$coefficients) 
@@ -396,6 +395,22 @@ lg_tab <- as.matrix(coef(best_model))
 print(xtable(lg_tab, digits=2,
              caption = "LASSO AoA regression coefficients.",
              table.placement = "H"), comment=F)
+             
+PCs_fr <- data.matrix(ddbsa_fr[,paste0("PC",1:6)])
+
+#perform k-fold cross-validation to find optimal lambda value
+#cv_model_fr <- cv.glmnet(PCs_fr, ddbsa_fr$aoa, alpha = 1)
+
+#find optimal lambda value that minimizes test MSE
+#best_lambda_fr <- cv_model_fr$lambda.min # 0.006 (very close to linear regression)
+#best_lambda <- cv_model$lambda.1se # 0.323 1SE above MSE
+
+#find coefficients of best model
+#best_model_fr <- glmnet(PCs, ddbsa_fr$aoa, alpha = 1, lambda = best_lambda_fr)
+#lg_tab_fr <- as.matrix(coef(best_model_fr))
+#print(xtable(lg_tab_fr, digits=2,
+#             caption = "LASSO AoA regression coefficients for French.",
+#             table.placement = "H"), comment=F)
 ```
 
 
