@@ -571,12 +571,17 @@ In both English and French corpora, we found the principal components (PCs) of t
 Moreover, in both English and French we found that multiple components are predictive of children's age of acquisition of words from the CDI.
 
 Finally, we used English Wordbank data to examine how well the frequency components combine with mother's education--a measure of SES that has been found in the past to be positively related to early word learning, and to more child-directed reading--to predict children's early word learning.
+This analysis revealed significant contributions of multiple PCs, as well as the interaction of mother's education with PC1 (overall frequency), PC2 (child-directed speech), and PC3 (adult-directed speech), but not of the child-directed books component (PC4).
+A target for future research is to predict individual children's learning of particular words using these principal components, in combination with parent-reported measures of how much time their child spends daily receiving input from each of the input sources ([adult- vs. child-directed] x [books, media, and speech]).
 
+In conclusion, despite the overwhelming similarity of word frequency distributions from different sources, we have shown that these distributions show systematic variation--at least in English and in French, which can predict some of the variation in children's early word learning.
+By better understanding the similarity and differences between word frequencies children experience in different contexts, future research in this vein holds the promise to predict individual differences in children's early word learning on the basis of their daily routines.
 
 # Acknowledgements
 
-This research was funded in part by (Georgia's grant).
-We thank members of the Language and Cognition lab for their feedback.
+[Redacted for anonymous review.]
+<!--This research was funded in part by (Georgia's grant).
+We thank members of the Language and Cognition lab for their feedback.-->
 
 
 # References 
