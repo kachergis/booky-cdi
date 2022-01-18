@@ -257,10 +257,10 @@ print(xtable(tab_fr, digits=2,
 
 ## Principal Components of Frequency
 
-We use PCA to examine the principal components of the six log-scaled word frequency distributions ([adult- vs. child-directed] x [speech, books, media]).
+We used PCA to examine the principal components of the six log-scaled word frequency distributions ([adult- vs. child-directed] x [speech, books, media]).
 Table 3 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6).
 PC1 already explains the bulk the variance (89%), and PC2-PC4 each only capture an additional 2-4% of the variance.
-In total, the first four components capture >98% of the variance.
+In total, the first four components captured >98% of the variance.
 
 ```{r}
 pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
@@ -279,16 +279,21 @@ pc_imp_fr %>%
     papaja::apa_table(digits=2, caption="Importance of components from French PCA.", placement='h')
 ```
 
-Table 4 shows the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions.
-Table 5 shows the correlation of each frequency distribution with the CDI items' loadings on each principal component [GK: cut one of these tables? which?].
-It is clear that PC1 captures overall frequency, but loads more strongly on the adult distributions (-.47 to -.52).
+Tables 3 and 4 show the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French, respectively.
+Tables 5 and 6 show the correlation of each frequency distribution with the CDI items' loadings on each principal component for English and French, respectively.
+
+For English, it is clear that PC1 captures overall frequency, but loads more strongly on the adult distributions (-.47 to -.52).
 PC2 (3.8% of variance) mostly captures child-directed speech (0.65), especially differentiating it from adult-directed books and media (-.47, -.45).
 PC3 (3.1% of variance) captures adult-directed speech (.79), particularly from child-directed distributions.
 PC4 (2.2% of variance) captures the similarity of child- and adult-directed media (.40, .48), distinguishing them from child- and adult-directed books (-.63, -.44).
 PC5 (1.1% of variance) mostly captures child-directed books (0.53), distinguishing it from child-directed speech (-.60) and adult-directed books (-.50).
 PC6 (<1% of variance) captures child-directed media (.73), distinguishing it in particular from adult-directed media (-.52).
-In summary, the principal components align surprisingly well with particular dimensions of the frequency distributions: PC1 with overall adult-directed frequency, PC2 with child-directed speech, PC3 with adult-directed speech, PC4 with media vs. books, PC5 with child-directed books vs. speech, and PC6 with adult- vs. child-directed media.
-Although even PC5 and PC6 seem interpretable, given limited space and the fact that they account for very little variance (~1%) we will focus on PC1-PC4 for the rest of our analyses.
+In summary, the principal components align surprisingly well with particular dimensions of the English frequency distributions: PC1 with overall adult-directed frequency, PC2 with child-directed speech, PC3 with adult-directed speech, PC4 with media vs. books, PC5 with child-directed books vs. speech, and PC6 with adult- vs. child-directed media.
+Although even PC5 and PC6 seem interpretable, given limited space and the fact that they account for very little variance ($\sim1$%) we will focus on PC1-PC4 for the rest of our analyses.
+
+For French, we see a similar pattern of findings, although the order of the most important principal components is not quite the same.
+As seen in Table 6, the first PC for the French corpora captures less of the variance than for the English corpora, and remaining PCs capture more -- even PC5 and PC6 each capture 3%, compared to 1% in the English PCA.
+
 
 ```{r}
 #pc_bsa$rotation  * -1
