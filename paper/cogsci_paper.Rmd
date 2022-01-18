@@ -6,7 +6,7 @@ document-params: "10pt, letterpaper"
 
 author-information: > 
     \author{{\large \bf George Kachergis* (kachergis@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
-    \AND {\large \bf Georgia Loukatou (@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA}
+    \AND {\large \bf Georgia Loukatou (@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
     \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA}
 
 abstract: >
@@ -371,7 +371,13 @@ print(xtable(pca_tab2, digits=2,
 Past research has found that young children from higher-SES households tend to have larger vocabulary.
 Parents with higher-SES tend to also report reading more to their young children than parents with lower SES. 
 Together, this suggests that the vocabulary composition of children from higher-SES households may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
-To test this idea, we regressed 
+To test this idea, we did an exploratory MANOVA with using the first four PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age.
+The R syntax for the formula is `cbind(total_producing, total_not_producing) ~ age * mother_ed * (PC1 + PC2 + PC3 + PC4)`. 
+American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education (coded: -1 for no more than secondary education (N=547), 0 for some/all college (N=1483), and 1 for at least some graduate school (N=746)).
+There were significant main effects of age, mother's education, and PC1-PC4 (all $p<.001$).
+There were significant interactions of age with mother's education ($p<.001$), PC2 ($p<.001$), and PC4 ($p=.009$).
+There were significant interactions of mother's education with PC1-PC3 (all $p<.001$).
+[how to show these effects?]
 
 ```{r get-wordbank-data, eval=F}
 require(wordbankr)
@@ -390,16 +396,62 @@ save(en_ws, en_demo, en_long_ws, file=here("data/en_ws.Rdata"))
 ```
 
 
-```{r}
+```{r en-momed-regression}
 load(here("data/en_ws.Rdata"))
 # Mike: PC1 + PC2 * mom_ed
-# group_by(age, mom_ed, item)
-# summaries successes and failures
 # glmer(cbind(produces, doesn't produce) ~ age * PC1 + age * PC2 * mom_ed + (1|item))
 
-en_dat <- en_demo %>% filter(!is.na(mom_ed)) 
+mom_ed = table(en_demo$mom_ed)
+# None = 0, Primary = 8, Some Secondary = 123
 
-en_dat <- en_long_ws %>% 
+en_dat <- en_long_ws %>% left_join(en_demo) %>%
+  filter(!is.na(mom_ed)) %>%
+  mutate(mom_ed_num = case_when(as.numeric(mom_ed)<5 ~ -1, # secondary or less
+                                as.numeric(mom_ed)<7 ~ 0, # some college / college
+                                TRUE ~ 1)) %>%  # some graduate / graduate
+  group_by(age, mom_ed_num, definition) %>%
+  summarise(total_prod = sum(produces, na.omit=T), 
+            total_not_prod = sum(produces==0, na.omit=T))
+
+en_dat <- en_dat %>% left_join(ddbsa %>% select(definition, Nletters, PC1, PC2, PC3, PC4, PC5, PC6)) %>%
+  mutate(age_sc = scale(age, center=T, scale=F))
+
+# MANOVA with lmer fails for some reason...
+#en_med_reg <- lmer(cbind(total_prod, total_not_prod) ~ age * PC1 + age * PC2 * mom_ed_num + (1|definition), data=en_dat)
+# Error in v/v.e : non-conformable arrays
+
+# but works with lm
+#en_med_reg <- lm(cbind(total_prod, total_not_prod) ~ age * PC1 + age * PC2 * mom_ed_num, 
+#                   data=en_dat)
+# using centered age (age_sc) makes model singular ??
+
+
+en2 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2), 
+                   data=en_dat)
+
+en3 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2 + PC3), 
+                   data=en_dat)
+
+en4 <- manova(cbind(total_prod, total_not_prod) ~ age * mom_ed_num * (PC1 + PC2 + PC3 + PC4), 
+                   data=en_dat)
+
+#anova(en2, en3)
+#anova(en3, en4)
+
+#summary(en2)
+#summary(en3)
+en_manova_tab <- summary(en4)
+
+# proportions..want to get the coefficients
+len2 <- lm(total_prod/(total_prod+total_not_prod) ~ age * mom_ed_num * (PC1 + PC2), 
+                   data=en_dat)
+#summary(len2)
+
+
+#summary(en3) 
+#summary(en4) 
+
+
 ```
 
 
