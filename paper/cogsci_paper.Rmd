@@ -294,6 +294,11 @@ Although even PC5 and PC6 seem interpretable, given limited space and the fact t
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
 pc_bsa$rotation %>%
     papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system.", placement='h')
+    
+#pc_bsa$rotation  * -1
+ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
+pc_bsa_fr$rotation %>%
+    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system. (French)", placement='h')    
 ```
 
 
