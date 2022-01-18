@@ -299,9 +299,12 @@ ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
 
 Next we used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA.
 First, we did a L1-regularized (i.e., LASSO) regression predicting AoA with all of the principal components, to test which of the PCs should be included in the regression with lexical class.
-We used cross-validation to find the $\lambda$ value (penalty for outsized coefficients) that minimized mean-squared error of the test set, resulting in $\lambda=0.006$, a small value which will result in coefficients that would be quite close to those obtained in ordinary least squares regression (i.e., when $\lambda=0$).
-Table 5 displays the estimated coefficients using this best-fitting $\lambda$, showing that all of the PCs have non-zero values.
-This model has $R^2 = 0.32$.
+We used cross-validation to find the $\lambda$ value (penalty for outsized coefficients) that minimized mean-squared error of the test set (see Figure 2), resulting in $\lambda=0.006$, a small value which will result in coefficients that would be quite close to those obtained in ordinary least squares regression (i.e., when $\lambda=0$).
+Using this best-fitting $\lambda$, this model had $R^2 = 0.32$, and the estimated coefficients were non-zero for all of the principal components.
+There were negative coefficients for PC1 ($\beta=-0.17$), PC2 ($\beta=-1.13$), PC4 ($\beta=-1.32$), and PC6 ($\beta=-0.34$), indicating that higher values on these PCs predict earlier AoAs -- especially for PC2 and PC4, which mostly capture child-directed speech (PC2) and media (PC4).
+There were positive coefficients for PC3 ($\beta=0.88$) and PC5 ($\beta=1.95$), indicating that higher values of these PCs predict later AoAs, which is reasonable, as PC3 is associated with adult-directed speech, and PC5 captures child-directed books.
+This is still reasonable, since even child-directed books contain more function words than speech, which tend to be later-learned. 
+Moreover, children receive a relatively small fraction of their daily input from books -- perhaps 20 minutes/day, in contrast with several hours of child-directed speech and overheard adult-directed speech. 
 
 ```{r, pca-regression, include=F, results='asis'}
 ddbsa$lexical_class <- fct_relevel(ddbsa$lexical_class, "nouns")
@@ -315,7 +318,7 @@ print(xtable(pca_tab1, digits=2,
              table.placement = "H"), comment=F)
 ```
 
-```{r, lasso-pca-regression, results='asis'}
+```{r, lasso-pca-regression, include=F, results='asis'}
 library(glmnet)
 
 PCs <- data.matrix(ddbsa[,paste0("PC",1:6)])
