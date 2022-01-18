@@ -282,6 +282,7 @@ pc_imp_fr %>%
 Tables 3 and 4 show the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French, respectively.
 Tables 5 and 6 show the correlation of each frequency distribution with the CDI items' loadings on each principal component for English and French, respectively.
 
+
 For English, it is clear that PC1 captures overall frequency, but loads more strongly on the adult distributions (-.47 to -.52).
 PC2 (3.8% of variance) mostly captures child-directed speech (0.65), especially differentiating it from adult-directed books and media (-.47, -.45).
 PC3 (3.1% of variance) captures adult-directed speech (.79), particularly from child-directed distributions.
@@ -317,7 +318,7 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
 
 ## PCA-based Prediction of Age of Acquisition 
 
-Figure 1 shows the loadings of CDI items on PC1-PC4 vs. the average age of acquisition (AoA; in months).
+Figure 1 shows the loadings of English CDI items on PC1-PC4 vs. the average age of acquisition (AoA; in months).
 
 ```{r 2-col-image, fig.env = "figure*", fig.pos = "h", fig.width=7, fig.height=8.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "Principal components vs. age of acquisition, by lexical class."}
 #knitr::include_graphics("../CHILDES_smoothed_norm_freqs_vs_books_TV.pdf")
@@ -349,12 +350,9 @@ ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
 
 Next we used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA.
 First, we did a L1-regularized (i.e., LASSO) regression predicting AoA with all of the principal components, to test which of the PCs should be included in the regression with lexical class.
-We used cross-validation to find the $\lambda$ value (penalty for outsized coefficients) that minimized mean-squared error of the test set (see Figure 2), resulting in $\lambda=0.006$, a small value which will result in coefficients that would be quite close to those obtained in ordinary least squares regression (i.e., when $\lambda=0$).
-Using this best-fitting $\lambda$, this model had $R^2 = 0.32$, and the estimated coefficients were non-zero for all of the principal components.
-There were negative coefficients for PC1 ($\beta=-0.17$), PC2 ($\beta=-1.13$), PC4 ($\beta=-1.32$), and PC6 ($\beta=-0.34$), indicating that higher values on these PCs predict earlier AoAs -- especially for PC2 and PC4, which mostly capture child-directed speech (PC2) and media (PC4).
-There were positive coefficients for PC3 ($\beta=0.88$) and PC5 ($\beta=1.95$), indicating that higher values of these PCs predict later AoAs, which is reasonable, as PC3 is associated with adult-directed speech, and PC5 captures child-directed books.
-This is still reasonable, since even child-directed books contain more function words than speech, which tend to be later-learned. 
-Moreover, children receive a relatively small fraction of their daily input from books -- perhaps 20 minutes/day, in contrast with several hours of child-directed speech and overheard adult-directed speech. 
+We used cross-validation to find the $\lambda$ value (penalty for outsized coefficients) that minimized mean-squared error of the test set (see Figure 2), resulting in $\lambda=0.006$ for English, a small value which will result in coefficients that would be quite close to those obtained in ordinary least squares regression (i.e., when $\lambda=0$).
+Using this best-fitting $\lambda$, this model had $R^2 = 0.32$ in English, and the estimated coefficients were non-zero for all of the principal components.
+For English, there were negative coefficients for PC1 ($\beta=-0.17$), PC2 ($\beta=-1.13$), PC4 ($\beta=-1.32$), and PC6 ($\beta=-0.34$), indicating that higher values on these PCs predict earlier AoAs -- especially for PC2 and PC4, which mostly capture child-directed speech (PC2) and media (PC4). There were positive coefficients for PC3 ($\beta=0.88$) and PC5 ($\beta=1.95$), indicating that higher values of these PCs predict later AoAs, which is reasonable, as PC3 is associated with adult-directed speech, and PC5 captures child-directed books. This is still reasonable, since even child-directed books contain more function words than speech, which tend to be later-learned. Moreover, children receive a relatively small fraction of their daily input from books -- perhaps 20 minutes/day, in contrast with several hours of child-directed speech and overheard adult-directed speech. 
 
 ```{r, pca-regression, include=F, results='asis'}
 ddbsa$lexical_class <- fct_relevel(ddbsa$lexical_class, "nouns")
@@ -366,6 +364,17 @@ pca_tab1 <- data.frame(pca_reg1$coefficients)
 print(xtable(pca_tab1, digits=2,
              caption = "Regression predicting AoA with PCs.",
              table.placement = "H"), comment=F)
+             
+ddbsa_fr1<- ddbsa_fr %>%  filter(!lexical_class=="other")
+ddbsa_fr1$lexical_class <- fct_relevel(ddbsa_fr1$lexical_class, "nouns") 
+pca_reg1_fr <- lm(aoa ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6, data=ddbsa_fr1) 
+#summary(pca_reg1)
+# R^2 = .321
+pca_tab1_fr <- data.frame(pca_reg1_fr$coefficients) 
+
+print(xtable(pca_tab1_fr, digits=2,
+             caption = "Regression predicting AoA with French PCs on function_words, verbs, adjectives, nouns)",
+             table.placement = "H"), comment=F)             
 ```
 
 ```{r, lasso-pca-regression, include=F, results='asis'}
