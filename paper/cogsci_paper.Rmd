@@ -215,8 +215,11 @@ Table 1 shows the cross-corpus word frequency correlations for the `r nrow(dddc)
 ```{r}
 cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
     papaja::apa_table(digits=2, placement='h',
-                      caption="Correlation table of word frequency distributions for CDI words.")
-```
+                      caption="Correlation table of word frequency distributions for English CDI words.")
+
+cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
+    papaja::apa_table(digits=2, placement='h',
+                      caption="Correlation table of word frequency distributions for French CDI words.")```
 
 
 ## Age of Acquisition Regression
@@ -237,6 +240,17 @@ names(tab) = c("Beta","SE","t-val","p-val","VIF")
 print(xtable(tab, digits=2,
              caption = "Coefficients for corpora frequencies predicting AoA.",
              table.placement = "H"), comment=F)
+
+lm1_fr <- lm(aoa ~ log(ChS) + log(ChM) + log(ChB) + log(AdS) + log(AdM) + log(AdB) + Nletters, data=dddc_fr)
+# R^2 = 0.3433
+tab_fr <- data.frame(summary(lm1_fr)$coefficients)
+tab_fr$VIF = c(NA, car::vif(lm1_fr))
+names(tab_fr) = c("Beta","SE","t-val","p-val","VIF")
+print(xtable(tab_fr, digits=2,
+             caption = "Coefficients for French corpora frequencies predicting AoA.",
+             table.placement = "H"), comment=F)
+             
+             
 ```
 
 
