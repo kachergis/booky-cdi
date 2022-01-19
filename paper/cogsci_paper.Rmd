@@ -121,22 +121,22 @@ After cleaning, the CHILDES corpus yielded a total of `r subset(total_child_toke
 ### Child-directed books (ChdB).
 We used a sample of 98 children's books from Project Gutenberg's open-source database of books that has been used in prior machine learning research on language comprehension [@hill2015goldilocks]. 
 These books were published between 1820 and 1922, but include such well-known titles as *The Legend of Sleep Hollow*.
-After cleaning, this children's book corpus totals `r subset(total_child_tokens, source=="books")$word_count` tokens across `r subset(total_child_tokens, source=="books")$n` word types. For French, we used 130 popular children stories openly accessible in parenting websites. After cleaning, this children's book corpus totals `r subset(total_child_tokens_fr, source=="child_book")$word_count` tokens across `r subset(total_child_tokens_fr, source=="child_books")$n` word types.
+After cleaning, this children's book corpus totals `r subset(total_child_tokens, source=="books")$word_count` tokens across `r subset(total_child_tokens, source=="books")$n` word types. For French, we used 130 popular children stories openly accessible in parenting websites (https://fr.hellokids.com/) and X books from Gutemberg. After cleaning, this children's book corpus totals `r subset(total_child_tokens_fr, source=="child_book")$word_count` tokens across `r subset(total_child_tokens_fr, source=="child_books")$n` word types.
 
 ### Child-directed Media (ChM).
 Transcripts from television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes were taken from @charlesworth2021gender (available here: [https://osf.io/kqux5/](https://osf.io/kqux5/).
-After cleaning, this children's media corpus totals `r subset(total_child_tokens, source=="tv")$word_count` tokens across `r subset(total_child_tokens, source=="tv")$n` word types. For French, we also used openly accessible movie subtitles. After cleaning, this children's media corpus totals `r subset(total_child_tokens_fr, source=="child_tv")$word_count` tokens across `r subset(total_child_tokens_fr, source=="child_tv")$n` word types. 
+After cleaning, this children's media corpus totals `r subset(total_child_tokens, source=="tv")$word_count` tokens across `r subset(total_child_tokens, source=="tv")$n` word types.  For French, we also used openly accessible movie subtitles (https://www.subsynchro.com/), X number of films. After cleaning, this children's media corpus totals `r subset(total_child_tokens_fr, source=="child_tv")$word_count` tokens across `r subset(total_child_tokens_fr, source=="child_tv")$n` word types. 
 
 ### Adult-directed Speech (AdS).
 Adult-directed speech was obtained from the Switchboard-1 Telephone Speech Corpus (Godfrey & Holliman, 1993), a corpus of transcripts from dyadic telephone conversations in which 543 adult speakers were assigned to discuss a randomly-assigned topic.
-After cleaning, the adult-directed speech corpus (AdS) yielded a total of `r subset(total_adult_tokens, source=="speech")$word_count` tokens across `r subset(total_adult_tokens, source=="speech")$n` word types. For French, adult-directed speech was obtained from the TCOF corpus of adult speech transcripts collected during the 80s-90s for research [@andre2010mise]. The adult-directed speech corpus (AdS) yielded a total of `r subset(total_adult_tokens_fr, source=="adult_speech")$word_count` tokens across `r subset(total_adult_tokens_fr, source=="adult_speech")$n` word types.
+After cleaning, the adult-directed speech corpus (AdS) yielded a total of `r subset(total_adult_tokens, source=="speech")$word_count` tokens across `r subset(total_adult_tokens, source=="speech")$n` word types.For French, adult-directed speech was obtained from the TCOF corpus of adult speech transcripts collected during the 80s-90s for research [@andre2010mise], from the CLAPI corpus [@balthasar2005plateforme] and the CFPP corpus [@branca2012discours]. The adult-directed speech corpus (AdS) yielded a total of `r subset(total_adult_tokens_fr, source=="adult_speech")$word_count` tokens across `r subset(total_adult_tokens_fr, source=="adult_speech")$n` word types.
 
 ### Adult-directed Books (AdB).
 The adult-directed book corpus (AdB) is comprised of `r subset(total_adult_tokens, source=="books")$word_count` tokens across `r subset(total_adult_tokens, source=="books")$n` word types. For French, the corpus is comprised of books taken from the 1999 Association de Bibliophiles Universels, an open-source database of french books. It is comprised of `r subset(total_adult_tokens_fr, source=="adult_book")$word_count` tokens across `r subset(total_adult_tokens_fr, source=="adult_book")$n` word types.
 
 
 ### Adult-directed Media (AdM).
-The adult-directed media corpus (AdM) is comprised of `r subset(total_adult_tokens, source=="TV")$word_count` tokens across `r subset(total_adult_tokens, source=="TV")$n` word types. For French, the corpus is comprised of `r subset(total_adult_tokens_fr, source=="adult_tv")$word_count` tokens across `r subset(total_adult_tokens_fr, source=="adult_tv")$n` word types.
+The adult-directed media corpus (AdM) is comprised of `r subset(total_adult_tokens, source=="TV")$word_count` tokens across `r subset(total_adult_tokens, source=="TV")$n` word types. For French, the corpus is comprised of `r subset(total_adult_tokens_fr, source=="adult_tv")$word_count` tokens across `r subset(total_adult_tokens_fr, source=="adult_tv")$n` word types, using openly accessible movie subtitles (https://www.subsynchro.com/), X number of films.
 
 
 ## Merging the Corpora
@@ -559,7 +559,9 @@ mom_ed_tab <- summary(en4)$coefficients
 
 We set out to investigate the sources of linguistic input that children may experience using word frequency distributions garnered from child-directed and adult-directed corpora of speech, books, and media (TV and movies).
 In both English and French corpora, we found the principal components (PCs) of these distributions, and described how these PCs capture variation both in adult- vs. child-directedness, as well as between modalities (e.g., books and speech).
-Moreover, in both English and French we found that multiple components are predictive of children's age of acquisition of words from the CDI.
+Moreover, in both English and French we found that multiple components are predictive of children's age of acquisition of words from the CDI. 
+
+(Although a reason for the differences between the English and French findings may be that French corpora were composed by several smaller ones, due to the lack of big accessible corpora online, and the slight different use for the corpora e.g. small stories in French, large books in English).
 
 Finally, we used English Wordbank data to examine how well the frequency components combine with mother's education--a measure of SES that has been found in the past to be positively related to early word learning, and to more child-directed reading--to predict children's early word learning.
 This analysis revealed significant contributions of multiple PCs, as well as the interaction of mother's education with PC1 (overall frequency), PC2 (child-directed speech), and PC3 (adult-directed speech), but not of the child-directed books component (PC4).
