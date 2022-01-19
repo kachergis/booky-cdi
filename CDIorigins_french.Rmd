@@ -71,7 +71,7 @@ fit_aoas_def <- function(wb_data, max_steps = 200, min_aoa = 0, max_aoa = 72) {
     filter(aoa >= min_aoa, aoa <= max_aoa)
 }
 
-wb_data_def <- wb_data %>% unnest(items) %>% dplyr::select(-uni_lemma)
+wb_data_def <- wb_data %>% unnest(items) #%>% dplyr::select(-uni_lemma)
 
 aoas_def <- fit_aoas_def(wb_data_def) %>% filter(measure=="produces")
 #aoas_unilemma <- fit_aoas(wb_data)
@@ -117,22 +117,52 @@ stem <- function(words, language) {
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 
 #Unilemmas
-uni_lemma_map <- read_csv("data/fr_uni_lemmas.csv")    |> 
+uni_lemma_map <- read_csv("fr_uni_lemmas.csv")    |> 
   mutate(option = pmap(list("french", definition),
                          build_options)) |>
-  dplyr::select(language, definition, option, lexical_class) |>
+  dplyr::select(language, definition, option, lexical_class, uni_lemma) |>
   unnest(option) |>
-  mutate(option = tolower(option))
-
+  mutate(option = tolower(option)) |>
+  filter(!(definition=="baton") )|>
+  filter(!(lexical_class=="other"& definition=="ciel"))|>
+  filter(!(lexical_class=="other"& definition=="fleur"))|>
+  filter(!(lexical_class=="other"& definition=="jardin")) |>
+  filter(!(lexical_class=="other"& definition=="neige")) |>
+filter(!(lexical_class=="other"& definition=="toboggan")) |>
+  filter(!(lexical_class=="other"& definition=="piscine")) |>
+  filter(!(lexical_class=="other"& definition=="étoile")) |>
+  filter(!(lexical_class=="other"& definition=="caillou")) |>
+  filter(!(lexical_class=="other"& definition=="pelle")) |>
+  filter(!(lexical_class=="other"& definition=="pluie")) |>
+  filter(!(lexical_class=="other"& definition=="soleil")) |>
+  filter(!(lexical_class=="other"& definition=="balançoire")) |>
+  filter(!(lexical_class=="other"& definition=="arbre"))
+  
 #CHILDES tokens arranging 
 child_speech <- readRDS(here("data/token_metrics_french_(french).rds")) %>%
+ # mutate(token = gsub('[[:punct:] ]+',' ',token))%>%
+  mutate(token = gsub("'","' ",token))%>%
+  mutate(token = gsub("s_il_te_plait","s'il te plait",token))%>%
+  mutate(token = gsub("aujourd hui","aujourd'hui",token))%>%
+  mutate(token = gsub("là bas","là-bas",token))%>%
+  mutate(token = gsub("moi même","moi-même",token))%>%
+  mutate(token = gsub("s il te plait","s'il te plait",token))%>%
+  mutate(token = gsub("s il te plaît","s'il te plait",token))%>%
+  mutate(token = gsub("grand mère","grand-mère",token))%>%
+  mutate(token = gsub("grand père","grand-père",token))%>%
+  mutate(token = gsub('[[:digit:]]+','',token))%>%
+  mutate(token = gsub("en bas","en_bas",token))%>%
+  mutate(token = gsub("en haut","en_haut",token))%>%
+  mutate(token = gsub("up peu","un_peu",token))%>%
+  mutate(token = gsub("salle de bain", "salle+de+bain",token))%>%
+  mutate(token = gsub("parce que","parce_que",token))%>%
+  mutate(token = gsub("au revoir","au_revoir",token))%>%
   #mutate(token = gsub('[[:punct:] ]+',' ',token))%>%
   #separate_rows(token, sep = ' ') %>%
   rename(word_count = count ) %>%
   filter(!word_count==1) %>%
-  mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
   arrange(desc(word_count)) %>%
-  dplyr::select(token, word_count, word_count_norm) %>%
+  dplyr::select(token, word_count) %>%
   distinct() %>%
   mutate(rank = 1:n()) 
   
@@ -166,11 +196,24 @@ aoa_df <- aoa_df[!duplicated(aoa_df$token),]
  lex_cat <- lex_cat[-c(1631, 1621, 1607, 1604, 1597, 1587, 1585, 1581, 1579, 1572, 1555, 1548, 1546, 1446, 1427, 1425, 1416, 1409, 1373, 1360, 1341,1305,1295, 1292, 1257,1241, 1234, 1224, 1151,1148,1146,1134,1107,1221, 1219, 1187, 1182, 1165, 1193, 1090, 1069, 1049, 1028, 1007, 934, 914, 906, 893, 881, 868, 846, 829, 753, 726, 716, 687, 672,625, 608, 588, 578, 552, 544, 540, 508, 476,  462, 457, 435, 426, 409, 403, 397, 381, 353, 340, 332, 178, 155, 152, 151, 100, 80, 71, 25 ),] 
  
 #Mark CHILDES tokens matched to cdi with 'on_cdi' column  
+
 child_speech <- child_speech |>
-    mutate(on_cdi = ifelse(as.character(token) %in% child_speech_mapped[[1]], 1, 0),
+  mutate(on_cdi = ifelse(as.character(token) %in% child_speech_mapped[[1]], 1, 0),
            source="child_speech")  |> distinct() |>
-    left_join(lex_cat) |>
-  left_join(aoa_df)
+  left_join(lex_cat) |>
+  left_join(aoa_df) |> 
+  left_join(child_speech_mapped) |>
+  group_by(token) |>
+  mutate(word_count=sum(word_count)) |>
+  dplyr::select(-rank) |>
+  distinct()
+
+t<- sum(child_speech$word_count)
+
+child_speech <-child_speech |>
+  mutate(word_count_norm=word_count * (1000000 /t))
+
+
 
 #saveRDS(child_speech_mapped, "data/aoas_token_fr.rds")
 
@@ -181,7 +224,7 @@ child_speech <- child_speech |>
 ```{r adult_speech, echo=F, message=F, warning=F}
 
 ##############################################
-adult_speech <- readLines("data/fr_adult_speech_TCOF.txt")
+adult_speech <- readLines("~/Desktop/adult_speech.txt")
 
 
 dat <- map(adult_speech, function(x) {
@@ -190,16 +233,31 @@ dat <- map(adult_speech, function(x) {
 
 adult_speech <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
+  mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
+  mutate(text = gsub("là bas","là-bas",text))%>%
+  mutate(text = gsub("moi même","moi-même",text))%>%
+  mutate(text = gsub("s il te plait","s'il te plait",text))%>%
+  mutate(text = gsub("s il te plaît","s'il te plait",text))%>%
+  mutate(text = gsub("grand mère","grand-mère",text))%>%
+  mutate(text = gsub("grand père","grand-père",text))%>%
+  mutate(text = gsub('[[:digit:]]+','',text))%>%
+  mutate(text = gsub("en bas","en_bas",text))%>%
+  mutate(text = gsub("en haut","en_haut",text))%>%
+  mutate(text = gsub("up peu","un_peu",text))%>%
+  mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
+  mutate(text = gsub("parce que","parce_que",text))%>%
+  mutate(text = gsub("au revoir","au_revoir",text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
-  mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
-  arrange(desc(word_count_norm)) %>%
+  #mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
+  #arrange(desc(word_count_norm)) %>%
   filter(!word_count==1) %>%
   filter(!word=="") %>%
   mutate(rank = 1:n()) %>%
-  dplyr::select(word, word_count, word_count_norm, rank) %>%
+  dplyr::select(word, word_count, rank) %>%
   rename(token=word) 
 
 adult_speech_mapped <- adult_speech |>
@@ -217,14 +275,26 @@ adult_speech_mapped <- adult_speech |>
    dplyr::select(token, aoa, definition, lexical_class)
 
 
- adult_speech_matched <-unique(list(adult_speech_mapped$token))
+adult_speech_matched <-unique(list(adult_speech_mapped$token))
  
- adult_speech <- adult_speech |>
-    mutate(on_cdi = ifelse(as.character(token) %in% adult_speech_matched[[1]], 1, 0),
-           source="adult_speech") |> distinct() |>
-    left_join(lex_cat) |>
-    left_join(aoa_df) 
+adult_speech <- adult_speech |>
+  mutate(on_cdi = ifelse(as.character(token) %in% adult_speech_mapped[[1]], 1, 0),
+           source="adult_speech")  |> distinct() |>
+  left_join(lex_cat) |>
+  left_join(aoa_df) |> 
+  left_join(adult_speech_mapped) |>
+  group_by(token) |>
+  mutate(word_count=sum(word_count)) |>
+  dplyr::select(-rank) |>
+  distinct()
 
+t<- sum(adult_speech$word_count)
+
+adult_speech <-adult_speech |>
+  mutate(word_count_norm=word_count * (1000000 /t))
+
+
+ 
 ```
 
 ```{r adult_book, echo=F, message=F, warning=F} 
@@ -235,15 +305,30 @@ dat <- map(adult_book, function(x) {
 })
 adult_book <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
+  mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
+  mutate(text = gsub("là bas","là-bas",text))%>%
+  mutate(text = gsub("moi même","moi-même",text))%>%
+  mutate(text = gsub("s il te plait","s'il te plait",text))%>%
+  mutate(text = gsub("s il te plaît","s'il te plait",text))%>%
+  mutate(text = gsub("grand mère","grand-mère",text))%>%
+  mutate(text = gsub("grand père","grand-père",text))%>%
+  mutate(text = gsub('[[:digit:]]+','',text))%>%
+  mutate(text = gsub("en bas","en_bas",text))%>%
+  mutate(text = gsub("en haut","en_haut",text))%>%
+  mutate(text = gsub("up peu","un_peu",text))%>%
+  mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
+  mutate(text = gsub("parce que","parce_que",text))%>%
+  mutate(text = gsub("au revoir","au_revoir",text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
-  mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
+  #mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
   filter(!word_count==1) %>%
-  arrange(desc(word_count_norm)) %>%
+  #arrange(desc(word_count_norm)) %>%
   mutate(rank = 1:n()) %>%
-  dplyr::select(word, word_count, word_count_norm, rank) %>%
+  dplyr::select(word, word_count, rank) %>%
   rename(token=word) 
 
 adult_book_mapped <- adult_book |>
@@ -256,16 +341,32 @@ adult_book_mapped <- adult_book |>
     inner_join(uni_lemma_map) |>
     dplyr::select(-option)|>
     distinct()|>
-    filter(!is.na(definition))
+    filter(!is.na(definition))|>
+   left_join(aoas_def) |>
+   dplyr::select(token, aoa, definition, lexical_class)
+
 
  adult_book_matched <-unique(list(adult_book_mapped$token))
+
   
  adult_book <- adult_book |>
-    mutate(on_cdi = ifelse(as.character(token) %in% adult_book_matched[[1]], 1, 0),
-           source="adult_book") |> distinct() |>
-    left_join(lex_cat)|>
-    left_join(aoa_df) 
+  filter(!token=="")|>
+  mutate(on_cdi = ifelse(as.character(token) %in% adult_book_mapped[[1]], 1, 0),
+           source="adult_book")  |> distinct() |>
+  left_join(lex_cat) |>
+  left_join(aoa_df) |> 
+  left_join(adult_book_mapped) |>
+  group_by(token) |>
+  mutate(word_count=sum(word_count)) |>
+  dplyr::select(-rank) |>
+  distinct()
 
+t<- sum(adult_book$word_count)
+
+adult_book <-adult_book |>
+  mutate(word_count_norm=word_count * (1000000 /t))
+
+ 
 ########################################################
  
 ```
@@ -273,21 +374,36 @@ adult_book_mapped <- adult_book |>
 
 
 ```{r adult_tv, echo=F, message=F, warning=F} 
-adult_tv <- readLines(here("data/fr_adult_tv.txt")) 
+adult_tv <- readLines(here("~/Desktop/adult_media.txt")) 
 dat <- map(adult_tv, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 adult_tv <- do.call(rbind.data.frame, dat) %>%
-  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+ # mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
+  mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
+  mutate(text = gsub("là bas","là-bas",text))%>%
+  mutate(text = gsub("moi même","moi-même",text))%>%
+  mutate(text = gsub("s il te plait","s'il te plait",text))%>%
+  mutate(text = gsub("s il te plaît","s'il te plait",text))%>%
+  mutate(text = gsub("grand mère","grand-mère",text))%>%
+  mutate(text = gsub("grand père","grand-père",text))%>%
+  mutate(text = gsub('[[:digit:]]+','',text))%>%
+  mutate(text = gsub("en bas","en_bas",text))%>%
+  mutate(text = gsub("en haut","en_haut",text))%>%
+  mutate(text = gsub("up peu","un_peu",text))%>%
+  mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
+  mutate(text = gsub("parce que","parce_que",text))%>%
+  mutate(text = gsub("au revoir","au_revoir",text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
-  mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
+  #mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
   filter(!word_count==1) %>%
-  arrange(desc(word_count_norm)) %>%
+  #arrange(desc(word_count_norm)) %>%
   mutate(rank = 1:n()) %>%
-  dplyr::select(word, word_count, word_count_norm, rank) %>%
+  dplyr::select(word, word_count, rank) %>%
   rename(token=word) 
 
 adult_tv_mapped <- adult_tv |>
@@ -308,10 +424,23 @@ adult_tv_mapped <- adult_tv |>
  adult_tv_matched <-unique(list(adult_tv_mapped$token))
   
  adult_tv <- adult_tv |>
+     filter(!token=="")|>
     mutate(on_cdi = ifelse(as.character(token) %in% adult_tv_matched[[1]], 1, 0),
            source="adult_tv") |> distinct() |>
     left_join(lex_cat)|>
-    left_join(aoa_df) 
+    left_join(aoa_df) |>
+    left_join(adult_tv_mapped) |>
+    group_by(token) |>
+    mutate(word_count=sum(word_count)) |>
+    dplyr::select(-rank) |>
+    distinct() #|>
+   # filter(!is.na(definition)) |>
+   # filter(!is.na(aoa)) 
+
+t<- sum(adult_tv$word_count)
+
+adult_tv<-adult_tv |>
+  mutate(word_count_norm=word_count * (1000000 /t))
   
 ```
 
@@ -324,15 +453,30 @@ dat <- map(child_books, function(x) {
 })
 child_book <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
+  mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
+  mutate(text = gsub("là bas","là-bas",text))%>%
+  mutate(text = gsub("moi même","moi-même",text))%>%
+  mutate(text = gsub("s il te plait","s'il te plait",text))%>%
+  mutate(text = gsub("s il te plaît","s'il te plait",text))%>%
+  mutate(text = gsub("grand mère","grand-mère",text))%>%
+  mutate(text = gsub("grand père","grand-père",text))%>%
+  mutate(text = gsub('[[:digit:]]+','',text))%>%
+  mutate(text = gsub("en bas","en_bas",text))%>%
+  mutate(text = gsub("en haut","en_haut",text))%>%
+  mutate(text = gsub("up peu","un_peu",text))%>%
+  mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
+  mutate(text = gsub("parce que","parce_que",text))%>%
+  mutate(text = gsub("au revoir","au_revoir",text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
-  mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
+  #mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
    filter(!word_count==1) %>%
-  arrange(desc(word_count_norm)) %>%
+  #arrange(desc(word_count_norm)) %>%
   mutate(rank = 1:n()) %>%
-  dplyr::select(word, word_count, word_count_norm, rank) %>%
+  dplyr::select(word, word_count, rank) %>%
   rename(token=word)                        
                       
 child_book_mapped <- child_book |>
@@ -345,27 +489,57 @@ child_book_mapped <- child_book |>
     left_join(uni_lemma_map) |>
     dplyr::select(-option)|>
     distinct()|>
-    filter(!is.na(definition))
+    filter(!is.na(definition))|>
+    left_join(aoas_def) |>
+    dplyr::select(token, aoa, definition, lexical_class)
 
 child_book_matched <-unique(list(child_book_mapped$token))
   
 child_book <- child_book |>
+    filter(!token=="")|>
     mutate(on_cdi = ifelse(as.character(token) %in% child_book_matched[[1]], 1, 0),
            source="child_book") |> distinct() |>
     left_join(lex_cat)|>
-    left_join(aoa_df) 
+    left_join(aoa_df) |>
+    left_join(child_book_mapped) |>
+    group_by(token) |>
+    mutate(word_count=sum(word_count)) |>
+    dplyr::select(-rank) |>
+    distinct() 
+    #filter(!is.na(definition)) |>
+    #filter(!is.na(aoa)) 
+
+t<- sum(child_book$word_count)
+
+child_book <-child_book |>
+  mutate(word_count_norm=word_count * (1000000 /t))
 
 ```
 
 ```{r child_tv, echo=F, message=F, warning=F}
 
-child_tv <- readLines(here("data/fr_child_tv.txt"))
+child_tv <- readLines(here("~/Desktop/child_media.txt"))
                         
 dat <- map(child_tv, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 child_tv <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
+  mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
+  mutate(text = gsub("là bas","là-bas",text))%>%
+  mutate(text = gsub("moi même","moi-même",text))%>%
+  mutate(text = gsub("s il te plait","s'il te plait",text))%>%
+  mutate(text = gsub("s il te plaît","s'il te plait",text))%>%
+  mutate(text = gsub("grand mère","grand-mère",text))%>%
+  mutate(text = gsub("grand père","grand-père",text))%>%
+  mutate(text = gsub('[[:digit:]]+','',text))%>%
+  mutate(text = gsub("en bas","en_bas",text))%>%
+  mutate(text = gsub("en haut","en_haut",text))%>%
+  mutate(text = gsub("up peu","un_peu",text))%>%
+  mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
+  mutate(text = gsub("parce que","parce_que",text))%>%
+  mutate(text = gsub("au revoir","au_revoir",text))%>%
   separate_rows(text, sep = ' ') %>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
@@ -387,15 +561,33 @@ child_tv_mapped <- child_tv |>
     left_join(uni_lemma_map) |>
     dplyr::select(-option)|>
     distinct()|>
-    filter(!is.na(definition))
+    filter(!is.na(definition))|>
+    left_join(aoas_def) |>
+   dplyr::select(token, aoa, definition, lexical_class)
 
 child_tv_matched <-unique(list(child_tv_mapped$token))
   
 child_tv <- child_tv |>
+    filter(!token=="")|>
     mutate(on_cdi = ifelse(as.character(token) %in% child_tv_matched[[1]], 1, 0),
            source="child_tv")|> distinct() |>
     left_join(lex_cat)|>
-    left_join(aoa_df) 
+    left_join(aoa_df) |>
+    left_join(child_tv_mapped) |>
+    group_by(token) |>
+    mutate(word_count=sum(word_count)) |>
+    dplyr::select(-rank) |>
+    distinct() 
+    #filter(!is.na(definition)) |>
+    #filter(!is.na(aoa)) 
+
+t<- sum(child_tv$word_count)
+
+child_tv <-child_tv |>
+  mutate(word_count_norm=word_count * (1000000 /t))
+
+
+coverage<- do.call(c, list(unique(child_speech_mapped$definition), child_book_mapped$definition, adult_speech_mapped$definition, adult_book_mapped$definition))
 
 ```
 Our data sources:
@@ -418,7 +610,7 @@ For now, we will use the subset of words that are found in all four corpora (N=4
 ```{r keyness-childes-vs-montag, echo=F}
 # CHILDES and Stories books
 ch_freq_long <- rbind(child_speech, child_book, child_tv, adult_speech, adult_book, adult_tv)  %>%
-  dplyr::select(token, source, on_cdi, word_count_norm, word_count, lexical_class, aoa)  
+  dplyr::select(token, source, definition, on_cdi, word_count_norm, word_count, lexical_class, aoa)  
 
 # wide - no smoothing, only keep subset of words in all corpora
 ch_freq <- ch_freq_long %>% dplyr::select(-word_count) %>%
@@ -521,12 +713,12 @@ x <- as.data.frame(x__) %>%
 
 x1 <- x[!duplicated(x$token),]
 
-ch_freq_new <- ch_freq_ %>% left_join(x1) %>% 
+ch_freq_fr <- ch_freq_ %>% left_join(x1) %>% 
   mutate(lexical_class=ifelse(is.na(lexical_class), lexical_class1, lexical_class )) %>%
   dplyr::select(-lexical_class1) %>%
   distinct() 
 
-ch_freq_smooth_new<- ch_freq_smooth %>% left_join(x1) %>% 
+ch_freq_smooth_fr<- ch_freq_smooth %>% left_join(x1) %>% 
   mutate(lexical_class=ifelse(is.na(lexical_class), lexical_class1, lexical_class )) %>%
   dplyr::select(-lexical_class1) %>%
   distinct() 
@@ -560,7 +752,7 @@ ch_freq_smooth_new<- ch_freq_smooth %>% left_join(x1) %>%
 
 
 
-save(ch_freq_new, ch_freq_smooth_new, file="word_freqs_fr.Rdata")
+save(ch_freq_fr, ch_freq_smooth_fr, file="~/Desktop/word_freqs_fr.Rdata")
 
 
 ```
