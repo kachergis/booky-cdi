@@ -351,7 +351,7 @@ ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
 
 Next we used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA.
 First, we did a L1-regularized (i.e., LASSO) regression predicting AoA with all of the principal components, to test which of the PCs should be included in the regression with lexical class.
-We used cross-validation to find the $\lambda$ value (penalty for outsized coefficients) that minimized mean-squared error of the test set (see Figure 2), resulting in $\lambda=0.006$ for English, a small value which will result in coefficients that would be quite close to those obtained in ordinary least squares regression (i.e., when $\lambda=0$).
+We used cross-validation to find the $\lambda$ value (penalty for outsized coefficients) that minimized mean-squared error of the test set, resulting in $\lambda=0.006$ for English, a small value which will result in coefficients that would be quite close to those obtained in ordinary least squares regression (i.e., when $\lambda=0$).
 Using this best-fitting $\lambda$, this model had $R^2 = 0.32$ in English, and the estimated coefficients were non-zero for all of the principal components.
 For English, there were negative coefficients for PC1 ($\beta=-0.17$), PC2 ($\beta=-1.13$), PC4 ($\beta=-1.32$), and PC6 ($\beta=-0.34$), indicating that higher values on these PCs predict earlier AoAs -- especially for PC2 and PC4, which mostly capture child-directed speech (PC2) and media (PC4). There were positive coefficients for PC3 ($\beta=0.88$) and PC5 ($\beta=1.95$), indicating that higher values of these PCs predict later AoAs, which is reasonable, as PC3 is associated with adult-directed speech, and PC5 captures child-directed books. This is still reasonable, since even child-directed books contain more function words than speech, which tend to be later-learned. Moreover, children receive a relatively small fraction of their daily input from books -- perhaps 20 minutes/day, in contrast with several hours of child-directed speech and overheard adult-directed speech. 
 
@@ -416,13 +416,13 @@ PCs_fr <- data.matrix(ddbsa_fr[,paste0("PC",1:6)])
 ```
 
 
-```{r,  fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=3.3, set.cap.width=T, num.cols.cap=1, fig.cap = "Test MSE for different lambda values in the cross-validated lasso regression. The minimum MSE is achieved by the leftmost dotted line, while the rightmost dotted line shows the lambda that achieves MSE $<1$ standard error above this minimum."}
+```{r, include=F, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=3.3, set.cap.width=T, num.cols.cap=1, fig.cap = "Test MSE for different lambda values in the cross-validated lasso regression. The minimum MSE is achieved by the leftmost dotted line, while the rightmost dotted line shows the lambda that achieves MSE $<1$ standard error above this minimum."}
 
 #produce plot of test MSE by lambda value
 plot(cv_model) 
 ```
 
-Given that past research has found that lexical class strongly modulates influences of word frequency, we next examine the interaction of lexical class (LC) with PC1 - PC6. 
+Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6. 
 To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA.
 Thus, the R syntax for the sequence of regressions was `AoA`$\sim$`PC1*LC`, `AoA`$\sim$`(PC1+PC2)*LC`, ..., `AoA`$\sim$`(PC1+PC2+PC3+PC4+PC5+PC6)*LC`, with noun as the baseline LC.
 The more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .584$), although for ease of presentation we only show the results of the regression with up to PC4.
@@ -474,8 +474,8 @@ print(xtable(pca_tab2, digits=2,
 Past research has found that young children from higher-SES households tend to have larger vocabulary.
 Parents with higher-SES tend to also report reading more to their young children than parents with lower SES. 
 Together, this suggests that the vocabulary composition of children from higher-SES households may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
-To test this idea, we did an exploratory MANOVA with using the first four PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age.
-The R syntax for the formula is `cbind(total_producing, total_not_producing) ~ age * mother_ed * (PC1 + PC2 + PC3 + PC4)`. 
+To test this idea, we did an exploratory logistic regression using the first four PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age.
+<!--The R syntax for the formula is `cbind(total_producing, total_not_producing) ~ age * mother_ed * (PC1 + PC2 + PC3 + PC4)`.-->
 American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education (coded: -1 for no more than secondary education (N=547), 0 for some/all college (N=1483), and 1 for at least some graduate school (N=746)).
 There were significant main effects of age, mother's education, and PC1-PC4 (all $p<.001$).
 There were significant interactions of age with mother's education ($p<.001$), PC2 ($p<.001$), and PC4 ($p=.009$).
@@ -515,7 +515,7 @@ save(fr_ws, fr_demo, fr_long_ws, file=here("data/fr_ws.Rdata"))
 ```
 
 
-```{r en-momed-regression}
+```{r en-momed-regression, results='asis'}
 load(here("data/en_ws.Rdata"))
 
 en_mom_ed = table(en_demo$mom_ed)
@@ -526,22 +526,30 @@ en_dat <- en_long_ws %>% left_join(en_demo) %>%
   mutate(mom_ed_num = case_when(as.numeric(mom_ed)<5 ~ -1, # secondary or less
                                 as.numeric(mom_ed)<7 ~ 0, # some college / college
                                 TRUE ~ 1)) %>%  # some graduate / graduate
-  group_by(age, mom_ed_num, definition) %>%
+  mutate(MotherEd = case_when(as.numeric(mom_ed)<5 ~ "Secondary", # secondary or less
+                                as.numeric(mom_ed)<7 ~ "College", # some college / college
+                                TRUE ~ "Graduate")) %>%
+  group_by(age, MotherEd, definition) %>%
   summarise(total_prod = sum(produces, na.omit=T), 
             total_not_prod = sum(produces==0, na.omit=T))
 
 en_dat <- en_dat %>% left_join(ddbsa %>% select(definition, Nletters, PC1, PC2, PC3, PC4, PC5, PC6)) %>%
-  mutate(age_sc = scale(age, center=T, scale=F))
+  mutate(age_sc = scale(age, center=T, scale=F)) %>% 
+  filter(!is.na(PC1)) # get rid of the 10 CDI phrases we don't match (give me five!, pet's name etc.)
+# unique(en_dat[is.na(en_dat$PC1),]$definition)
 
-#en_med_reg <- glmer(cbind(total_prod, total_not_prod) ~ age_sc * PC1 + age_sc * PC2 * mom_ed_num + (1|definition), family = binomial(logit), data=en_dat)
-# PC1 +.03 PC2 +.19, mom_ed +.06, PC2:mom_ed .01
-#summary(en_med_reg)
+# scale/center the PC vars?
 
-en2 <- glmer(cbind(total_prod, total_not_prod) ~ age_sc * mom_ed_num * (PC1 + PC2) + (1|definition), family = binomial(logit), data=en_dat)
+en_dat$MotherEd = factor(en_dat$MotherEd, levels=c("Secondary","College","Graduate"))
 
-en3 <- glmer(cbind(total_prod, total_not_prod) ~ age_sc * mom_ed_num * (PC1 + PC2 + PC3) + (1|definition), family = binomial(logit), data=en_dat)
+# whenever we center age (age_sc), matrix is rank deficient and age_sc main effect doesn't appear... 
+en2 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2) + (1|definition), family = binomial(logit), nAGQ=0, data=en_dat) 
+# PC1 +.03, PC2 +.19, mom_ed +.06, PC1:mom_ed +.003, PC2:mom_Ed +.008
 
-en4 <- glmer(cbind(total_prod, total_not_prod) ~ age_sc * mom_ed_num * (PC1 + PC2 + PC3 + PC4) + (1|definition), family = binomial(logit), data=en_dat)
+en3 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2 + PC3) + (1|definition), family = binomial(logit), nAGQ=0, data=en_dat)
+# PC1 +.03, PC2 +.19, PC3 -.19
+
+en4 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2 + PC3 + PC4) + (1|definition), family = binomial(logit), nAGQ=0, data=en_dat)
 
 
 #anova(en2, en3)
@@ -551,6 +559,11 @@ en4 <- glmer(cbind(total_prod, total_not_prod) ~ age_sc * mom_ed_num * (PC1 + PC
 #summary(en3)
 mom_ed_tab <- summary(en4)$coefficients
 
+colnames(mom_ed_tab) = c("Beta","SE","t-val","p-val")
+
+print(xtable(mom_ed_tab, digits=2,
+             caption = "Regression coefficients for predicting English CDI items using PCs and mother's education.",
+             table.placement = "H"), comment=F)
 ```
 
 
