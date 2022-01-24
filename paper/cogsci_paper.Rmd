@@ -293,15 +293,22 @@ As seen in Table 6, the first PC for the French corpora captures less of the var
 
 
 ```{r}
+
+df <- data.frame(
+Order = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+EN = c("Freq (-.26...-.52)", "ChS (.65)", "AdS (.79)", "M / B (.40,.48/-.60,-.50)", "ChS / ChB (-.60/.53)", "ChM / AdM (.73/.52)"),
+FR = c("Freq (-.38...-.42)", "B (-.52,-.56)", "ChS (.65)", "M / S (.65,.23/-.20,-.68)", "ChM / AdM (-.53/.69)", "ChB / AdB (-.59/.70)"))
+papaja::apa_table(df, caption="Highlights from principal components' rotation in the original coordinate system.")
+
 #pc_bsa$rotation  * -1
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
-pc_bsa$rotation %>%
-    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system.", placement='h')
+#pc_bsa$rotation %>%
+#    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system.", placement='h')
     
 #pc_bsa$rotation  * -1
 ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
-pc_bsa_fr$rotation %>%
-    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system. (French)", placement='h')    
+#pc_bsa_fr$rotation %>%
+#    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system. (French)", placement='h')    
 ```
 
 
