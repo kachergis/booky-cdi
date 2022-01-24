@@ -55,6 +55,7 @@ require(ggeffects)
 require(ggpubr)
 require(tidytext)
 require(GGally)
+library(corrplot)
 ```
 
 # Introduction
@@ -62,13 +63,13 @@ require(GGally)
 How does speech addressed to children, heard on television, or read in books impact their word learning trajectory? How does this speech relate to adult-directed speech? And does this impact relate to parental socioeconomic status? Children learn language based on ambient linguistic input -- they cannot learn what they haven't heard. However, children's exposure to different words varies depending on how much child-directed speech they hear and how much they are read to. These different language input sources could lead to variance in input speech heard by child in their everyday lives. Input variance has often been interpreted as a function of the families' socioeconomic status [SES; @rowe2018understanding]. Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. 
 
 Input word frequency varies significantly depending on the context. Previous studies have shown that frequency matters for children's word learning [for a review, see @ambridge2015ubiquity], and have observed an association between word frequency in children's language environments and age of acquisition [@goodman2008]. 
-For instance, word frequency in books is not the same as frequency in conversational speech [@dawson2021features] [@montag2015words]. 
+For instance, word frequency in books is not the same as frequency in conversational speech [@dawson2021features; @montag2015words]. 
 
 Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech, yet not so common in children's books, and even more rare in books meant for all ages. But other differences are less intuitive: "of" is frequent in books meant for all ages, and while still frequent in child-directed speech, relatively less so as compared to children's books. In general, speech--both directed to children, and to adults--contains relatively fewer function words, and tends to score lower on measures of lexical diversity than books [@dawson2021features].
 
 The primary questions of this paper are, first, to examine shared and unique variance in word frequency across different sources of English and French input, ranging from children's books and movies to child-directed speech and even comparing to adult-directed books, movies, and speech, which we accomplish using principle components analysis (PCA).
 
-Second, we investigate how well these components predict English- and French-learning children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. The CDIs have proven to be reliable and valid indicators of child's language, with high internal consistency and predictive of later language outcomes [@fenson1994variability]. We approximate early word learning with the Age of Acquisition (AoA) prediction paradigm, which consists in predicting each CDI item's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency] [@Goodman2018]. 
+Second, we investigate how well these components predict English- and French-learning children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. The CDIs have proven to be reliable and valid indicators of child's language, with high internal consistency and predictive of later language outcomes [@fenson1994variability]. We approximate early word learning with the Age of Acquisition (AoA) prediction paradigm, which consists in predicting each CDI item's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency; @goodman2008]. 
 
 Third, we examine how well the frequency components predict individual differences in English-learning children's word learning in combination with their mother's education, which may be related to how much children are read to at home. The questions investigated in this paper aim to shed light on the importance of input sources on language development and its interaction with parental SES, would can be useful for informing future interventions.
 
@@ -205,19 +206,27 @@ Children's early word learning data is drawn from the CDIs [@fenson2007], aggreg
 
 
 Figure 1 shows the correlations in word frequency between different corpus sources for the matched CDI words (English on top, French below). 
-```{r}
-library(corrplot)
 
+```{r, fig.env = "figure", fig.pos = "H", fig.align='center', out.width = "\\textwidth", set.cap.width=T, num.cols.cap=1, fig.cap = "Word frequency correlations between different corpus sources for the matched CDI words in English (top) and French (bottom)."}
 res_en=cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")])
-
-p1<- corrplot(res_en, type="upper", method="color", bg="snow", tl.col="black", tl.srt=45)
-
 res_fr=cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")])
 
-p2<- corrplot(res_fr, type="upper", method="color", bg="snow", tl.col="black", tl.srt=45)
+# save figures
+generate_fig1 <- function() {
+pdf("figs/en_freq_cor.pdf", width=3.1, height=3.1)
+corrplot(res_en, type="upper", method="circle", bg="snow", number.cex = .8, tl.cex=.9, #col=corcol,
+              addCoef.col = "white", number.digits = 2, tl.col="black", tl.srt=20, cl.pos="n")
+dev.off()
 
-ggarrange(p1, p2, nrow=1, fig.lab = "Fig 1")
+pdf("figs/fr_freq_cor.pdf", width=3.1, height=3.1)
+corrplot(res_fr, type="upper", method="circle", bg="snow", number.cex = .8, tl.cex=.9, #col=corcol,
+              addCoef.col = "white", number.digits = 2, tl.col="black", tl.srt=20, cl.pos="n") 
+dev.off()
+}
 
+#generate_fig1()
+
+knitr::include_graphics("figs/corpus_freq_cors.pdf")
 
 #cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
 #    papaja::apa_table(digits=2, placement='h',
