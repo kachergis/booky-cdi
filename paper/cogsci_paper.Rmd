@@ -6,7 +6,7 @@ document-params: "10pt, letterpaper"
 
 author-information: > 
     \author{{\large \bf George Kachergis* (kachergis@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
-    \AND {\large \bf Georgia Loukatou (@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
+    \AND {\large \bf Georgia Loukatou* (@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
     \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA}
 
 abstract: >
@@ -205,9 +205,9 @@ Children's early word learning data is drawn from the CDIs [@fenson2007], aggreg
 ## Cross-corpus Frequency Correlations (Question 1)
 
 
-Figure 1 shows the correlations in word frequency between different corpus sources for the matched CDI words (left: English, right: French). 
+Figure 1 shows the word frequency correlations between different corpus sources ([Adult- vs. Child-directed] x [Speech, Books, Media]) for the matched CDI words (left: English, right: French). 
 
-```{r, fig.env = "figure", fig.pos = "H", fig.align='center', out.width = "\\textwidth", set.cap.width=T, num.cols.cap=1, fig.cap = "Word frequency correlations between different corpus sources for the matched CDI words in English (left) and French (right)."}
+```{r fig1, out.width="\\linewidth", fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.5, set.cap.width=T, num.cols.cap=1, fig.cap = "Word frequency correlations between different corpus sources for the matched CDI words in English (left) and French (right)."}
 res_en=cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")])
 res_fr=cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")])
 
@@ -226,7 +226,8 @@ dev.off()
 
 #generate_fig1()
 
-knitr::include_graphics("figs/corpus_freq_cors.pdf")
+#knitr::include_graphics("figs/corpus_freq_cors_vert.pdf", dpi=144)
+knitr::include_graphics("figs/corpus_freq_cors_hor.pdf")
 
 #cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
 #    papaja::apa_table(digits=2, placement='h',
@@ -238,11 +239,15 @@ knitr::include_graphics("figs/corpus_freq_cors.pdf")
 ```
 
 
-For both languages, there are both register and source effects. Unsurprisingly, there were strong correlations across these different corpora. We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations. We used PCA to examine the principal components of the six log-scaled word frequency distributions ([adult- vs. child-directed] x [speech, books, media]).
+For both languages, there are both register and source effects. Unsurprisingly, there were strong correlations across these different corpora. We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations.
 
 Table 1 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6) for both languages. PC1 already explains the bulk the variance (89% for English and for French), and PC2-PC4 each only capture an additional 2-4% of the variance. In total, the first four components captured >98% of the variance for both languages.
 
-Table 2 highlights the main differences across the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French The first PC is similar for both English and French, and captures shared variance between all frequency sources, representing words that are high or low frequency across registers and sources. This component captures for example that 'the' is frequent in spoken and written text and in speech to adults and children. For English, PC2 (3.8% of variance) mostly captures child-directed speech, differentiating it from the other registers. For example, motherese words are mostly present in this speech to children. For French, PC2 (8% of variance) mostly captures child-directed and adult-directed books. This component captures that some words are very frequent in text in general, comparing to the other registers. 
+Table 2 highlights the main differences across the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French.
+The first PC is similar for both English and French, and captures shared variance between all frequency sources, representing words that are high or low frequency across registers and sources. This component captures for example that 'the' is frequent in spoken and written text and in speech to adults and children. 
+For English, PC2 (3.8% of variance) mostly captures child-directed speech, differentiating it from the other registers. For example, motherese words are mostly present in this speech to children. 
+For French, PC2 (8% of variance) mostly captures child-directed and adult-directed books. 
+This component captures that some words are very frequent in text in general, comparing to the other registers. 
 
 For English, PC3 (3% of variance) captures adult-directed speech, differentiating it from the other registers. For French, PC3 (4%) is similar to PC2 in English, capturing child-directed speech. For English, PC4 (2.2% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed books. This component captures that some words are very frequent in media in general, but infrequent in books. For French, PC4 (4% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed speech. 
 
@@ -339,7 +344,7 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
 
 ## PCA-based Prediction of Age of Acquisition 
 
-Figure 1 shows the loadings of English CDI items on PC1-PC4 vs. the average age of acquisition (AoA; in months).
+Figure 2 shows the loadings of English CDI items on PC1-PC4 vs. the average age of acquisition (AoA; in months).
 
 ```{r 2-col-image, fig.env = "figure*", fig.pos = "h", fig.width=7, fig.height=8.5, fig.align = "center", set.cap.width=T, num.cols.cap=2, fig.cap = "Principal components vs. age of acquisition, by lexical class."}
 #knitr::include_graphics("../CHILDES_smoothed_norm_freqs_vs_books_TV.pdf")
