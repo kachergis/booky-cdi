@@ -456,39 +456,6 @@ plot(cv_model)
 
 
 ```{r, results='asis'}
-# could try adding in PCs one by one..
-
-ddbsa <- ddbsa %>%
-  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
-                        lexical_class=="verbs" ~ "verb",
-                        lexical_class=="adjectives" ~ "adj",
-                        lexical_class=="function_words" ~ "func",
-                        lexical_class=="other" ~ "other",
-                        TRUE ~ as.character(lexical_class)))
-ddbsa$LC <- fct_relevel(ddbsa$LC, "noun")
-
-pca_lc1 <- lm(aoa ~ PC1 * LC, data=ddbsa) # R^2=.26
-pca_lc2 <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa) # R^2=.47
-pca_lc3 <- lm(aoa ~ (PC1 + PC2 + PC3) * LC, data=ddbsa)
-pca_lc4 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa)
-pca_lc5 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa) # 0.576
-pca_lc6 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6) * LC, data=ddbsa)
-
-ttt <- anova(pca_lc1, pca_lc2) # 2***
-ttt <- rbind(ttt, anova(pca_lc2, pca_lc3)[2,]) # 3***
-ttt <- rbind(ttt, anova(pca_lc3, pca_lc4)[2,]) # 4***
-ttt <- rbind(ttt, anova(pca_lc4, pca_lc5)[2,]) # 5***
-ttt <- rbind(ttt, anova(pca_lc5, pca_lc6)[2,]) # 6*
-
-#summary(pca_lc6) # R^2 = .584
-#summary(pca_lc4) # R^2 = .538
-pca_tab2 <- data.frame(summary(pca_lc4)$coefficients)
-#car::vif(pca_lc_reg)
-names(pca_tab2) = c("Beta","SE","t-val","p-val")
-
-#print(xtable(pca_tab2, digits=2,
-#             caption = "Regression predicting English CDI AoAs with PCs and lexical class.",
-#             table.placement = "H"), comment=F)
 
 library(coefplot)
 # could try adding in PCs one by one..
@@ -533,7 +500,7 @@ pca_lc2_fr <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa_fr_)
 pca_lc3_fr <- lm(aoa ~ (PC1 + PC2 + PC3) * LC, data=ddbsa_fr_)
 pca_lc4_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa_fr_)
 pca_lc5_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa_fr_) 
-pca_lc6_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6) * LC, data=ddbsa_fr_)
+pca_lc6_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6  + Nletters) * LC, data=ddbsa_fr_)
 ttt_fr <- anova(pca_lc1_fr, pca_lc2_fr) # 2***
 ttt_fr <- rbind(ttt_fr, anova(pca_lc2_fr, pca_lc3_fr)[2,]) 
 ttt_fr <- rbind(ttt_fr, anova(pca_lc3_fr, pca_lc4_fr)[2,]) 
