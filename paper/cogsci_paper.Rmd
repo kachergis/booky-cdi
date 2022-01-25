@@ -302,13 +302,14 @@ ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
 
 
 
-## Age of Acquisition Regression (Question 2)
+## PCA-based Age of Acquisition Regression (Question 2)
 
 
-We attempted a simple regression predicting each CDI word's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency]. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word.
-<!-- Table 2 below displays the estimated coefficients of this regression, showing significant contributions of all child-directed distributions (speech, books, and media), and of adult speech frequencies, as well as the number of letters.
-However, the variance inflation factor (VIF) values for all of the frequency distributions are all $>>1$ (and many $>5$ or $>10$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results. 
--->
+Next, we turned to question 2 asking how well these components predict English- and French-learning children's early word learning. We attempted a simple regression predicting each CDI word's mean AoA. However, multicollinearity makes it unwise to include these raw distributions in a regression, as the results would likely be unstable. We verified that this was the case by running a regression predicting AoA with log(word frequency) from each of the six distributions as predictors. 
+
+The Variance Inflation Factor (VIF) estimates the inflation of the variance of a regression coefficient when there is correlation between predictors [@dodge2008concise]. The more the VIF increases, the less reliable the regression results are. The VIF for every distribution was $>>1$ (and many $>5$ or $>10$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results. We thus used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA. Figure 2 shows the loadings of English CDI items on PC1-PC4 vs. the average age of acquisition (AoA; in months).
+
+
 
 ```{r raw-logfreq-aoa-regression, include=F, results='asis'}
 lm1 <- lm(aoa ~ log(ChS) + log(ChM) + log(ChB) + log(AdS) + log(AdM) + log(AdB) + Nletters, data=dddc)
@@ -333,7 +334,10 @@ print(xtable(tab_fr, digits=2,
 ```
 
 
+Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word. To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA[^p]. The more complex model was always significantly preferred, including up to the inclusion of PC6 (English: $R^2 = .584$, French: $R^2 = .16$). Figure 2 shows the coefficient estimates with p<0.05 for both languages.
 
+
+[^p]:The R syntax for the sequence of regressions was `AoA`$\sim$`PC1*LC`, `AoA`$\sim$`(PC1+PC2)*LC`, ..., `AoA`$\sim$`(PC1+PC2+PC3+PC4+PC5+PC6)*LC`, with noun as the baseline LC.
 
 
 ```{r, include=F}
@@ -342,7 +346,6 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
   papaja::apa_table(digits=2, caption="Correlation of PC loadings with frequency distributions.", placement='h')
 ```
 
-## PCA-based Prediction of Age of Acquisition 
 
 Figure 2 shows the loadings of English CDI items on PC1-PC4 vs. the average age of acquisition (AoA; in months).
 
@@ -449,16 +452,8 @@ PCs_fr <- data.matrix(ddbsa_fr[,paste0("PC",1:6)])
 plot(cv_model) 
 ```
 
-Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6. 
-To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA.
-Thus, the R syntax for the sequence of regressions was `AoA`$\sim$`PC1*LC`, `AoA`$\sim$`(PC1+PC2)*LC`, ..., `AoA`$\sim$`(PC1+PC2+PC3+PC4+PC5+PC6)*LC`, with noun as the baseline LC.
-The more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .584$), although for ease of presentation we only show the results of the regression with up to PC4.
-Table 9 shows the results of this regression, which yielded $R^2 = .538$.
-PC1 and PC3 had significant positive coefficients, while PC2 and PC4 had significant negative coefficients.
-PC1 had significant interactions with all levels of lexical class, with negative coefficients.
-PC2 had significant interactions with .. (positive), and with .. (negative).
-Interactions of PC3 and PC4 with LC were not significant.
-[better to just show a ggeffects graph?]
+
+
 
 ```{r, results='asis'}
 # could try adding in PCs one by one..
@@ -491,10 +486,74 @@ pca_tab2 <- data.frame(summary(pca_lc4)$coefficients)
 #car::vif(pca_lc_reg)
 names(pca_tab2) = c("Beta","SE","t-val","p-val")
 
-print(xtable(pca_tab2, digits=2,
-             caption = "Regression predicting English CDI AoAs with PCs and lexical class.",
-             table.placement = "H"), comment=F)
+#print(xtable(pca_tab2, digits=2,
+#             caption = "Regression predicting English CDI AoAs with PCs and lexical class.",
+#             table.placement = "H"), comment=F)
+
+library(coefplot)
+# could try adding in PCs one by one..
+ddbsa <- ddbsa %>%
+  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
+                        lexical_class=="verbs" ~ "verb",
+                        lexical_class=="adjectives" ~ "adj",
+                        lexical_class=="function_words" ~ "func",
+                        lexical_class=="other" ~ "other",
+                        TRUE ~ as.character(lexical_class)))
+ddbsa$LC <- fct_relevel(ddbsa$LC, "noun")
+pca_lc1 <- lm(aoa ~ PC1 * LC, data=ddbsa) # R^2=.26
+pca_lc2 <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa) # R^2=.47
+pca_lc3 <- lm(aoa ~ (PC1 + PC2 + PC3) * LC, data=ddbsa)
+pca_lc4 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa)
+pca_lc5 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa) # 0.576
+pca_lc6 <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6) * LC, data=ddbsa)
+ttt <- anova(pca_lc1, pca_lc2) # 2***
+ttt <- rbind(ttt, anova(pca_lc2, pca_lc3)[2,]) # 3***
+ttt <- rbind(ttt, anova(pca_lc3, pca_lc4)[2,]) # 4***
+ttt <- rbind(ttt, anova(pca_lc4, pca_lc5)[2,]) # 5***
+ttt <- rbind(ttt, anova(pca_lc5, pca_lc6)[2,]) # 6*
+#summary(pca_lc6) # R^2 = .584
+#summary(pca_lc4) # R^2 = .538
+pca_tab2 <- data.frame(summary(pca_lc4)$coefficients)
+#car::vif(pca_lc_reg)
+names(pca_tab2) = c("Beta","SE","t-val","p-val")
+#print(xtable(pca_tab2, digits=2,
+#             caption = "Regression predicting English CDI AoAs with PCs and lexical class.",
+#             table.placement = "H"), comment=F)
+
+ddbsa_fr_ <- ddbsa_fr %>%
+  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
+                        lexical_class=="verbs" ~ "verb",
+                        lexical_class=="adjectives" ~ "adj",
+                        lexical_class=="function_words" ~ "func",
+                        lexical_class=="other" ~ "other",
+                        TRUE ~ as.character(lexical_class)))
+ddbsa_fr_$LC <- fct_relevel(ddbsa_fr_$LC, "noun")
+pca_lc1_fr <- lm(aoa ~ PC1 * LC, data=ddbsa_fr_) 
+pca_lc2_fr <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa_fr_) 
+pca_lc3_fr <- lm(aoa ~ (PC1 + PC2 + PC3) * LC, data=ddbsa_fr_)
+pca_lc4_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa_fr_)
+pca_lc5_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa_fr_) 
+pca_lc6_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6) * LC, data=ddbsa_fr_)
+ttt_fr <- anova(pca_lc1_fr, pca_lc2_fr) # 2***
+ttt_fr <- rbind(ttt_fr, anova(pca_lc2_fr, pca_lc3_fr)[2,]) 
+ttt_fr <- rbind(ttt_fr, anova(pca_lc3_fr, pca_lc4_fr)[2,]) 
+ttt_fr <- rbind(ttt_fr, anova(pca_lc4_fr, pca_lc5_fr)[2,]) 
+ttt_fr <- rbind(ttt_fr, anova(pca_lc5_fr, pca_lc6_fr)[2,]) 
+#summary(pca_lc6_fr) 
+#summary(pca_lc4_fr) 
+
+e<-coefplot(pca_lc6, coefficients=c("PC1","PC2","PC3","PC4","PC5",  
+                              "LCadj","LCfunc", "LCother", "LCverb", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", "PC2:LCother", "PC2:LCother", "PC3:LCfunc", "PC6:LCfunc"), vertical=FALSE, mar=c(5.5,2.5,2,2))
+f<-coefplot(pca_lc4_fr, coefficients=c("PC1","PC2","PC3","PC6",  
+                              "LCfunc", "LCverb", "PC1:LCadj", "PC1:LCfunc", "PC1:LCverb","PC2:LCverb"), vertical=FALSE, mar=c(5.5,2.5,2,2)) 
+
+ggarrange(e,f, nrow=1, ncol=1, legend = "none")
+
 ```
+
+For both languages, lexical categories were significant. For English, P1, P2, P3 and P4 predict the age of acquisition. The differences in word frequency across language sources ar erelevant in predicting AoA. ChS (PC2) is a negative predictor, whereas AdS is a positive predictor. Interactions between P1, with the lexical categories. P2 interacts with other, P3 with functionwords, and P6 with function words. ########add interpretations
+
+For French, P1,P2 and P3 are significant. #### Book coefficient negative, ChS positive? P1 interacts with verb and function words, P2 interacts with verbs.  #######add interpretations
 
 ## Combining distributions with demographic data
 
