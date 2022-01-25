@@ -238,7 +238,7 @@ knitr::include_graphics("figs/corpus_freq_cors.pdf")
 ```
 
 
-For both languages, there are both register and source effects. Unsurprisingly, there were strong correlations across these different corpora. We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations. 
+For both languages, there are both register and source effects. Unsurprisingly, there were strong correlations across these different corpora. We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations. We used PCA to examine the principal components of the six log-scaled word frequency distributions ([adult- vs. child-directed] x [speech, books, media]).
 
 Table 1 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6) for both languages. PC1 already explains the bulk the variance (89% for English and for French), and PC2-PC4 each only capture an additional 2-4% of the variance. In total, the first four components captured >98% of the variance for both languages.
 
