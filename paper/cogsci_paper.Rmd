@@ -237,17 +237,19 @@ knitr::include_graphics("figs/corpus_freq_cors.pdf")
 #                      caption="Correlations in word frequency between different sources for CDI words (French).")
 ```
 
-For both languages, there are both register and source effects. 
-Unsurprisingly, there were strong correlations across these different corpora.
-This multicollinearity makes it unwise to include these raw distributions in a regression, as the results would likely be unstable.[^1]
-We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations. 
-We used PCA to examine the principal components of the six log-scaled word frequency distributions ([adult- vs. child-directed] x [speech, books, media]).
 
-[^1]: We verified that this was the case by running a regression predicting AoA with log(word frequency) from each of the six distributions as predictors. The Variance Inflation Factor (VIF) for every distribution was $>>1$
+For both languages, there are both register and source effects. Unsurprisingly, there were strong correlations across these different corpora. We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations. 
 
 Table 1 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6) for both languages. PC1 already explains the bulk the variance (89% for English and for French), and PC2-PC4 each only capture an additional 2-4% of the variance. In total, the first four components captured >98% of the variance for both languages.
 
-Table 2 shows the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French The first PC captures shared variance between all frequency sources, representing words that are high or low frequency across registers and sources. This component captures for example that 'the' is frequent in spoken and written text and in speech to adults and children.
+Table 2 highlights the main differences across the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French The first PC is similar for both English and French, and captures shared variance between all frequency sources, representing words that are high or low frequency across registers and sources. This component captures for example that 'the' is frequent in spoken and written text and in speech to adults and children. For English, PC2 (3.8% of variance) mostly captures child-directed speech, differentiating it from the other registers. For example, motherese words are mostly present in this speech to children. For French, PC2 (8% of variance) mostly captures child-directed and adult-directed books. This component captures that some words are very frequent in text in general, comparing to the other registers. 
+
+For English, PC3 (3% of variance) captures adult-directed speech, differentiating it from the other registers. For French, PC3 (4%) is similar to PC2 in English, capturing child-directed speech. For English, PC4 (2.2% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed books. This component captures that some words are very frequent in media in general, but infrequent in books. For French, PC4 (4% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed speech. 
+
+For English, PC5 (1% of variance) captures child-directed speech, distinguishing it from child-directed books. For French, PC5 (3% of variance) distinguishes child-directed media from adult-media. Last, for English, PC6 (<1% of variance) is similar to PC5 in French, capturing child-directed media (.73), and distinguishing it in particular from adult-directed media. For English, PC6 (3%) distinguishes child-directed from adult-directed books. 
+
+In summary, the PCs align surprisingly well with particular dimensions of the English frequency distributions: PC1 with overall frequency, PC2 with child-directed speech, PC3 with adult-directed speech, PC4 with media vs. books, PC5 with child-directed books vs. speech, and PC6 with adult- vs. child-directed media. 
+For French, we observe a similar pattern of findings, although the importance and order of the PCs is not the same. Variance is distributed across the PCs, frequency differences across different registers being more pronounced than for English. Importantly, frequency particularities in ChS come third in order in French, compared to second in English. On the contrary, word frequency in books differs from all other registers in French, and comes second in order.
 
 
 
@@ -269,24 +271,6 @@ table_1<-rbind(pc_imp, pc_imp_fr)
 table_1 %>%
     papaja::apa_table(digits=2, caption="Importance of components from PCA for English (above) and French (below).", placement='h')
 ```
-
-
-
-
-
-Tables 5 and 6 show the correlation of each frequency distribution with the CDI items' loadings on each principal component for English and French, respectively.
-
-For English, it is clear that PC1 captures overall frequency, but loads more strongly on the adult distributions (-.47 to -.52).
-PC2 (3.8% of variance) mostly captures child-directed speech (0.65), especially differentiating it from adult-directed books and media (-.47, -.45).
-PC3 (3.1% of variance) captures adult-directed speech (.79), particularly from child-directed distributions.
-PC4 (2.2% of variance) captures the similarity of child- and adult-directed media (.40, .48), distinguishing them from child- and adult-directed books (-.63, -.44).
-PC5 (1.1% of variance) mostly captures child-directed books (0.53), distinguishing it from child-directed speech (-.60) and adult-directed books (-.50).
-PC6 (<1% of variance) captures child-directed media (.73), distinguishing it in particular from adult-directed media (-.52).
-In summary, the principal components align surprisingly well with particular dimensions of the English frequency distributions: PC1 with overall adult-directed frequency, PC2 with child-directed speech, PC3 with adult-directed speech, PC4 with media vs. books, PC5 with child-directed books vs. speech, and PC6 with adult- vs. child-directed media.
-Although even PC5 and PC6 seem interpretable, given limited space and the fact that they account for very little variance ($\sim1$%) we will focus on PC1-PC4 for the rest of our analyses.
-
-For French, we see a similar pattern of findings, although the order of the most important principal components is not quite the same.
-As seen in Table 6, the first PC for the French corpora captures less of the variance than for the English corpora, and remaining PCs capture more -- even PC5 and PC6 each capture 3%, compared to 1% in the English PCA.
 
 
 
