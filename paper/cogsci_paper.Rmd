@@ -57,6 +57,7 @@ require(tidytext)
 require(GGally)
 library(corrplot)
 library(coefplot)
+require(boot)
 ```
 
 # Introduction
