@@ -515,7 +515,7 @@ ggarrange(e,f, nrow=1, ncol=1, legend = "none")
 
 For both languages, lexical categories were significant. For English, P1, P2, P3 and P4 predict the age of acquisition. The differences in word frequency across language sources ar erelevant in predicting AoA. ChS (PC2) is a negative predictor, whereas AdS is a positive predictor. Interactions between P1, with the lexical categories. P2 interacts with other, P3 with functionwords, and P6 with function words. ########add interpretations
 
-For French, P1,P2 and P3 are significant. #### Book coefficient negative, ChS positive? P1 interacts with verb and function words, P2 interacts with verbs.  #######add interpretations
+For French, P1,P2 P3 and PC6 are significant predictors. Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. Book frequency (PC2) is a predictor; words which are especially frequent in books are learned later on. Child-directed speech (PC3) is a predictor; words which are especially frequent in this register are learned earlier on. PC6 includes words which are often found in child-directed books versus adult-directed books. We also observe that overall frequency interacts with lexical class, verbs, function words and adjectves being learned later than nouns. PC2 interacts with verbs, which are learned later than nouns. There is no effect of the frequency found in media, or the number of letters. In sum, most frequency comes from the speech and book sources, and the child-directed register.
 
 ## Combining distributions with demographic data
 
