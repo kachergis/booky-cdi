@@ -56,6 +56,7 @@ require(ggpubr)
 require(tidytext)
 require(GGally)
 library(corrplot)
+library(coefplot)
 ```
 
 # Introduction
@@ -449,9 +450,7 @@ plot(cv_model)
 
 
 
-```{r, results='asis'}
-
-library(coefplot)
+```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom)."}
 # could try adding in PCs one by one..
 ddbsa <- ddbsa %>%
   mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
@@ -503,10 +502,22 @@ ttt_fr <- rbind(ttt_fr, anova(pca_lc5_fr, pca_lc6_fr)[2,])
 #summary(pca_lc6_fr) 
 #summary(pca_lc4_fr) 
 
-e<-coefplot(pca_lc6, coefficients=c("PC1","PC2","PC3","PC4","PC5", "LCfunc", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc"), vertical=TRUE, mar=c(5.5,2.5,2,2))
-f<-coefplot(pca_lc6_fr, coefficients=c("PC1","PC2","PC3","PC4","PC5", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb","PC2:LCverb", "PC5:LCfunc", "PC6:LCother"), vertical=TRUE, mar=c(5.5,2.5,2,2)) 
-ggarrange(e,f, nrow=1, ncol=1, legend = "none")
+en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCfunc", 
+              "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", 
+              "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc")
 
+fr_coef_list = c("PC1","PC2","PC3","PC4","PC5", 
+                 "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb",
+                 "PC2:LCverb", "PC5:LCfunc", "PC6:LCother")
+
+e <- coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, 
+              mar=c(5.5,2.5,2,2), title="English", cex=.8, xlab='') + 
+  theme_bw() + theme(plot.title = element_text(size=10))
+f <- coefplot(pca_lc6_fr, coefficients = fr_coef_list, vertical=TRUE, 
+              mar=c(5.5,2.5,2,2), title="French", cex=.8, xlab='') + 
+  theme_bw() + theme(plot.title = element_text(size=10))
+
+ggarrange(e,f, ncol=1, legend = "none")
 ```
 
 In general, we observe that registers and sources both matter for early word learning. For English, P1, P2, P3, P4 and PC5 predict the age of acquisition. Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. Child-directed speech (PC2) is a negative predictor; words which are frequent in this register are learned earlier on. On the contrary, adult-directed speech is a positive predictor; words which are frequent in this register are learned later on. The frequency of words in media distinguished from books is a predictor (PC4). Frequency of words in child-directed speech distinguished from words in child-directed books is also a significant predictor; an earlier acquisition is predicted for words not existing in books. We also observe that overall frequency interacts with lexical class, verbs, function words and adjectives being learned later than nouns. PC2 interacts with verbs, which are learned later than nouns. There is also an interaction with PC3 and function words, which are learned later than nouns, and PC6 and function words. 
