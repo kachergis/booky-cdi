@@ -626,6 +626,34 @@ print(xtable(mom_ed_tab, digits=2,
 ```
 
 
+```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.5, fig.height=3.9, set.cap.width=T, num.cols.cap=1, fig.cap = "Predicted effects of maternal education and PC1-PC4 on the probability of children producing CDI words."}
+# ggpredict returns conditional effects, while ggeffect/ggemmeans return marginal means
+# (i.e. averaged over the levels of factors)
+
+#ggeffect(en4, c("age", "PC1", "MotherEd")) %>% plot()
+#pred <- ggpredict(en4)
+
+# age, PC, MomEd
+#pc1a <- ggpredict(en4, c("age", "MotherEd", "PC1")) %>% plot() + 
+#  ylab("Probability of Production") + ggtitle("")
+
+# ToDo: titles with PC descriptions?
+pc1 <- ggpredict(en4, c("PC1", "MotherEd")) %>% plot() + # consider using "PC1 [all]" ?
+  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+
+pc2 <- ggpredict(en4, c("PC2", "MotherEd")) %>% plot() + 
+  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+
+pc3 <- ggpredict(en4, c("PC3", "MotherEd")) %>% plot() + 
+  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+
+pc4 <- ggpredict(en4, c("PC4", "MotherEd")) %>% plot() + 
+  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+
+ggarrange(pc1, pc2, pc3, pc4, nrow=2, ncol=2, common.legend = T)
+```
+
+
 
 # Discussion
 
