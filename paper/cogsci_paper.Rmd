@@ -184,8 +184,7 @@ dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>%
          adult_tv = ifelse(is.na(adult_tv), 10, adult_tv),
          child_tv = ifelse(is.na(child_tv), 10, child_tv),
          child_speech = ifelse(is.na(child_speech), 10, child_speech)) %>%
-         distinct()%>% 
-         filter(!lexical_class=="other")
+         distinct()
 
 dddc_fr <- dd_fr %>% 
   rename(`AdB` = adult_book,  
