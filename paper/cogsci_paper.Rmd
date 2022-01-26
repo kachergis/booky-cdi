@@ -201,7 +201,7 @@ Children's early word learning data is drawn from the CDIs [@fenson2007], aggreg
 # Results
 
 
-## Cross-corpus Frequency Correlations (Question 1)
+## Cross-corpus Frequency Correlations (Q1)
 
 
 Figure 1 shows the word frequency correlations between different corpus sources ([Adult- vs. Child-directed] x [Speech, Books, Media]) for the matched CDI words (left: English, right: French). 
@@ -296,7 +296,7 @@ ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
 
 
 
-## PCA-based Age of Acquisition Regression (Question 2)
+## PCA-based Age of Acquisition Regression (Q2)
 
 
 Next, we turned to question 2 asking how well these components predict English- and French-learning children's early word learning. We attempted a simple regression predicting each CDI word's mean AoA. However, multicollinearity makes it unwise to include these raw distributions in a regression, as the results would likely be unstable. We verified that this was the case by running a regression predicting AoA with log(word frequency) from each of the six distributions as predictors. 
@@ -503,11 +503,8 @@ ttt_fr <- rbind(ttt_fr, anova(pca_lc5_fr, pca_lc6_fr)[2,])
 #summary(pca_lc6_fr) 
 #summary(pca_lc4_fr) 
 
-e<-coefplot(pca_lc6, coefficients=c("PC1","PC2","PC3","PC4","PC5",  
-                              "LCadj","LCfunc", "LCother", "LCverb", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", "PC2:LCother", "PC2:LCother", "PC3:LCfunc", "PC6:LCfunc"), vertical=FALSE, mar=c(5.5,2.5,2,2))
-f<-coefplot(pca_lc4_fr, coefficients=c("PC1","PC2","PC3","PC6",  
-                              "LCfunc", "LCverb", "PC1:LCadj", "PC1:LCfunc", "PC1:LCverb","PC2:LCverb"), vertical=FALSE, mar=c(5.5,2.5,2,2)) 
-
+e<-coefplot(pca_lc6, coefficients=c("PC1","PC2","PC3","PC4","PC5", "LCfunc", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc"), vertical=TRUE, mar=c(5.5,2.5,2,2))
+f<-coefplot(pca_lc6_fr, coefficients=c("PC1","PC2","PC3","PC4","PC5", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb","PC2:LCverb", "PC5:LCfunc", "PC6:LCother"), vertical=TRUE, mar=c(5.5,2.5,2,2)) 
 ggarrange(e,f, nrow=1, ncol=1, legend = "none")
 
 ```
@@ -519,7 +516,7 @@ For French, registers as well as sources in are also important predictors of wor
 
 In sum, in both languages, we observe that the predictive value of word frequency comes from speech, media and book sources, and mostly the child-directed register. The main differences across languages are that for English, the difference and difficulty of adult-directed speech is emphasized. For French, the difference and difficulty of text, independent of register, is emphasized.
 
-## Combining distributions with demographic data
+## Combining distributions with demographic data (Q3)
 
 Past research has found that young children from higher-SES households tend to have larger vocabulary.
 Parents with higher-SES tend to also report reading more to their young children than parents with lower SES. 
