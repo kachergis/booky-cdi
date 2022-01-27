@@ -10,13 +10,17 @@ author-information: >
     \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA}
 
 abstract: >
-    Children's early vocabulary learning must to a large extent be driven by the prevalence 
-    of words: they can't learn a word if they haven't heard it. Indeed, previous research 
-    has found that higher word frequency is a good predictor of earlier learning. However,
-    despite considerable overlap, word frequency distributions also vary significantly 
-    by source: child-directed speech, books, and television have distinct profiles. Children
-    receive a mixture of these different frequency distributions, and the ratios of the mixture
-    may be predictive of their early word learning. The goal of this paper is to better understand
+    Children's early word learning is to a large extent driven by the prevalence of
+    words in their language environment, with words that are spoken more often to children
+    being learned earlier. However, children receive language from a variety of sources, 
+    including books, television, and movies meant for children, as well as speech and media
+    that is meant for adults, but overheard by children. Despite considerable similarity
+    of word frequency distributions from these different input sources, there is also significant
+    and predictable variability between them. For example, function words are far more frequent
+    in books than in everyday speech, while early-learned nouns (e.g., 'ball' and 'mommy') are 
+    more frequent in child-directed speech than from other sources. Children receive a mixture 
+    of these different frequency distributions, and the ratios of the mixture may be
+    predictive of their early word learning. The goal of this paper is to better understand
     the shared and unique variance in these sources of input--in both English and French--and 
     to evaluate how predictive these input frequencies are of children's early word learning.
     
@@ -62,12 +66,21 @@ require(boot)
 
 # Introduction
 
-How does speech addressed to children, heard on television, or read in books impact their word learning trajectory? How does this speech relate to adult-directed speech? And does this impact relate to parental socioeconomic status? Children learn language based on ambient linguistic input -- they cannot learn what they haven't heard. However, children's exposure to different words varies depending on how much child-directed speech they hear and how much they are read to. These different language input sources could lead to variance in input speech heard by child in their everyday lives. Input variance has often been interpreted as a function of the families' socioeconomic status [SES; @rowe2018understanding]. Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. 
+How does speech addressed to children, heard on television, or read in books impact the growth of children's early vocabulary? 
+How does speech from these sources relate to adult-directed sources of speech? 
+And how do these potential language sources combine with parental education to predict young children's vocabulary growth? 
+Children must learn words based on ambient linguistic input, and indeed the amount of child-directed speech a child receives predicts later vocabulary growth [@hart1995meaningful].
+However, children's exposure to different words can vary greatly depending on how much child-directed speech they hear, how much they are read to, and how much they are overhearing adults speaking to each other. 
+These different language input sources can vary both in quantity, as well as in various measures of quality (e.g., diversity of the types of words used, the length of utterances), which may influence children's uptake.
+Moreover, the amount of input children receive from these different input sources may vary from child to child, which may account for some of the great variability seen in children's early vocabulary growth [cf. @fenson1994variability].
+Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to parents' socioeconomic status [SES; @rowe2012longitudinal; @hoff2003specificity]. 
+<!-- @rowe2018understanding; Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. -->
 
-Input word frequency varies significantly depending on the context. Previous studies have shown that frequency matters for children's word learning [for a review, see @ambridge2015ubiquity], and have observed an association between word frequency in children's language environments and age of acquisition [@goodman2008]. 
-For instance, word frequency in books is not the same as frequency in conversational speech [@dawson2021features; @montag2015words]. 
+Input word frequency varies significantly depending on the context. 
+Previous studies have shown that frequency matters for children's word learning [for a review, see @ambridge2015ubiquity], and have observed an association between word frequency in children's language environments and age of acquisition [@goodman2008]. 
+For instance, word frequency in books is not the same as frequency in conversational speech, with many function words being far more frequent in books than in speech [@dawson2021features; @montag2015words]. 
 
-Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech, yet not so common in children's books, and even more rare in books meant for all ages. But other differences are less intuitive: "of" is frequent in books meant for all ages, and while still frequent in child-directed speech, relatively less so as compared to children's books. In general, speech--both directed to children, and to adults--contains relatively fewer function words, and tends to score lower on measures of lexical diversity than books [@dawson2021features].
+Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech, yet not so common in children's books, and even more rare in books meant for all ages. But other differences are less intuitive: "of" is frequent in books meant for all ages, and while still frequent in child-directed speech, it is relatively less frequent as compared to children's books. In general, speech--whether directed to children, or to adults--contains relatively fewer function words, and tends to score lower on measures of lexical diversity than books, which have a higher ratio of types (i.e. unique words) per set of tokens [i.e., instances of words; @dawson2021features].
 
 The primary questions of this paper are, first, to examine shared and unique variance in word frequency across different sources of English and French input, ranging from children's books and movies to child-directed speech and even comparing to adult-directed books, movies, and speech, which we accomplish using principle components analysis (PCA).
 
