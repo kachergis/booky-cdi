@@ -533,13 +533,12 @@ In sum, in both languages, we observe that the predictive value of word frequenc
 
 ## Combining distributions with demographic data (Q3)
 
-Previous findings relate SES status to book reading (citation). This suggests that the vocabulary composition of children from higher-SES households may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. To test this idea, we did an exploratory logistic regression using the first four PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age. Due to lack of maternal education data for French data, we focus on American English-learning children. American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education (coded: -1 for no more than secondary education (N=547), 0 for some/all college (N=1483), and 1 for at least some graduate school (N=746)).
+Previous findings relate SES status to book reading (citation). This suggests that the vocabulary composition of children from higher-SES households may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. To test this idea, we did an exploratory logistic regression using the first four PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age. Due to lack of maternal education data for French data, we focus on American English-learning children. American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education coded as a factor (baseline (0): no more than secondary education (N=547), 1 for some/all college (N=1483), and 2 for at least some graduate school (N=746)).
 <!--The R syntax for the formula is `cbind(total_producing, total_not_producing) ~ age * mother_ed * (PC1 + PC2 + PC3 + PC4)`.-->
 
 There were significant main effects of age, mother's education, and PC1-PC4 (all $p<.001$).
 There were significant interactions of age with mother's education ($p<.001$), PC2 ($p<.001$), and PC4 ($p=.009$).
-There were significant interactions of mother's education with PC1-PC3 (all $p<.001$).
-[how to show these effects?]
+There were significant interactions of mother's education with PC1-PC3 (all $p<.001$), shown in Figure 4.
 
 ```{r get-wordbank-data, eval=F}
 require(wordbankr)
@@ -637,18 +636,24 @@ print(xtable(mom_ed_tab, digits=2,
 #pc1a <- ggpredict(en4, c("age", "MotherEd", "PC1")) %>% plot() + 
 #  ylab("Probability of Production") + ggtitle("")
 
+ylab_momed = "Prob. of Production"
+
 # ToDo: titles with PC descriptions?
 pc1 <- ggpredict(en4, c("PC1", "MotherEd")) %>% plot() + # consider using "PC1 [all]" ?
-  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+  theme(plot.title = element_blank())
 
 pc2 <- ggpredict(en4, c("PC2", "MotherEd")) %>% plot() + 
-  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) +
+  theme(plot.title = element_blank())
 
 pc3 <- ggpredict(en4, c("PC3", "MotherEd")) %>% plot() + 
-  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+  theme(plot.title = element_blank())
 
 pc4 <- ggpredict(en4, c("PC4", "MotherEd")) %>% plot() + 
-  ylab("Probability of Production") + ggtitle("") + theme_classic(base_size=10)
+  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+  theme(plot.title = element_blank())
 
 ggarrange(pc1, pc2, pc3, pc4, nrow=2, ncol=2, common.legend = T)
 ```
