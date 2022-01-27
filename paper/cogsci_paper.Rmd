@@ -113,7 +113,7 @@ total_adult_tokens <- adult_dat %>% group_by(source) %>%
     summarise(word_count = sum(word_count),
               n = n())
               
-              
+# TODO: these word_counts are already normalized -- we want raw counts!
 total_child_tokens_fr <- ch_freq_fr %>% 
   select(-adult_speech, -adult_tv, -adult_book) %>%
   pivot_longer(c(child_speech,  child_book, child_tv), names_to = "source", values_to = "word_count") %>%
@@ -122,6 +122,7 @@ total_child_tokens_fr <- ch_freq_fr %>%
     summarise(word_count = sum(word_count, na.rm=TRUE),
               n = n())
 
+# TODO: these word_counts are already normalized -- we want raw counts!
 total_adult_tokens_fr <- ch_freq_fr %>% 
   select(-child_speech, -child_tv, -child_book) %>%
   pivot_longer(c(adult_speech,  adult_book, adult_tv), names_to = "source", values_to = "word_count") %>%
@@ -190,12 +191,23 @@ dddc <- dddc %>%
   select(-CHILDES) %>% # less well-cleaned version
   left_join(adult_dat)
 
+# use the minimum normalized count values for these (large) corpora 
 dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
-                                 `AdM` = 0.32))
-                                 
+                                 `AdM` = 0.32)) 
+
+
 dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>% 
   select(-ch_book_vs_speech, -prop_booky) %>%
   mutate(Nletters = nchar(token)) %>%
+  group_by(definition, lexical_class) %>% # group to have 1 row per CDI item: 
+  summarize(adult_book = sum(adult_book),
+            adult_speech = sum(adult_speech),
+            child_book = sum(child_book),
+            adult_tv = sum(adult_tv),
+            child_tv = sum(child_tv),
+            child_speech = sum(child_speech),
+            Nletters = mean(Nletters),
+            aoa = mean(aoa)) %>% # sum the counts, average the aoas and Nletters
   mutate(adult_book = ifelse(is.na(adult_book), 10, adult_book),
          adult_speech = ifelse(is.na(adult_speech), 10, adult_speech),
          child_book = ifelse(is.na(child_book), 10, child_book),
@@ -210,7 +222,8 @@ dddc_fr <- dd_fr %>%
          `AdM` = adult_tv,
          `AdS` = adult_speech,
          `ChS` = child_speech,
-         `ChM` = child_tv)                                  
+         `ChM` = child_tv)
+
 ```
 
 Children's early word learning data is drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from X kids for American English and X kids for French French). CDIs are parental reports on their children’s lexical development, proven to be reliable indicators of a child’s language. CDIs are survey instruments, where parents mark whether their child (age ranges 8-15 and 16-30 months old) understands or produces particular words out of a list of several hundred words. All word frequencies were normalized to number of tokens per million (TPM). We focus our analysis on the 674 words from the English CDI that we were able to find in at least some of the corpora, and 470 words from the French CDI (for French, words were matched to related words in corpora via a stemmer). For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
@@ -245,14 +258,16 @@ dev.off()
 
 #knitr::include_graphics("figs/corpus_freq_cors_vert.pdf", dpi=144)
 knitr::include_graphics("figs/corpus_freq_cors_hor.pdf")
+```
 
-#cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
-#    papaja::apa_table(digits=2, placement='h',
-#                      caption="Correlations in word frequency between different sources for CDI words (English)")
+```{r freq-distro-cor-tables, include=F}
+cor(dddc[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
+    papaja::apa_table(digits=2, placement='h',
+                      caption="Correlations in word frequency between different sources for CDI words (English)")
 
-#cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
-#    papaja::apa_table(digits=2, placement='h',
-#                      caption="Correlations in word frequency between different sources for CDI words (French).")
+cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
+    papaja::apa_table(digits=2, placement='h',
+                      caption="Correlations in word frequency between different sources for CDI words (French).")
 ```
 
 
@@ -291,7 +306,7 @@ Importantly, frequency particularities in ChS come third in order in French, com
 
 
 
-```{r}
+```{r pca}
 pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
                              "AdM","AdB","AdS")])) # add Montag separately?
 #eigenvalues = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
@@ -301,6 +316,7 @@ row.names(pc_imp) = c("StdDev Eng","PropVar Eng","CumPropVar Eng")
 pc_bsa_fr <- prcomp(log(dddc_fr[,c("ChM","ChB","ChS",
                              "AdM","AdB","AdS")])) # add Montag separately?
 #eigenvalues = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
+
 pc_imp_fr <- summary(pc_bsa_fr)$importance 
 row.names(pc_imp_fr) = c("StdDev Fr","PropVar Fr","CumPropVar Fr")
 
@@ -321,16 +337,22 @@ Order = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
 EN = c("Freq -.26...-.52", "ChS .65", "AdS .79", "M/B .40.48/-.44-.63", "ChS/ChB -.60/.53", "ChM/AdM .73/-.53"),
 FR = c("Freq -.38...-.42", "B -.52,-.56", "ChS .65", "M/S .65.23/-.20-.68", "ChM/AdM -.53/.69", "ChB/AdB -.59/.70"))
 papaja::apa_table(df, caption="Highlights from principal components' rotation in the original coordinate system.")
+```
 
+```{r pca-en-table, include=T}
+# temporarily included
 #pc_bsa$rotation  * -1
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
-#pc_bsa$rotation %>%
-#    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system.", placement='h')
-    
+pc_bsa$rotation %>%
+    papaja::apa_table(digits=2, caption="English principal components' rotation in the original coordinate system.", placement='h')
+```
+
+```{r pca-fr-table, include=T}
+# temporarily included
 #pc_bsa$rotation  * -1
 ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
-#pc_bsa_fr$rotation %>%
-#    papaja::apa_table(digits=2, caption="Principal components' rotation in the original coordinate system. (French)", placement='h')    
+pc_bsa_fr$rotation %>%
+    papaja::apa_table(digits=2, caption="French principal components' rotation in the original coordinate system.", placement='h')    
 ```
 
 
@@ -386,6 +408,20 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
 ```
 
 
+```{r}
+## Correlation of PCs with AoA
+aoa_pc_en <- cor(ddbsa[,"aoa"], ddbsa[,paste0("PC",1:6)]) 
+ddbsa_fr_nona <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
+  group_by(definition) %>% 
+  summarize(aoa=mean(aoa), PC1=mean(PC1), PC2=mean(PC2), PC3=mean(PC3), 
+            PC4=mean(PC4), PC5=mean(PC5), PC6=mean(PC6))
+  
+aoa_pc_fr <- cor(ddbsa_fr_nona[,"aoa"], ddbsa_fr_nona[,paste0("PC",1:6)]) 
+aoa_vs_pc <- rbind(aoa_pc_en, aoa_pc_fr)
+row.names(aoa_vs_pc) = c("Eng AoA", "Fr AoA")
+aoa_vs_pc %>%
+  papaja::apa_table(digits=2, caption="Correlation of PC loadings with frequency distributions.", placement='h')
+```
 
 
 
@@ -494,7 +530,7 @@ There were significant interactions of mother's education with PC1-PC3 (all $p<.
 
 
 
-```{r en-momed-regression, include=F, results='asis'}
+```{r en-momed-regression, include=T, results='asis'}
 load(here("data/en_ws.Rdata"))
 
 en_mom_ed = table(en_demo$mom_ed)
@@ -540,10 +576,11 @@ mom_ed_tab <- summary(en4)$coefficients
 
 colnames(mom_ed_tab) = c("Beta","SE","t-val","p-val")
 
-print(xtable(mom_ed_tab, digits=2,
+print(xtable(mom_ed_tab[1:14,], digits=2,
              caption = "Regression coefficients for predicting English CDI items using PCs and mother's education.",
              table.placement = "H"), comment=F)
 ```
+
 
 
 ```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.5, fig.height=3.9, set.cap.width=T, num.cols.cap=1, fig.cap = "Predicted effects of maternal education and PC1-PC4 on the probability of children producing CDI words."}
@@ -585,6 +622,7 @@ ggarrange(pc1, pc2, pc3, pc4, nrow=2, ncol=2, common.legend = T)
 We set out to investigate the sources of linguistic input and registers that children may experience, using word frequency distributions garnered from child-directed and adult-directed corpora of speech, books, and media (TV and movies). We found the principal components (PCs) of these distributions, and described how these PCs capture variation both in adult- vs. child-directedness, as well as between modalities (e.g., books and speech). 
 
 Our findings show that multiple components are predictive of children's age of acquisition of words from the CDI. Speech, media and books are all relevant in predicting age of acquisition, as well as child-directed speech, which suggests that children's environmental exposure to different language source could impact their word learning trajectory. 
+It is somewhat surprising that even sources of input that young children do not see 
 
 We also used English Wordbank data to examine how well the frequency components combine with mother's education--a measure of SES that has been found in the past to be positively related to early word learning, and to more child-directed reading--to predict children's early word learning. This analysis revealed significant contributions of multiple PCs, as well as the interaction of mother's education with PC1 (overall frequency), PC2 (child-directed speech), and PC3 (adult-directed speech), but not of the child-directed books component (PC4).
 
