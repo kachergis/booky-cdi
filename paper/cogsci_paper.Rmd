@@ -319,7 +319,8 @@ ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
 
 Next, we turned to question 2 asking how well these components predict English- and French-learning children's early word learning. We attempted a simple regression predicting each CDI word's mean AoA. However, multicollinearity makes it unwise to include these raw distributions in a regression, as the results would likely be unstable. We verified that this was the case by running a regression predicting AoA with log(word frequency) from each of the six distributions as predictors. 
 
-The Variance Inflation Factor (VIF) estimates the inflation of the variance of a regression coefficient when there is correlation between predictors [@dodge2008concise]. The more the VIF increases, the less reliable the regression results are. The VIF for every distribution was $>>1$ (and many $>5$ or $>10$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results. We thus used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA. Figures showing the loadings of CDI items on PC1-PC4 vs. the average age of acquisition (AoA; in months) can be found in the appendix (link).
+The Variance Inflation Factor (VIF) estimates the inflation of the variance of a regression coefficient when there is correlation between predictors [@dodge2008concise]. The more the VIF increases, the less reliable the regression results are. The VIF for every distribution was $>>1$ (and many $>5$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results. We thus used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA. 
+Figures showing the loadings of CDI items on PC1-PC4 by lexical class vs. the average age of acquisition (AoA; in months) can be found on [OSF](https://osf.io/46gj2/?view_only=2db5950a96a44f289b6e778e60391662).
 
 
 
