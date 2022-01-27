@@ -447,39 +447,8 @@ This suggests that the vocabulary composition of children from higher-SES househ
 
 There were significant main effects of age, mother's education, and PC1-PC4 (all $p<.001$).
 There were significant interactions of age with mother's education ($p<.001$), PC2 ($p<.001$), and PC4 ($p=.009$).
-There were significant interactions of mother's education with PC1-PC3 (all $p<.001$), shown in Figure 4.
+There were significant interactions of mother's education with PC1-PC3 (all $p<.001$), shown in Figure 3.
 
-```{r get-wordbank-data, eval=F}
-require(wordbankr)
-en_demo <- get_administration_data(language = "English (American)", form = "WS")
-
-en_long_ws <- get_instrument_data(language="English (American)", form = "WS") %>%
-  mutate(produces = as.numeric(value == "produces")) 
-
-en_ws <- get_item_data(language="English (American)", form="WS") %>%
-  filter(type=="word") %>% select(-complexity_category, -item_id)
-
-en_long_ws <- en_long_ws %>% left_join(en_ws %>% select(num_item_id, definition)) %>%
-  filter(!is.na(definition))
-
-save(en_ws, en_demo, en_long_ws, file=here("data/en_ws.Rdata"))
-
-# get French WS data
-fr_demo <- get_administration_data(language = "French (French)", form = "WS")
-
-fr_long_ws <- get_instrument_data(language="French (French)", form = "WS") %>%
-  mutate(produces = as.numeric(value == "produces")) 
-
-fr_ws <- get_item_data(language="French (French)", form="WS") %>%
-  filter(type=="word") %>% select(-complexity_category, -item_id)
-
-fr_long_ws <- fr_long_ws %>% left_join(fr_ws %>% select(num_item_id, definition)) %>%
-  filter(!is.na(definition))
-
-table(fr_demo$mom_ed) # small amount of French data with mom_ed: 46 secondary, 112 college, 64 grad
-
-save(fr_ws, fr_demo, fr_long_ws, file=here("data/fr_ws.Rdata"))
-```
 
 
 ```{r en-momed-regression, include=F, results='asis'}

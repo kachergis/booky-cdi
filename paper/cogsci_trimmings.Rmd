@@ -10,6 +10,38 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+```{r get-wordbank-data, eval=F}
+require(wordbankr)
+en_demo <- get_administration_data(language = "English (American)", form = "WS")
+
+en_long_ws <- get_instrument_data(language="English (American)", form = "WS") %>%
+  mutate(produces = as.numeric(value == "produces")) 
+
+en_ws <- get_item_data(language="English (American)", form="WS") %>%
+  filter(type=="word") %>% select(-complexity_category, -item_id)
+
+en_long_ws <- en_long_ws %>% left_join(en_ws %>% select(num_item_id, definition)) %>%
+  filter(!is.na(definition))
+
+save(en_ws, en_demo, en_long_ws, file=here("data/en_ws.Rdata"))
+
+# get French WS data
+fr_demo <- get_administration_data(language = "French (French)", form = "WS")
+
+fr_long_ws <- get_instrument_data(language="French (French)", form = "WS") %>%
+  mutate(produces = as.numeric(value == "produces")) 
+
+fr_ws <- get_item_data(language="French (French)", form="WS") %>%
+  filter(type=="word") %>% select(-complexity_category, -item_id)
+
+fr_long_ws <- fr_long_ws %>% left_join(fr_ws %>% select(num_item_id, definition)) %>%
+  filter(!is.na(definition))
+
+table(fr_demo$mom_ed) # small amount of French data with mom_ed: 46 secondary, 112 college, 64 grad
+
+save(fr_ws, fr_demo, fr_long_ws, file=here("data/fr_ws.Rdata"))
+```
+
 Trimmed from ~line 400:
 
 
@@ -98,28 +130,28 @@ Figure 2 shows the loadings of English CDI items on PC1-PC4 vs. the average age 
 txt_sz = 4
 
 p1 <- ggplot(ddbsa, aes(x = PC1, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p2 <- ggplot(ddbsa, aes(x = PC2, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC2 < -2 | PC2 > 2), aes(label = word), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p3 <- ggplot(ddbsa, aes(x = PC3, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC3 < -1 | PC3 > 1), aes(label = word), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p4 <- ggplot(ddbsa, aes(x = PC4, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa, PC4 < -1 | PC4 > 1), aes(label = word), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 
 ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
-ggsave("figs/EN_PC1-4_AoA_by_lexical_class.pdf", width=12, height=11)
+ggsave("figs/EN_PC1-4_AoA_by_lexical_class.pdf", width=13, height=11)
 ```
 
 
@@ -133,29 +165,29 @@ txt_sz = 4
 
 p1 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
              aes(x = PC1, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
-  geom_text_repel(data = filter(ddbsa, PC1 < -5 | PC1 > 5), aes(label = word), size=txt_sz) + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa_fr, PC1 < -5 | PC1 > 5), aes(label = token), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p2 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
              aes(x = PC2, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
-  geom_text_repel(data = filter(ddbsa, PC2 < -2 | PC2 > 2), aes(label = word), size=txt_sz) + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa_fr, PC2 < -2 | PC2 > 2), aes(label = token), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p3 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
              aes(x = PC3, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
-  geom_text_repel(data = filter(ddbsa, PC3 < -1 | PC3 > 1), aes(label = word), size=txt_sz) + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa_fr, PC3 < -1 | PC3 > 1), aes(label = token), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 p4 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
              aes(x = PC4, y = aoa, col = lexical_class)) + 
-  geom_point(alpha=.5) + geom_smooth(method = "lm") + 
-  geom_text_repel(data = filter(ddbsa, PC4 < -1 | PC4 > 1), aes(label = word), size=txt_sz) + 
+  geom_point(alpha=.2) + geom_smooth(method = "lm") + 
+  geom_text_repel(data = filter(ddbsa_fr, PC4 < -1 | PC4 > 1), aes(label = token), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
 
 ggarrange(p1, p2, p3, p4, nrow=4, ncol=1, legend = "none")
-ggsave("figs/FR_PC1-4_AoA_by_lexical_class.pdf", width=12, height=11)
+ggsave("figs/FR_PC1-4_AoA_by_lexical_class.pdf", width=13, height=11)
 ```
