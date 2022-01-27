@@ -163,25 +163,25 @@ ToDo: adjust label constraints and re-save for OSF
 txt_sz = 4
 
 
-p1 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
+p1 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs", aoa<40), 
              aes(x = PC1, y = aoa, col = lexical_class)) + 
   geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa_fr, PC1 < -5 | PC1 > 5), aes(label = token), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
-p2 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
+p2 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs", aoa<40), 
              aes(x = PC2, y = aoa, col = lexical_class)) + 
   geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa_fr, PC2 < -2 | PC2 > 2), aes(label = token), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
-p3 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
+p3 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs", aoa<40), 
              aes(x = PC3, y = aoa, col = lexical_class)) + 
   geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa_fr, PC3 < -1 | PC3 > 1), aes(label = token), size=txt_sz) + 
   facet_wrap(~lexical_class, nrow=1) + theme_classic()
 
-p4 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs"), 
+p4 <- ggplot(ddbsa_fr %>% filter(lexical_class!="adverbs", aoa<40), 
              aes(x = PC4, y = aoa, col = lexical_class)) + 
   geom_point(alpha=.2) + geom_smooth(method = "lm") + 
   geom_text_repel(data = filter(ddbsa_fr, PC4 < -1 | PC4 > 1), aes(label = token), size=txt_sz) + 

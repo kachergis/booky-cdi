@@ -256,17 +256,38 @@ knitr::include_graphics("figs/corpus_freq_cors_hor.pdf")
 ```
 
 
-For both languages, there are both register and source effects. Unsurprisingly, there were strong correlations across these different corpora. We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations.
+There are both register and source effects in both English and French. 
+Unsurprisingly, there were strong correlations across these different corpora. 
+We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations.
 
-Table 1 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6) for both languages. PC1 already explains the bulk the variance (89% for English and for French), and PC2-PC4 each only capture an additional 2-4% of the variance. In total, the first four components captured >98% of the variance for both languages.
+Table 1 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6) for each language. 
+PC1 already explains the bulk the variance (89% for English and for French), and PC2-PC4 each only capture an additional 2-4% of the variance. 
+In total, the first four components captured >98% of the variance for both languages.
 
-Table 2 shows the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French The first PC is similar for both English and French, and captures shared variance between all frequency sources, representing words that are high or low frequency across registers and sources. This component captures for example that 'the' in English or 'le' ou 'et' = and in French is frequent in spoken and written text and in speech to adults and children. For English, PC2 (3.8% of variance) mostly captures child-directed speech, differentiating it from the other registers. For example, words such as 'peekaboo' are mostly present in this speech to children. For French, PC2 (8% of variance) mostly captures books for children and adults. This component captures that some words are very frequent in text in general, such as 'sombre' = 'dark', 'lune' = 'moon' or 'autrement' = 'otherwise' comparing to the other registers. 
+Table 2 summarizes the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French. 
+The first PC is similar for both English and French, and captures shared variance between all frequency sources, representing words that are high or low frequency across registers and sources. 
+This component captures for example that 'the' (EN), 'le' (FR the), 'et' (FR and) are frequent in spoken and written sources, whether directed to adults or children. 
+For English, PC2 (3.8% of variance) mostly captures child-directed speech, differentiating it from the other registers. 
+For example, words such as 'peekaboo' are more present child-directed speech. 
+For French, PC2 (6% of variance) mostly captures books for children and adults. 
+This component captures that some words are very frequent in text in general, such as 'sombre' ('dark'), 'lune' ('moon') or 'autrement' ('otherwise') in comparison to the other registers. 
 
-For English, PC3 (3% of variance) captures adult-directed speech, differentiating it from the other registers. It captures words such as 'mower', 'downtown' or 'vitamins', frequent in discussions between adults. For French, PC3 (4%) is similar to PC2 in English, capturing child-directed speech, with words such as 'gâteau' = 'sweet'. For English, PC4 (2.2% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed books. This component captures that some words are very frequent in media in general, but infrequent in books (e.g. 'camera', 'tv') and vice versa (e.g. 'none', 'beads', 'poor'). For French, PC4 (4% of variance) captures the similarity of child- and adult-directed media (e.g. 'étoile' = 'star'), distinguishing them from child- and adult-directed speech (e.g. 'voiture' = 'car'). 
+For English, PC3 (3% of variance) captures adult-directed speech, differentiating it from the other registers. It captures words such as 'mower', 'downtown' or 'vitamins', frequent in discussions between adults. 
+For French, PC3 (3%) is similar to PC2 in English, capturing child-directed speech, with words such as 'gâteau' = 'sweet'. 
+For English, PC4 (2.2% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed books. 
+This component captures that some words are very frequent in media in general, but infrequent in books (e.g. 'camera', 'TV') and vice-versa (e.g. 'none', 'beads', 'poor'). 
+For French, PC4 (2% of variance) captures the similarity of child- and adult-directed media (e.g. 'étoile' = 'star'), distinguishing them from child- and adult-directed speech (e.g. 'voiture' = 'car'). 
 
-For English, PC5 (1% of variance) captures child-directed speech, distinguishing it from child-directed books. his component captures that some words are very frequent in child-directed speech, but infrequent in child-directed books (e.g.'mommy', 'juice') and vice versa (e.g. 'firetruck', 'snowsuit'). For French, PC5 (3% of variance) distinguishes child-directed media (e.g. 'ferme' = 'farm') from adult-media (e.g. 'café). Last, for English, PC6 (<1% of variance) is similar to PC5 in French, capturing child-directed media (.73), and distinguishing it in particular from adult-directed media. This component captures that some words are very frequent in child-directed media, but infrequent in adult-directed media (e.g. 'penguin', 'snowman') and vice versa (e.g.'drawer', 'medicine').  For French, PC6 (3%) distinguishes child-directed books (e.g. 'ours' = 'bear') from adult-directed books (e.g. 'tuer' = 'kill'). 
+For English, PC5 (1% of variance) captures child-directed speech, distinguishing it from child-directed books. 
+This component captures that some words are very frequent in child-directed speech, but infrequent in child-directed books (e.g.'mommy', 'juice') and vice-versa (e.g. 'firetruck', 'snowsuit'). 
+For French, PC5 (3% of variance) distinguishes child-directed media (e.g. 'ferme' = 'farm') from adult-media (e.g. 'café'). 
+Lastly, for English, PC6 (<1% of variance) is similar to PC5 in French (1% of variance), capturing child-directed media (.73), and distinguishing it in particular from adult-directed media. 
+This component captures that some words are very frequent in child-directed media, but infrequent in adult-directed media (e.g. 'penguin', 'snowman') and vice versa (e.g.'drawer', 'medicine').  
+For French, PC6 (1%) distinguishes child-directed books (e.g. 'ours' = 'bear') from adult-directed books (e.g. 'tuer' = 'kill'). 
 
-In summary, the PCs align surprisingly well with particular dimensions of the English frequency distributions: PC1 with overall frequency, PC2 with child-directed speech, PC3 with adult-directed speech, PC4 with media vs. books, PC5 with child-directed books vs. speech, and PC6 with adult- vs. child-directed media. For French, we observe a similar pattern of findings, although the importance and order of the PCs is not the same. Variance is distributed across the PCs, frequency differences across different registers being more pronounced than for English. Importantly, frequency particularities in ChS come third in order in French, compared to second in English. On the contrary, word frequency in books differs from all other registers in French, and comes second in order.
+In summary, the PCs align surprisingly well with particular dimensions of the English frequency distributions: PC1 with overall frequency, PC2 with child-directed speech, PC3 with adult-directed speech, PC4 with media vs. books, PC5 with child-directed books vs. speech, and PC6 with adult- vs. child-directed media. 
+For French, we observe a similar pattern of findings, although the importance and order of the PCs is not quite the same. Variance is similarly distributed across the PCs, but some frequency differences across different registers are more pronounced than for English. 
+Importantly, frequency particularities in ChS come third in order in French, compared to second in English. On the contrary, word frequency in books differs from all other registers in French, and comes second in order.
 
 
 
@@ -317,9 +338,14 @@ ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
 ## PCA-based Age of Acquisition Regression (Q2)
 
 
-Next, we turned to question 2 asking how well these components predict English- and French-learning children's early word learning. We attempted a simple regression predicting each CDI word's mean AoA. However, multicollinearity makes it unwise to include these raw distributions in a regression, as the results would likely be unstable. We verified that this was the case by running a regression predicting AoA with log(word frequency) from each of the six distributions as predictors. 
+Next, we turned to question 2 asking how well these components predict English- and French-learning children's early word learning. 
+We attempted a simple regression predicting each CDI word's mean AoA. 
+However, multicollinearity makes it unwise to include these raw distributions in a regression, as the results would likely be unstable. 
+We verified that this was the case by running a regression predicting AoA with log(word frequency) from each of the six distributions as predictors. 
 
-The Variance Inflation Factor (VIF) estimates the inflation of the variance of a regression coefficient when there is correlation between predictors [@dodge2008concise]. The more the VIF increases, the less reliable the regression results are. The VIF for every distribution was $>>1$ (and many $>5$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results. We thus used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA. 
+The Variance Inflation Factor (VIF) estimates the inflation of the variance of a regression coefficient when there is correlation between predictors [@dodge2008concise]. The higher the VIF for a predictor, the less reliable the regression results are when that predictor is included. 
+The VIF for every distribution was $>>1$ (and many $>5$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results. 
+We thus used the CDI items' PCA loadings in lieu of the frequency distributions to predict AoA. 
 Figures showing the loadings of CDI items on PC1-PC4 by lexical class vs. the average age of acquisition (AoA; in months) can be found on [OSF](https://osf.io/46gj2/?view_only=2db5950a96a44f289b6e778e60391662).
 
 
@@ -433,10 +459,26 @@ f <- coefplot(pca_lc6_fr, coefficients = fr_coef_list, vertical=TRUE,
 ggarrange(e,f, ncol=1, legend = "none")
 ```
 
-In general, we observe that registers and sources both matter for early word learning. For English, P1, P2, P3, P4 and PC5 predict the age of acquisition. Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. Child-directed speech (PC2) is a negative predictor; words which are frequent in this register are learned earlier on. On the contrary, adult-directed speech is a positive predictor; words which are frequent in this register are learned later on. The frequency of words in media distinguished from books is a predictor (PC4). Frequency of words in child-directed speech distinguished from words in child-directed books is also a significant predictor; an earlier acquisition is predicted for words not existing in books. We also observe that overall frequency interacts with lexical class, verbs, function words and adjectives being learned later than nouns. PC2 interacts with verbs, which are learned later than nouns. There is also an interaction with PC3 and function words, which are learned later than nouns, and PC6 and function words. 
+In general, we observe that registers and sources both matter for early word learning. 
+For English, PC1, PC2, PC3, PC4 and PC5 predict the age of acquisition. 
+Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. 
+Child-directed speech (PC2) is a negative predictor; words which are frequent in this register are learned earlier on. 
+On the contrary, adult-directed speech (PC3) is a positive predictor; words which are frequent in this register are learned later on. 
+The frequency of words in media distinguished from books is a predictor (PC4). 
+Frequency of words in child-directed speech distinguished from words in child-directed books is also a significant predictor, with earlier acquisition predicted for more speechy/less booky words. 
+We also observe that overall frequency interacts with lexical class, verbs, function words and adjectives being learned later than nouns. 
+PC2 interacts with verbs, which are learned later than nouns. 
+PC3 and PC6 each interacted with function words, which are learned later than nouns.
 
-
-For French, registers as well as sources in are also important predictors of word learning. P1,P2 P3 and PC4 and PC5 are significant predictors, which means that speech, books, media and the child-directed register are important. Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. Book frequency (PC2) is a predictor; words which are especially frequent in books are learned later on. Child-directed speech (PC3) is a predictor; words which are especially frequent in this register are learned earlier on. PC4 includes words which are often found in media versus speech, and PC5 includes words in child-directed versus adult-directed media. Similarly to English, we also observe that overall frequency interacts with lexical class, verbs, function words and adjectives being learned later than nouns. PC2 interacts with verbs, which are learned later than nouns. PC5 also interacts with function words. There is no significant effect of word length. 
+For French, both registers and sources were important predictors of word learning. 
+PC1, PC2, PC3, PC4 and PC5 are significant predictors, showing that speech, books, media and the child-directed register are all important. 
+Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. 
+Book frequency (PC2) is a predictor; words which are especially frequent in books are learned later on. 
+Child-directed speech (PC3) is a predictor; words which are especially frequent in this register are learned earlier on. 
+PC4 includes words which are often found in media versus speech, and PC5 includes words in child-directed versus adult-directed media. 
+Similarly to English, we also observe that overall frequency interacts with lexical class, with verbs, function words, and adjectives being learned later than nouns. 
+Book frequency (PC2) interacts with verbs, and child-directed media (PC5) interacted with function words.
+There is no significant effect of word length. 
 
 In sum, in both languages, we observe that the predictive value of word frequency comes from speech, media and book sources, and mostly the child-directed register. The main differences across languages are that for English, the difference and difficulty of adult-directed speech is emphasized. For French, the difference and difficulty of text, independent of register, is emphasized.
 
