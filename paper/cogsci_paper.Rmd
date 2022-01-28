@@ -370,7 +370,8 @@ pc_bsa$rotation %>%
   column_spec(4, bold=c(F,F,F,F,F,T), italic=c(T,F,F,F,F,F)) %>%
   column_spec(5, bold=c(F,F,F,T,F,F), italic=c(F,T,F,F,F,F)) %>%
   column_spec(6, bold=c(F,T,F,F,F,F), italic=c(F,F,T,F,F,F)) %>%
-  column_spec(7, bold=c(T,F,F,F,F,F), italic=c(F,F,F,T,F,F))
+  column_spec(7, bold=c(T,F,F,F,F,F), italic=c(F,F,F,T,F,F)) %>%
+  kable_styling()
   #row_spec(1:2, bold = T, color = "white", background = "#D7261E") %>%
   #row_spec(3:4, bold = T, color = "white", background = "green") %>%
   #row_spec(5:6, bold = T, color = "white", background = "blue")
@@ -385,8 +386,19 @@ pc_bsa$rotation %>%
 #pc_bsa_fr$x[,1] = pc_bsa_fr$x[,1]  * -1
 
 ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
+#pc_bsa_fr$rotation %>%
+#    papaja::apa_table(digits=2, caption="French principal component rotations.", placement='h')    
+
 pc_bsa_fr$rotation %>%
-    papaja::apa_table(digits=2, caption="French principal component rotations.", placement='h')    
+  kbl(caption = "French principal component rotations.", digits=2) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(2, italic=T) %>% # PC1
+  column_spec(3, bold=c(F,F,T,F,F,F), italic=c(F,T,F,F,T,F)) %>% # PC2
+  column_spec(4, bold=c(F,F,F,F,F,T), italic=c(F,F,T,F,F,F)) %>%
+  column_spec(5, bold=c(T,F,F,F,F,F), italic=c(F,F,F,F,F,T)) %>%
+  column_spec(6, bold=c(F,F,F,T,F,F), italic=c(T,F,F,F,F,F)) %>%
+  column_spec(7, bold=c(F,T,F,F,F,F), italic=c(F,F,F,F,T,F)) %>%
+  kable_styling()
 ```
 
 
