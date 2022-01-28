@@ -358,20 +358,19 @@ papaja::apa_table(df, caption="Highlights from principal components' rotation in
 require(kableExtra)
 #pc_bsa$rotation  * -1
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
-#pc_bsa$rotation %>%
-#    papaja::apa_table(digits=2, caption="English principal components' rotation in the original coordinate system.", placement='h')
 
 
-pc_bsa$rotation %>%
-  kbl(caption = "English principal component rotations.", digits=2) %>%
-  kable_classic(full_width = F, html_font = "Cambria") %>%
-  column_spec(2, italic=T) %>% # PC1
-  column_spec(3, bold=c(F,F,T,F,F,F), italic=c(F,F,F,F,T,F)) %>% # PC2
-  column_spec(4, bold=c(F,F,F,F,F,T), italic=c(T,F,F,F,F,F)) %>%
-  column_spec(5, bold=c(F,F,F,T,F,F), italic=c(F,T,F,F,F,F)) %>%
-  column_spec(6, bold=c(F,T,F,F,F,F), italic=c(F,F,T,F,F,F)) %>%
-  column_spec(7, bold=c(T,F,F,F,F,F), italic=c(F,F,F,T,F,F)) %>%
-  kable_styling()
+en_rot <- rbind(pc_bsa$rotation, pc_imp_en[2,]) 
+row.names(en_rot)[7] = "PVar"
+en_rot %>%
+  kbl(caption = "English principal component rotations.", digits=2, booktabs=T) %>%
+  column_spec(2, italic=c(T,T,T,T,T,T,F)) %>% # PC1
+  column_spec(3, bold=c(F,F,T,F,F,F,F), italic=c(F,F,F,F,T,F,F)) %>% # PC2
+  column_spec(4, bold=c(F,F,F,F,F,T,F), italic=c(T,F,F,F,F,F,F)) %>%
+  column_spec(5, bold=c(F,F,F,T,F,F,F), italic=c(F,T,F,F,F,F,F)) %>%
+  column_spec(6, bold=c(F,T,F,F,F,F,F), italic=c(F,F,T,F,F,F,F)) %>%
+  column_spec(7, bold=c(T,F,F,F,F,F,F), italic=c(F,F,F,T,F,F,F)) %>%
+  kable_styling(latex_options = "striped", stripe_index = 7)
   #row_spec(1:2, bold = T, color = "white", background = "#D7261E") %>%
   #row_spec(3:4, bold = T, color = "white", background = "green") %>%
   #row_spec(5:6, bold = T, color = "white", background = "blue")
@@ -386,19 +385,18 @@ pc_bsa$rotation %>%
 #pc_bsa_fr$x[,1] = pc_bsa_fr$x[,1]  * -1
 
 ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
-#pc_bsa_fr$rotation %>%
-#    papaja::apa_table(digits=2, caption="French principal component rotations.", placement='h')    
 
-pc_bsa_fr$rotation %>%
-  kbl(caption = "French principal component rotations.", digits=2) %>%
-  kable_classic(full_width = F, html_font = "Cambria") %>%
-  column_spec(2, italic=T) %>% # PC1
-  column_spec(3, bold=c(F,F,T,F,F,F), italic=c(F,T,F,F,T,F)) %>% # PC2
-  column_spec(4, bold=c(F,F,F,F,F,T), italic=c(F,F,T,F,F,F)) %>%
-  column_spec(5, bold=c(T,F,F,F,F,F), italic=c(F,F,F,F,F,T)) %>%
-  column_spec(6, bold=c(F,F,F,T,F,F), italic=c(T,F,F,F,F,F)) %>%
-  column_spec(7, bold=c(F,T,F,F,F,F), italic=c(F,F,F,F,T,F)) %>%
-  kable_styling()
+fr_rot <- rbind(pc_bsa_fr$rotation, pc_imp_fr[2,]) 
+row.names(fr_rot)[7] = "PVar"
+fr_rot %>%
+  kbl(caption = "French principal component rotations.", digits=2, booktabs=T) %>%
+  column_spec(2, italic=c(T,T,T,T,T,T,F)) %>% # PC1
+  column_spec(3, bold=c(F,F,T,F,F,F,F), italic=c(F,T,F,F,T,F,F)) %>% # PC2
+  column_spec(4, bold=c(F,F,F,F,F,T,F), italic=c(F,F,T,F,F,F,F)) %>%
+  column_spec(5, bold=c(T,F,F,F,F,F,F), italic=c(F,F,F,F,F,T,F)) %>%
+  column_spec(6, bold=c(F,F,F,T,F,F,F), italic=c(T,F,F,F,F,F,F)) %>%
+  column_spec(7, bold=c(F,T,F,F,F,F,F), italic=c(F,F,F,F,T,F,F)) %>%
+  kable_styling(latex_options = "striped", stripe_index = 7)
 ```
 
 
