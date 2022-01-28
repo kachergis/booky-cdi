@@ -457,7 +457,7 @@ aoa_pc_fr %>%
 Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6 in our regression. 
 We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word. 
 To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA[^p]. 
-The more complex model was always significantly preferred, including up to the inclusion of PC6 (English: $R^2 = .58$, French: $R^2 = .16$). 
+For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$), while for French, only the inclusion of the first two principal components was justified ($R^2 = .08$). 
 Figure 2 shows the coefficient estimates with p<0.05 for both languages.
 
 
@@ -537,10 +537,10 @@ pca_lc6_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6  + Nletters) * LC, dat
 French <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6  + Nletters) * LC, data=ddbsa_fr_)
 
 ttt_fr <- anova(pca_lc1_fr, pca_lc2_fr) # 2***
-ttt_fr <- rbind(ttt_fr, anova(pca_lc2_fr, pca_lc3_fr)[2,]) 
-ttt_fr <- rbind(ttt_fr, anova(pca_lc3_fr, pca_lc4_fr)[2,]) 
-ttt_fr <- rbind(ttt_fr, anova(pca_lc4_fr, pca_lc5_fr)[2,]) 
-ttt_fr <- rbind(ttt_fr, anova(pca_lc5_fr, pca_lc6_fr)[2,]) 
+ttt_fr <- rbind(ttt_fr, anova(pca_lc2_fr, pca_lc3_fr)[2,]) # not better! PC1 + PC2 only
+ttt_fr <- rbind(ttt_fr, anova(pca_lc3_fr, pca_lc4_fr)[2,]) # marginal
+ttt_fr <- rbind(ttt_fr, anova(pca_lc4_fr, pca_lc5_fr)[2,]) # marginal
+ttt_fr <- rbind(ttt_fr, anova(pca_lc5_fr, pca_lc6_fr)[2,]) # better
 #summary(pca_lc6_fr) 
 #summary(pca_lc4_fr) 
 
@@ -548,10 +548,12 @@ en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCadj", "LCfunc", "LCother",
               "LCverb", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", 
               "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc", "Nletters:LCfunc")
 
+fr_coef_list = c("PC1","PC2","LCverb","LCverb","PC1:LCadj","PC1:LCfunc","PC1:LCother")
+
 e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, 
               mar=c(5.5,2.5,2,2), col.pts="red", cex=.8, xlab='') + 
   theme_bw() + theme(plot.title = element_text(size=10))
-f<-coefplot(pca_lc6_fr, add=TRUE, col.pts="blue", coefficients = en_coef_list, vertical=TRUE, 
+f<-coefplot(pca_lc6_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, vertical=TRUE, 
               mar=c(5.5,2.5,2,2), cex=.8, xlab='', offset=.2) + 
   theme_bw() + theme(plot.title = element_text(size=10))
 
@@ -559,7 +561,7 @@ f<-coefplot(pca_lc6_fr, add=TRUE, col.pts="blue", coefficients = en_coef_list, v
 #  theme_bw() + 
 #  theme(plot.title = element_text(size=10 ))+ theme(legend.position='bottom')
 
-ggarrange(e,f, ncol=1, legend = "none")
+ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1))
 ```
 
 ## Combining distributions with demographic data (Q3)
