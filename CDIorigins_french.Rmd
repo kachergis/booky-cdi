@@ -116,8 +116,12 @@ stem <- function(words, language) {
 # ToDo: remove book-reading corpora from CHILDES data!
 # CHILDES corpus (hapaxes already removed, but 6295 word_count==2)
 
+unis <- wb_data %>% unnest(items)%>% 
+  dplyr::select(uni_lemma, lexical_class, category, definition, language) %>%
+  distinct()
 #Unilemmas
-uni_lemma_map <- read_csv("fr_uni_lemmas.csv")    |> 
+#uni_lemma_map <- read_csv("fr_uni_lemmas.csv")    |> 
+uni_lemma_map <- unis |>
   mutate(option = pmap(list("french", definition),
                          build_options)) |>
   dplyr::select(language, definition, option, lexical_class, uni_lemma) |>
@@ -136,35 +140,104 @@ filter(!(lexical_class=="other"& definition=="toboggan")) |>
   filter(!(lexical_class=="other"& definition=="pluie")) |>
   filter(!(lexical_class=="other"& definition=="soleil")) |>
   filter(!(lexical_class=="other"& definition=="balançoire")) |>
-  filter(!(lexical_class=="other"& definition=="arbre"))
+  filter(!(lexical_class=="other"& definition=="arbre")) |>
+  distinct()
   
 #CHILDES tokens arranging 
-child_speech <- readRDS(here("data/token_metrics_french_(french).rds")) %>%
- # mutate(token = gsub('[[:punct:] ]+',' ',token))%>%
-  mutate(token = gsub("'","' ",token))%>%
-  mutate(token = gsub("s_il_te_plait","s'il te plait",token))%>%
-  mutate(token = gsub("aujourd hui","aujourd'hui",token))%>%
-  mutate(token = gsub("là bas","là-bas",token))%>%
-  mutate(token = gsub("moi même","moi-même",token))%>%
-  mutate(token = gsub("s il te plait","s'il te plait",token))%>%
-  mutate(token = gsub("s il te plaît","s'il te plait",token))%>%
-  mutate(token = gsub("grand mère","grand-mère",token))%>%
-  mutate(token = gsub("grand père","grand-père",token))%>%
-  mutate(token = gsub('[[:digit:]]+','',token))%>%
-  mutate(token = gsub("en bas","en_bas",token))%>%
-  mutate(token = gsub("en haut","en_haut",token))%>%
-  mutate(token = gsub("up peu","un_peu",token))%>%
-  mutate(token = gsub("salle de bain", "salle+de+bain",token))%>%
-  mutate(token = gsub("parce que","parce_que",token))%>%
-  mutate(token = gsub("au revoir","au_revoir",token))%>%
-  #mutate(token = gsub('[[:punct:] ]+',' ',token))%>%
-  #separate_rows(token, sep = ' ') %>%
-  rename(word_count = count ) %>%
+#child_speech <- readRDS(here("data/token_metrics_french_(french).rds")) %>%
+child_speech <- readRDS("~/Desktop/utterances_fra.rds") %>%
+  dplyr::select(gloss) %>%
+  rename(text=gloss) %>%
+  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text=tolower(text)) %>%
+  mutate(text = gsub("ː","",text))%>%
+  mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
+  mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
+  mutate(text = gsub("là bas","là-bas",text))%>%
+  mutate(text = gsub("moi même","moi-même",text))%>%
+  mutate(text = gsub("s il te plait","s'il te plait",text))%>%
+  mutate(text = gsub("s il te plaît","s'il te plait",text))%>%
+  mutate(text = gsub("grand mère","grand-mère",text))%>%
+  mutate(text = gsub("grand père","grand-père",text))%>%
+  mutate(text = gsub('[[:digit:]]+','',text))%>%
+  mutate(text = gsub("en bas","en_bas",text))%>%
+  mutate(text = gsub("en haut","en_haut",text))%>%
+  mutate(text = gsub("up peu","un_peu",text))%>%
+  mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
+  mutate(text = gsub("parce que","parce_que",text))%>%
+  mutate(text = gsub("au revoir","au_revoir",text))%>%
+  mutate(text = gsub("petit dejeuner","petit-dejeuner",text))%>%
+  mutate(text = gsub("haricots verts","haricots-verts",text))%>%
+  mutate(text = gsub("pas bon","pas-bon",text))%>%
+  mutate(text = gsub("camion de pompier","camion-de-pompier",text))%>%
+  mutate(text = gsub("appareil photo","appareil-photo",text))%>%
+  mutate(text = gsub("bonne nuit","bonne-nuit",text))%>%
+  mutate(text = gsub("courir après","courir-après",text))%>%
+  mutate(text = gsub("à elle","à-elle",text))%>%
+  mutate(text = gsub("à lui","à-lui",text))%>%
+  mutate(text = gsub("à moi","à-moi",text))%>%
+  mutate(text = gsub("le même","le-même",text))%>%
+  mutate(text = gsub("la même","la-même",text))%>%
+  mutate(text = gsub("petits pois","petits-pois",text))%>%
+  mutate(text = gsub("raisins secs","raisins-secs",text))%>%
+  mutate(text = gsub("tondeuse à gazon","tondeuse-à-gazon",text))%>%
+  mutate(text = gsub("bonhomme de neige","bonhomme-de-neige",text))%>%
+  mutate(text = gsub("doigt de pied","doigt-de-pied",text))%>%
+  mutate(text = gsub("ce soir","ce-soir",text))%>%
+  mutate(text = gsub("brosse à dent","brosse-à-dent",text))%>%
+  mutate(text = gsub("machine à laver","machine-à-laver",text))%>%
+  mutate(text = gsub("coup de fil","coup-de-fil",text))%>%
+  mutate(text = gsub("pique nique","pique-nique",text))%>%
+  mutate(text = gsub("porte monnaie","porte-monnaie",text))%>%
+  mutate(text = gsub("au sujet de","au-sujet-de",text))%>%
+  mutate(text = gsub("autour de","autour-de",text))%>%
+  mutate(text = gsub("près de","près-de",text))%>%
+  mutate(text = gsub("au sommet de","au-sommet-de",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
+  mutate(text = gsub("bac à sable","bac-à-sable",text))%>%
+  mutate(text = gsub("serviette de table","serviette-de-table",text))%>%
+  mutate(text = gsub("centre ville","centre-ville",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
+  separate_rows(text, sep = ' ') %>%
+  mutate(text = gsub("petit-dejeuner","petit dejeuner",text))%>%
+  mutate(text = gsub("haricots-verts","haricots verts",text))%>%
+  mutate(text = gsub("pas-bon","pas bon",text))%>%
+  mutate(text = gsub("camion-de-pompier","camion de pompier",text))%>%
+  mutate(text = gsub("appareil-photo","appareil photo",text))%>%
+  mutate(text = gsub("bonne-nuit","bonne nuit",text))%>%
+  mutate(text = gsub("courir-après","courir après",text))%>%
+  mutate(text = gsub("à-elle","à elle",text))%>%
+  mutate(text = gsub("à-lui","à lui",text))%>%
+  mutate(text = gsub("tondeuse-à-gazon","tondeuse à gazon",text))%>%
+  mutate(text = gsub("à-moi","à moi",text))%>%
+  mutate(text = gsub("petits-pois","petits pois",text))%>%
+  mutate(text = gsub("raisins-secs","raisins secs",text))%>%
+  mutate(text = gsub("la-même","la même",text))%>%
+  mutate(text = gsub("le-même","le même",text))%>%
+  mutate(text = gsub("bonhomme-de-neige","bonhomme de neige",text))%>%
+  mutate(text = gsub("doigt-de-pied","doigt de pied",text))%>%
+  mutate(text = gsub("ce-soir","ce soir",text))%>%
+  mutate(text = gsub("brosse-à-dent","brosse à dent",text))%>%
+  mutate(text = gsub("machine-à-laver","machine à laver",text))%>%
+  mutate(text = gsub("coup-de-fil","coup de fil",text))%>%
+  mutate(text = gsub("au-sujet-de","au sujet de",text))%>%
+  mutate(text = gsub("autour-de","autour de",text))%>%
+  mutate(text = gsub("près-de","près de",text))%>%
+  mutate(text = gsub("au-sommet-de","au sommet de",text))%>%
+  mutate(text = gsub("par-dessus","par dessus",text))%>%
+  mutate(text = gsub("bac-à-sable","bac à sable",text))%>%
+  mutate(text = gsub("serviette-de-table","serviette de table",text))%>%
+  group_by(word = tolower(text)) %>%
+  summarise(word_count = n(),
+      sum_count = sum(word_count))%>%
+  #mutate(word_count_norm=word_count * (1e6 / sum(word_count))) %>%
+  #arrange(desc(word_count_norm)) %>%
   filter(!word_count==1) %>%
-  arrange(desc(word_count)) %>%
-  dplyr::select(token, word_count) %>%
-  distinct() %>%
-  mutate(rank = 1:n()) 
+  filter(!word=="") %>%
+  mutate(rank = 1:n()) %>%
+  dplyr::select(word, word_count, rank) %>%
+  rename(token=word) 
+
   
 #cdi_items <- unique(wb_data$uni_lemma)
 
@@ -180,34 +253,127 @@ child_speech_mapped <- child_speech |>
     dplyr::select(-src) |>
     distinct() |>
     inner_join(uni_lemma_map) |>
+      distinct() |>
+   left_join(aoas_def) |>
     dplyr::select(-option)|>
     distinct()|>
     filter(!is.na(definition)) |>
-   left_join(aoas_def) |>
    dplyr::select(token, aoa, definition, lexical_class)
 
  child_speech_matched <-unique(list(child_speech_mapped$token))
 
-aoa_df<- child_speech_mapped %>% dplyr::select(token, aoa) 
-aoa_df <- aoa_df[!duplicated(aoa_df$token),]
-
- 
- lex_cat <- child_speech_mapped |> dplyr::select(token, lexical_class) |> distinct()
- lex_cat <- lex_cat[-c(1631, 1621, 1607, 1604, 1597, 1587, 1585, 1581, 1579, 1572, 1555, 1548, 1546, 1446, 1427, 1425, 1416, 1409, 1373, 1360, 1341,1305,1295, 1292, 1257,1241, 1234, 1224, 1151,1148,1146,1134,1107,1221, 1219, 1187, 1182, 1165, 1193, 1090, 1069, 1049, 1028, 1007, 934, 914, 906, 893, 881, 868, 846, 829, 753, 726, 716, 687, 672,625, 608, 588, 578, 552, 544, 540, 508, 476,  462, 457, 435, 426, 409, 403, 397, 381, 353, 340, 332, 178, 155, 152, 151, 100, 80, 71, 25 ),] 
- 
 #Mark CHILDES tokens matched to cdi with 'on_cdi' column  
 
 child_speech <- child_speech |>
   mutate(on_cdi = ifelse(as.character(token) %in% child_speech_mapped[[1]], 1, 0),
            source="child_speech")  |> distinct() |>
-  left_join(lex_cat) |>
-  left_join(aoa_df) |> 
   left_join(child_speech_mapped) |>
   group_by(token) |>
   mutate(word_count=sum(word_count)) |>
   dplyr::select(-rank) |>
-  distinct()
-
+  distinct() |>
+  filter(!(token=="le"& definition=="gentil/le"))|>
+  filter(!(token=="le"& definition=="le/la même"))|>
+  filter(!(token=="le"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="le"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="la"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="la"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="il"& definition=="Il"))|>
+  filter(!(token=="ils"& definition=="Il"))|>
+  filter(!(token=="les"& definition=="gentil/le"))|>
+  filter(!(token=="les"& definition=="le/la même"))|>
+  filter(!(token=="les"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="les"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="elle"& definition=="ils/elles"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="dans"& definition=="danser"))|>
+  filter(!(token=="faire"& definition=="faire" & lexical_class=="function_words"))|>
+  filter(!(token=="parce"& definition=="nouns"))|>
+  filter(!(token=="es"))|>
+  filter(!(token=="e"))|>
+  filter(!(token=="lea"))|>
+  filter(!(token=="ne"& lexical_class=="adjectives"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="jouer"& definition=="joue"))|> 
+  filter(!(token=="joué"& definition=="joue"))|>
+  filter(!(token=="jouait"& definition=="joue"))|>
+  filter(!(token=="elles"& definition=="elle"))|> 
+  filter(!(token=="grand"& definition=="grand"))|> 
+  filter(!(token=="grands"& definition=="grand"))|> 
+  filter(!(token=="aïe"& lexical_class=="nouns"))|>
+  filter(!(token=="plein"& definition=="plein/ne"))|> 
+  filter(!(token=="pleine"& definition=="plein/ne"))|> 
+  filter(!(token=="pleins"& definition=="plein/ne"))|> 
+  filter(!(token=="oreilles"& definition=="oreiller"))|> 
+  filter(!(token=="oreille"& definition=="oreiller"))|> 
+  filter(!(token=="casser"& definition=="cassé"))|>
+  filter(!(token=="vers"& definition=="verser"))|> 
+  filter(!(token=="colle"& definition=="collants"))|> 
+  filter(!(token=="colle"& definition=="collant/e"))|> 
+  filter(!(token=="coller"& definition=="collants"))|> 
+  filter(!(token=="coller"& definition=="collant/e"))|> 
+  filter(!(token=="collé"& definition=="collants"))|> 
+  filter(!(token=="collés"& definition=="collants"))|>
+  filter(!(token=="collée"& definition=="collants"))|> 
+  filter(!(token=="collera"& definition=="collants"))|> 
+  filter(!(token=="lune"& definition=="other"))|> 
+  filter(!(token=="copains"& definition=="copain/e"))|> 
+  filter(!(token=="copain"& definition=="copain/e"))|> 
+  filter(!(token=="carottes"& definition=="carottes"))|> 
+  filter(!(token=="grandes"& definition=="grand"))|> 
+  filter(!(token=="grandi"& definition=="grand"))|>
+  filter(!(token=="grandis"& definition=="grand"))|>
+  filter(!(token=="grandir"& definition=="grand"))|>
+  filter(!(token=="grandit"& definition=="grand"))|>
+  filter(!(token=="montré"& definition=="montre"))|> 
+  filter(!(token=="papi"& definition=="papier"))|> 
+  filter(!(token=="danse"& definition=="dans"))|> 
+  filter(!(token=="dansé"& definition=="dans"))|> 
+  filter(!(token=="danses"& definition=="dans"))|>
+  filter(!(token=="dansait"& definition=="dans"))|>
+  filter(!(token=="dansant"& definition=="dans"))|>
+  filter(!(token=="dansaient"& definition=="dans"))|>
+  filter(!(token=="fou"& definition=="fou/lle"))|> 
+  filter(!(token=="mignon"& definition=="mignon/e"))|> 
+  filter(!(token=="mignons"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonne"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonnes"& definition=="mignon/e"))|> 
+  filter(!(token=="porter"& definition=="porte"))|> 
+  filter(!(token=="porté"& definition=="porte"))|> 
+  filter(!(token=="portée"& definition=="porte"))|>
+  filter(!(token=="porterai"& definition=="porte"))|>
+  filter(!(token=="goûter"& lexical_class=="other"))|> 
+  filter(!(token=="sec"& definition=="sec/he"))|>
+  filter(!(token=="casses"& definition=="cassé"))|>
+  filter(!(token=="cassais"& definition=="cassé"))|>
+  filter(!(token=="casserais"& definition=="cassé"))|>
+  filter(!(token=="montrerai"& definition=="montre"))|>
+  filter(!(token=="montreras"& definition=="montre"))|>
+  filter(!(token=="montrerais"& definition=="montre"))|>
+  filter(!(token=="montrais"& definition=="montre"))|>
+  filter(!(token=="jouera"& definition=="joue"))|>
+  filter(!(token=="joueras"& definition=="joue"))|>
+  filter(!(token=="jouerais"& definition=="joue"))|>
+  filter(!(token=="jouerait"& definition=="joue"))|>
+  filter(!(token=="jouée"& definition=="joue"))|>
+  filter(!(token=="verse"& definition=="vers"))|>
+  filter(!(token=="verses"& definition=="vers"))|>
+  filter(!(token=="versé"& definition=="vers"))|>
+  filter(!(token=="fermé"& definition=="ferme"))|>
+  filter(!(token=="fermés"& definition=="ferme"))|>
+  filter(!(token=="fermées"& definition=="ferme"))|>
+  filter(!(token=="fermait"& definition=="ferme"))|>
+  filter(!(token=="fermant"& definition=="ferme"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="aucune"& definition=="aucun/ne"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="cuisiner"& definition=="cuisine"))|>
+  filter(!(token=="balayer"& definition=="balai"))|>
+  filter(!(token=="balayé"& definition=="balai"))|>
+  filter(!(token=="peter"& definition=="petit/e"))|>
+  filter(!(token=="péter"& definition=="petit/e"))
+  
+  
 t<- sum(child_speech$word_count)
 
 child_speech <-child_speech |>
@@ -224,7 +390,7 @@ child_speech <-child_speech |>
 ```{r adult_speech, echo=F, message=F, warning=F}
 
 ##############################################
-adult_speech <- readLines("~/Desktop/adult_speech.txt")
+adult_speech <- readLines("~/Desktop/adult_speech_fr.txt")
 
 
 dat <- map(adult_speech, function(x) {
@@ -233,6 +399,8 @@ dat <- map(adult_speech, function(x) {
 
 adult_speech <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text=tolower(text)) %>%
+  #mutate(text = gsub("l ","",text))%>%
   mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
   mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
   mutate(text = gsub("là bas","là-bas",text))%>%
@@ -248,7 +416,67 @@ adult_speech <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
   mutate(text = gsub("parce que","parce_que",text))%>%
   mutate(text = gsub("au revoir","au_revoir",text))%>%
+  mutate(text = gsub("petit dejeuner","petit-dejeuner",text))%>%
+  mutate(text = gsub("haricots verts","haricots-verts",text))%>%
+  mutate(text = gsub("pas bon","pas-bon",text))%>%
+  mutate(text = gsub("camion de pompier","camion-de-pompier",text))%>%
+  mutate(text = gsub("appareil photo","appareil-photo",text))%>%
+  mutate(text = gsub("bonne nuit","bonne-nuit",text))%>%
+  mutate(text = gsub("courir après","courir-après",text))%>%
+  mutate(text = gsub("à elle","à-elle",text))%>%
+  mutate(text = gsub("à lui","à-lui",text))%>%
+  mutate(text = gsub("à moi","à-moi",text))%>%
+  mutate(text = gsub("le même","le-même",text))%>%
+  mutate(text = gsub("la même","la-même",text))%>%
+  mutate(text = gsub("petits pois","petits-pois",text))%>%
+  mutate(text = gsub("raisins secs","raisins-secs",text))%>%
+  mutate(text = gsub("tondeuse à gazon","tondeuse-à-gazon",text))%>%
+  mutate(text = gsub("bonhomme de neige","bonhomme-de-neige",text))%>%
+  mutate(text = gsub("doigt de pied","doigt-de-pied",text))%>%
+  mutate(text = gsub("ce soir","ce-soir",text))%>%
+  mutate(text = gsub("brosse à dent","brosse-à-dent",text))%>%
+  mutate(text = gsub("machine à laver","machine-à-laver",text))%>%
+  mutate(text = gsub("coup de fil","coup-de-fil",text))%>%
+  mutate(text = gsub("pique nique","pique-nique",text))%>%
+  mutate(text = gsub("porte monnaie","porte-monnaie",text))%>%
+  mutate(text = gsub("au sujet de","au-sujet-de",text))%>%
+  mutate(text = gsub("autour de","autour-de",text))%>%
+  mutate(text = gsub("près de","près-de",text))%>%
+  mutate(text = gsub("au sommet de","au-sommet-de",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
+  mutate(text = gsub("bac à sable","bac-à-sable",text))%>%
+  mutate(text = gsub("serviette de table","serviette-de-table",text))%>%
+  mutate(text = gsub("centre ville","centre-ville",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
   separate_rows(text, sep = ' ') %>%
+  mutate(text = gsub("petit-dejeuner","petit dejeuner",text))%>%
+  mutate(text = gsub("haricots-verts","haricots verts",text))%>%
+  mutate(text = gsub("pas-bon","pas bon",text))%>%
+  mutate(text = gsub("camion-de-pompier","camion de pompier",text))%>%
+  mutate(text = gsub("appareil-photo","appareil photo",text))%>%
+  mutate(text = gsub("bonne-nuit","bonne nuit",text))%>%
+  mutate(text = gsub("courir-après","courir après",text))%>%
+  mutate(text = gsub("à-elle","à elle",text))%>%
+  mutate(text = gsub("à-lui","à lui",text))%>%
+  mutate(text = gsub("tondeuse-à-gazon","tondeuse à gazon",text))%>%
+  mutate(text = gsub("à-moi","à moi",text))%>%
+  mutate(text = gsub("petits-pois","petits pois",text))%>%
+  mutate(text = gsub("raisins-secs","raisins secs",text))%>%
+  mutate(text = gsub("la-même","la même",text))%>%
+  mutate(text = gsub("le-même","le même",text))%>%
+  mutate(text = gsub("bonhomme-de-neige","bonhomme de neige",text))%>%
+  mutate(text = gsub("doigt-de-pied","doigt de pied",text))%>%
+  mutate(text = gsub("ce-soir","ce soir",text))%>%
+  mutate(text = gsub("brosse-à-dent","brosse à dent",text))%>%
+  mutate(text = gsub("machine-à-laver","machine à laver",text))%>%
+  mutate(text = gsub("coup-de-fil","coup de fil",text))%>%
+  mutate(text = gsub("au-sujet-de","au sujet de",text))%>%
+  mutate(text = gsub("autour-de","autour de",text))%>%
+  mutate(text = gsub("près-de","près de",text))%>%
+  mutate(text = gsub("au-sommet-de","au sommet de",text))%>%
+  mutate(text = gsub("par-dessus","par dessus",text))%>%
+  mutate(text = gsub("bac-à-sable","bac à sable",text))%>%
+  mutate(text = gsub("serviette-de-table","serviette de table",text))%>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
@@ -280,13 +508,114 @@ adult_speech_matched <-unique(list(adult_speech_mapped$token))
 adult_speech <- adult_speech |>
   mutate(on_cdi = ifelse(as.character(token) %in% adult_speech_mapped[[1]], 1, 0),
            source="adult_speech")  |> distinct() |>
-  left_join(lex_cat) |>
-  left_join(aoa_df) |> 
+  #left_join(lex_cat) |>
+  #left_join(aoa_df) |> 
   left_join(adult_speech_mapped) |>
   group_by(token) |>
   mutate(word_count=sum(word_count)) |>
   dplyr::select(-rank) |>
-  distinct()
+  distinct() |>
+  filter(!(token=="le"& definition=="gentil/le"))|>
+  filter(!(token=="le"& definition=="le/la même"))|>
+  filter(!(token=="le"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="le"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="la"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="la"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="il"& definition=="Il"))|>
+  filter(!(token=="ils"& definition=="Il"))|>
+  filter(!(token=="les"& definition=="gentil/le"))|>
+  filter(!(token=="les"& definition=="le/la même"))|>
+  filter(!(token=="les"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="les"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="elle"& definition=="ils/elles"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="dans"& definition=="danser"))|>
+  filter(!(token=="faire"& definition=="faire" & lexical_class=="function_words"))|>
+  filter(!(token=="parce"& definition=="nouns"))|>
+  filter(!(token=="es"))|>
+  filter(!(token=="e"))|>
+  filter(!(token=="lea"))|>
+  filter(!(token=="ne"& lexical_class=="adjectives"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="jouer"& definition=="joue"))|> 
+  filter(!(token=="joué"& definition=="joue"))|>
+  filter(!(token=="jouait"& definition=="joue"))|>
+  filter(!(token=="elles"& definition=="elle"))|> 
+  filter(!(token=="grand"& definition=="grand"))|> 
+  filter(!(token=="grands"& definition=="grand"))|> 
+  filter(!(token=="aïe"& lexical_class=="nouns"))|>
+  filter(!(token=="plein"& definition=="plein/ne"))|> 
+  filter(!(token=="pleine"& definition=="plein/ne"))|> 
+  filter(!(token=="pleins"& definition=="plein/ne"))|> 
+  filter(!(token=="oreilles"& definition=="oreiller"))|> 
+  filter(!(token=="oreille"& definition=="oreiller"))|> 
+  filter(!(token=="casser"& definition=="cassé"))|>
+  filter(!(token=="vers"& definition=="verser"))|> 
+  filter(!(token=="colle"& definition=="collants"))|> 
+  filter(!(token=="colle"& definition=="collant/e"))|> 
+  filter(!(token=="coller"& definition=="collants"))|> 
+  filter(!(token=="coller"& definition=="collant/e"))|> 
+  filter(!(token=="collé"& definition=="collants"))|> 
+  filter(!(token=="collés"& definition=="collants"))|>
+  filter(!(token=="collée"& definition=="collants"))|> 
+  filter(!(token=="collera"& definition=="collants"))|> 
+  filter(!(token=="lune"& definition=="other"))|> 
+  filter(!(token=="copains"& definition=="copain/e"))|> 
+  filter(!(token=="copain"& definition=="copain/e"))|> 
+  filter(!(token=="carottes"& definition=="carottes"))|> 
+  filter(!(token=="grandes"& definition=="grand"))|> 
+  filter(!(token=="grandi"& definition=="grand"))|>
+  filter(!(token=="grandis"& definition=="grand"))|>
+  filter(!(token=="grandir"& definition=="grand"))|>
+  filter(!(token=="grandit"& definition=="grand"))|>
+  filter(!(token=="montré"& definition=="montre"))|> 
+  filter(!(token=="papi"& definition=="papier"))|> 
+  filter(!(token=="danse"& definition=="dans"))|> 
+  filter(!(token=="dansé"& definition=="dans"))|> 
+  filter(!(token=="danses"& definition=="dans"))|>
+  filter(!(token=="dansait"& definition=="dans"))|>
+  filter(!(token=="dansant"& definition=="dans"))|>
+  filter(!(token=="dansaient"& definition=="dans"))|>
+  filter(!(token=="fou"& definition=="fou/lle"))|> 
+  filter(!(token=="mignon"& definition=="mignon/e"))|> 
+  filter(!(token=="mignons"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonne"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonnes"& definition=="mignon/e"))|> 
+  filter(!(token=="porter"& definition=="porte"))|> 
+  filter(!(token=="porté"& definition=="porte"))|> 
+  filter(!(token=="portée"& definition=="porte"))|>
+  filter(!(token=="porterai"& definition=="porte"))|>
+  filter(!(token=="goûter"& lexical_class=="other"))|> 
+  filter(!(token=="sec"& definition=="sec/he"))|>
+  filter(!(token=="casses"& definition=="cassé"))|>
+  filter(!(token=="cassais"& definition=="cassé"))|>
+  filter(!(token=="casserais"& definition=="cassé"))|>
+  filter(!(token=="montrerai"& definition=="montre"))|>
+  filter(!(token=="montreras"& definition=="montre"))|>
+  filter(!(token=="montrerais"& definition=="montre"))|>
+  filter(!(token=="montrais"& definition=="montre"))|>
+  filter(!(token=="jouera"& definition=="joue"))|>
+  filter(!(token=="joueras"& definition=="joue"))|>
+  filter(!(token=="jouerais"& definition=="joue"))|>
+  filter(!(token=="jouerait"& definition=="joue"))|>
+  filter(!(token=="jouée"& definition=="joue"))|>
+  filter(!(token=="verse"& definition=="vers"))|>
+  filter(!(token=="verses"& definition=="vers"))|>
+  filter(!(token=="versé"& definition=="vers"))|>
+  filter(!(token=="fermé"& definition=="ferme"))|>
+  filter(!(token=="fermés"& definition=="ferme"))|>
+  filter(!(token=="fermées"& definition=="ferme"))|>
+  filter(!(token=="fermait"& definition=="ferme"))|>
+  filter(!(token=="fermant"& definition=="ferme"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="aucune"& definition=="aucun/ne"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="cuisiner"& definition=="cuisine"))|>
+  filter(!(token=="balayer"& definition=="balai"))|>
+  filter(!(token=="balayé"& definition=="balai"))|>
+  filter(!(token=="peter"& definition=="petit/e"))|>
+  filter(!(token=="péter"& definition=="petit/e"))
+
 
 t<- sum(adult_speech$word_count)
 
@@ -299,12 +628,13 @@ adult_speech <-adult_speech |>
 
 ```{r adult_book, echo=F, message=F, warning=F} 
  
-adult_book <- readLines(here("data/le_roi_du_klondike.txt")) 
+adult_book <- readLines(here("~/Desktop/fr_adult_book.txt")) 
 dat <- map(adult_book, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 adult_book <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  #mutate(text = gsub("l ","",text))%>%
   mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
   mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
   mutate(text = gsub("là bas","là-bas",text))%>%
@@ -320,7 +650,67 @@ adult_book <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
   mutate(text = gsub("parce que","parce_que",text))%>%
   mutate(text = gsub("au revoir","au_revoir",text))%>%
+  mutate(text = gsub("petit dejeuner","petit-dejeuner",text))%>%
+  mutate(text = gsub("haricots verts","haricots-verts",text))%>%
+  mutate(text = gsub("pas bon","pas-bon",text))%>%
+  mutate(text = gsub("camion de pompier","camion-de-pompier",text))%>%
+  mutate(text = gsub("appareil photo","appareil-photo",text))%>%
+  mutate(text = gsub("bonne nuit","bonne-nuit",text))%>%
+  mutate(text = gsub("courir après","courir-après",text))%>%
+  mutate(text = gsub("à elle","à-elle",text))%>%
+  mutate(text = gsub("à lui","à-lui",text))%>%
+  mutate(text = gsub("à moi","à-moi",text))%>%
+  mutate(text = gsub("le même","le-même",text))%>%
+  mutate(text = gsub("la même","la-même",text))%>%
+  mutate(text = gsub("petits pois","petits-pois",text))%>%
+  mutate(text = gsub("raisins secs","raisins-secs",text))%>%
+  mutate(text = gsub("tondeuse à gazon","tondeuse-à-gazon",text))%>%
+  mutate(text = gsub("bonhomme de neige","bonhomme-de-neige",text))%>%
+  mutate(text = gsub("doigt de pied","doigt-de-pied",text))%>%
+  mutate(text = gsub("ce soir","ce-soir",text))%>%
+  mutate(text = gsub("brosse à dent","brosse-à-dent",text))%>%
+  mutate(text = gsub("machine à laver","machine-à-laver",text))%>%
+  mutate(text = gsub("coup de fil","coup-de-fil",text))%>%
+  mutate(text = gsub("pique nique","pique-nique",text))%>%
+  mutate(text = gsub("porte monnaie","porte-monnaie",text))%>%
+  mutate(text = gsub("au sujet de","au-sujet-de",text))%>%
+  mutate(text = gsub("autour de","autour-de",text))%>%
+  mutate(text = gsub("près de","près-de",text))%>%
+  mutate(text = gsub("au sommet de","au-sommet-de",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
+  mutate(text = gsub("bac à sable","bac-à-sable",text))%>%
+  mutate(text = gsub("serviette de table","serviette-de-table",text))%>%
+  mutate(text = gsub("centre ville","centre-ville",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
   separate_rows(text, sep = ' ') %>%
+  mutate(text = gsub("petit-dejeuner","petit dejeuner",text))%>%
+  mutate(text = gsub("haricots-verts","haricots verts",text))%>%
+  mutate(text = gsub("pas-bon","pas bon",text))%>%
+  mutate(text = gsub("camion-de-pompier","camion de pompier",text))%>%
+  mutate(text = gsub("appareil-photo","appareil photo",text))%>%
+  mutate(text = gsub("bonne-nuit","bonne nuit",text))%>%
+  mutate(text = gsub("courir-après","courir après",text))%>%
+  mutate(text = gsub("à-elle","à elle",text))%>%
+  mutate(text = gsub("à-lui","à lui",text))%>%
+  mutate(text = gsub("tondeuse-à-gazon","tondeuse à gazon",text))%>%
+  mutate(text = gsub("à-moi","à moi",text))%>%
+  mutate(text = gsub("petits-pois","petits pois",text))%>%
+  mutate(text = gsub("raisins-secs","raisins secs",text))%>%
+  mutate(text = gsub("la-même","la même",text))%>%
+  mutate(text = gsub("le-même","le même",text))%>%
+  mutate(text = gsub("bonhomme-de-neige","bonhomme de neige",text))%>%
+  mutate(text = gsub("doigt-de-pied","doigt de pied",text))%>%
+  mutate(text = gsub("ce-soir","ce soir",text))%>%
+  mutate(text = gsub("brosse-à-dent","brosse à dent",text))%>%
+  mutate(text = gsub("machine-à-laver","machine à laver",text))%>%
+  mutate(text = gsub("coup-de-fil","coup de fil",text))%>%
+  mutate(text = gsub("au-sujet-de","au sujet de",text))%>%
+  mutate(text = gsub("autour-de","autour de",text))%>%
+  mutate(text = gsub("près-de","près de",text))%>%
+  mutate(text = gsub("au-sommet-de","au sommet de",text))%>%
+  mutate(text = gsub("par-dessus","par dessus",text))%>%
+  mutate(text = gsub("bac-à-sable","bac à sable",text))%>%
+  mutate(text = gsub("serviette-de-table","serviette de table",text))%>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
@@ -353,13 +743,114 @@ adult_book_mapped <- adult_book |>
   filter(!token=="")|>
   mutate(on_cdi = ifelse(as.character(token) %in% adult_book_mapped[[1]], 1, 0),
            source="adult_book")  |> distinct() |>
-  left_join(lex_cat) |>
-  left_join(aoa_df) |> 
+  #left_join(lex_cat) |>
+  #left_join(aoa_df) |> 
   left_join(adult_book_mapped) |>
   group_by(token) |>
   mutate(word_count=sum(word_count)) |>
   dplyr::select(-rank) |>
-  distinct()
+  distinct() |>
+   filter(!(token=="le"& definition=="gentil/le"))|>
+  filter(!(token=="le"& definition=="le/la même"))|>
+  filter(!(token=="le"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="le"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="la"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="la"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="il"& definition=="Il"))|>
+  filter(!(token=="ils"& definition=="Il"))|>
+  filter(!(token=="les"& definition=="gentil/le"))|>
+  filter(!(token=="les"& definition=="le/la même"))|>
+  filter(!(token=="les"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="les"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="elle"& definition=="ils/elles"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="dans"& definition=="danser"))|>
+  filter(!(token=="faire"& definition=="faire" & lexical_class=="function_words"))|>
+  filter(!(token=="parce"& definition=="nouns"))|>
+  filter(!(token=="es"))|>
+  filter(!(token=="e"))|>
+  filter(!(token=="lea"))|>
+  filter(!(token=="ne"& lexical_class=="adjectives"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="jouer"& definition=="joue"))|> 
+  filter(!(token=="joué"& definition=="joue"))|>
+  filter(!(token=="jouait"& definition=="joue"))|>
+  filter(!(token=="elles"& definition=="elle"))|> 
+  filter(!(token=="grand"& definition=="grand"))|> 
+  filter(!(token=="grands"& definition=="grand"))|> 
+  filter(!(token=="aïe"& lexical_class=="nouns"))|>
+  filter(!(token=="plein"& definition=="plein/ne"))|> 
+  filter(!(token=="pleine"& definition=="plein/ne"))|> 
+  filter(!(token=="pleins"& definition=="plein/ne"))|> 
+  filter(!(token=="oreilles"& definition=="oreiller"))|> 
+  filter(!(token=="oreille"& definition=="oreiller"))|> 
+  filter(!(token=="casser"& definition=="cassé"))|>
+  filter(!(token=="vers"& definition=="verser"))|> 
+  filter(!(token=="colle"& definition=="collants"))|> 
+  filter(!(token=="colle"& definition=="collant/e"))|> 
+  filter(!(token=="coller"& definition=="collants"))|> 
+  filter(!(token=="coller"& definition=="collant/e"))|> 
+  filter(!(token=="collé"& definition=="collants"))|> 
+  filter(!(token=="collés"& definition=="collants"))|>
+  filter(!(token=="collée"& definition=="collants"))|> 
+  filter(!(token=="collera"& definition=="collants"))|> 
+  filter(!(token=="lune"& definition=="other"))|> 
+  filter(!(token=="copains"& definition=="copain/e"))|> 
+  filter(!(token=="copain"& definition=="copain/e"))|> 
+  filter(!(token=="carottes"& definition=="carottes"))|> 
+  filter(!(token=="grandes"& definition=="grand"))|> 
+  filter(!(token=="grandi"& definition=="grand"))|>
+  filter(!(token=="grandis"& definition=="grand"))|>
+  filter(!(token=="grandir"& definition=="grand"))|>
+  filter(!(token=="grandit"& definition=="grand"))|>
+  filter(!(token=="montré"& definition=="montre"))|> 
+  filter(!(token=="papi"& definition=="papier"))|> 
+  filter(!(token=="danse"& definition=="dans"))|> 
+  filter(!(token=="dansé"& definition=="dans"))|> 
+  filter(!(token=="danses"& definition=="dans"))|>
+  filter(!(token=="dansait"& definition=="dans"))|>
+  filter(!(token=="dansant"& definition=="dans"))|>
+  filter(!(token=="dansaient"& definition=="dans"))|>
+  filter(!(token=="fou"& definition=="fou/lle"))|> 
+  filter(!(token=="mignon"& definition=="mignon/e"))|> 
+  filter(!(token=="mignons"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonne"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonnes"& definition=="mignon/e"))|> 
+  filter(!(token=="porter"& definition=="porte"))|> 
+  filter(!(token=="porté"& definition=="porte"))|> 
+  filter(!(token=="portée"& definition=="porte"))|>
+  filter(!(token=="porterai"& definition=="porte"))|>
+  filter(!(token=="goûter"& lexical_class=="other"))|> 
+  filter(!(token=="sec"& definition=="sec/he"))|>
+  filter(!(token=="casses"& definition=="cassé"))|>
+  filter(!(token=="cassais"& definition=="cassé"))|>
+  filter(!(token=="casserais"& definition=="cassé"))|>
+  filter(!(token=="montrerai"& definition=="montre"))|>
+  filter(!(token=="montreras"& definition=="montre"))|>
+  filter(!(token=="montrerais"& definition=="montre"))|>
+  filter(!(token=="montrais"& definition=="montre"))|>
+  filter(!(token=="jouera"& definition=="joue"))|>
+  filter(!(token=="joueras"& definition=="joue"))|>
+  filter(!(token=="jouerais"& definition=="joue"))|>
+  filter(!(token=="jouerait"& definition=="joue"))|>
+  filter(!(token=="jouée"& definition=="joue"))|>
+  filter(!(token=="verse"& definition=="vers"))|>
+  filter(!(token=="verses"& definition=="vers"))|>
+  filter(!(token=="versé"& definition=="vers"))|>
+  filter(!(token=="fermé"& definition=="ferme"))|>
+  filter(!(token=="fermés"& definition=="ferme"))|>
+  filter(!(token=="fermées"& definition=="ferme"))|>
+  filter(!(token=="fermait"& definition=="ferme"))|>
+  filter(!(token=="fermant"& definition=="ferme"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="aucune"& definition=="aucun/ne"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="cuisiner"& definition=="cuisine"))|>
+  filter(!(token=="balayer"& definition=="balai"))|>
+  filter(!(token=="balayé"& definition=="balai"))|>
+  filter(!(token=="peter"& definition=="petit/e"))|>
+  filter(!(token=="péter"& definition=="petit/e"))
+
 
 t<- sum(adult_book$word_count)
 
@@ -374,12 +865,13 @@ adult_book <-adult_book |>
 
 
 ```{r adult_tv, echo=F, message=F, warning=F} 
-adult_tv <- readLines(here("~/Desktop/adult_media.txt")) 
+adult_tv <- readLines(here("~/Desktop/adult_media_fr_clean.txt")) 
 dat <- map(adult_tv, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 adult_tv <- do.call(rbind.data.frame, dat) %>%
- # mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  #mutate(text = gsub("l ","",text))%>%
   mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
   mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
   mutate(text = gsub("là bas","là-bas",text))%>%
@@ -395,7 +887,67 @@ adult_tv <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
   mutate(text = gsub("parce que","parce_que",text))%>%
   mutate(text = gsub("au revoir","au_revoir",text))%>%
+  mutate(text = gsub("petit dejeuner","petit-dejeuner",text))%>%
+  mutate(text = gsub("haricots verts","haricots-verts",text))%>%
+  mutate(text = gsub("pas bon","pas-bon",text))%>%
+  mutate(text = gsub("camion de pompier","camion-de-pompier",text))%>%
+  mutate(text = gsub("appareil photo","appareil-photo",text))%>%
+  mutate(text = gsub("bonne nuit","bonne-nuit",text))%>%
+  mutate(text = gsub("courir après","courir-après",text))%>%
+  mutate(text = gsub("à elle","à-elle",text))%>%
+  mutate(text = gsub("à lui","à-lui",text))%>%
+  mutate(text = gsub("à moi","à-moi",text))%>%
+  mutate(text = gsub("le même","le-même",text))%>%
+  mutate(text = gsub("la même","la-même",text))%>%
+  mutate(text = gsub("petits pois","petits-pois",text))%>%
+  mutate(text = gsub("raisins secs","raisins-secs",text))%>%
+  mutate(text = gsub("tondeuse à gazon","tondeuse-à-gazon",text))%>%
+  mutate(text = gsub("bonhomme de neige","bonhomme-de-neige",text))%>%
+  mutate(text = gsub("doigt de pied","doigt-de-pied",text))%>%
+  mutate(text = gsub("ce soir","ce-soir",text))%>%
+  mutate(text = gsub("brosse à dent","brosse-à-dent",text))%>%
+  mutate(text = gsub("machine à laver","machine-à-laver",text))%>%
+  mutate(text = gsub("coup de fil","coup-de-fil",text))%>%
+  mutate(text = gsub("pique nique","pique-nique",text))%>%
+  mutate(text = gsub("porte monnaie","porte-monnaie",text))%>%
+  mutate(text = gsub("au sujet de","au-sujet-de",text))%>%
+  mutate(text = gsub("autour de","autour-de",text))%>%
+  mutate(text = gsub("près de","près-de",text))%>%
+  mutate(text = gsub("au sommet de","au-sommet-de",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
+  mutate(text = gsub("bac à sable","bac-à-sable",text))%>%
+  mutate(text = gsub("serviette de table","serviette-de-table",text))%>%
+  mutate(text = gsub("centre ville","centre-ville",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
   separate_rows(text, sep = ' ') %>%
+  mutate(text = gsub("petit-dejeuner","petit dejeuner",text))%>%
+  mutate(text = gsub("haricots-verts","haricots verts",text))%>%
+  mutate(text = gsub("pas-bon","pas bon",text))%>%
+  mutate(text = gsub("camion-de-pompier","camion de pompier",text))%>%
+  mutate(text = gsub("appareil-photo","appareil photo",text))%>%
+  mutate(text = gsub("bonne-nuit","bonne nuit",text))%>%
+  mutate(text = gsub("courir-après","courir après",text))%>%
+  mutate(text = gsub("à-elle","à elle",text))%>%
+  mutate(text = gsub("à-lui","à lui",text))%>%
+  mutate(text = gsub("tondeuse-à-gazon","tondeuse à gazon",text))%>%
+  mutate(text = gsub("à-moi","à moi",text))%>%
+  mutate(text = gsub("petits-pois","petits pois",text))%>%
+  mutate(text = gsub("raisins-secs","raisins secs",text))%>%
+  mutate(text = gsub("la-même","la même",text))%>%
+  mutate(text = gsub("le-même","le même",text))%>%
+  mutate(text = gsub("bonhomme-de-neige","bonhomme de neige",text))%>%
+  mutate(text = gsub("doigt-de-pied","doigt de pied",text))%>%
+  mutate(text = gsub("ce-soir","ce soir",text))%>%
+  mutate(text = gsub("brosse-à-dent","brosse à dent",text))%>%
+  mutate(text = gsub("machine-à-laver","machine à laver",text))%>%
+  mutate(text = gsub("coup-de-fil","coup de fil",text))%>%
+  mutate(text = gsub("au-sujet-de","au sujet de",text))%>%
+  mutate(text = gsub("autour-de","autour de",text))%>%
+  mutate(text = gsub("près-de","près de",text))%>%
+  mutate(text = gsub("au-sommet-de","au sommet de",text))%>%
+  mutate(text = gsub("par-dessus","par dessus",text))%>%
+  mutate(text = gsub("bac-à-sable","bac à sable",text))%>%
+  mutate(text = gsub("serviette-de-table","serviette de table",text))%>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
@@ -427,13 +979,114 @@ adult_tv_mapped <- adult_tv |>
      filter(!token=="")|>
     mutate(on_cdi = ifelse(as.character(token) %in% adult_tv_matched[[1]], 1, 0),
            source="adult_tv") |> distinct() |>
-    left_join(lex_cat)|>
-    left_join(aoa_df) |>
+    #left_join(lex_cat)|>
+    #left_join(aoa_df) |>
     left_join(adult_tv_mapped) |>
     group_by(token) |>
     mutate(word_count=sum(word_count)) |>
     dplyr::select(-rank) |>
-    distinct() #|>
+    distinct() |>
+   filter(!(token=="le"& definition=="gentil/le"))|>
+  filter(!(token=="le"& definition=="le/la même"))|>
+  filter(!(token=="le"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="le"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="la"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="la"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="il"& definition=="Il"))|>
+  filter(!(token=="ils"& definition=="Il"))|>
+  filter(!(token=="les"& definition=="gentil/le"))|>
+  filter(!(token=="les"& definition=="le/la même"))|>
+  filter(!(token=="les"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="les"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="elle"& definition=="ils/elles"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="dans"& definition=="danser"))|>
+  filter(!(token=="faire"& definition=="faire" & lexical_class=="function_words"))|>
+  filter(!(token=="parce"& definition=="nouns"))|>
+  filter(!(token=="es"))|>
+  filter(!(token=="e"))|>
+  filter(!(token=="lea"))|>
+  filter(!(token=="ne"& lexical_class=="adjectives"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="jouer"& definition=="joue"))|> 
+  filter(!(token=="joué"& definition=="joue"))|>
+  filter(!(token=="jouait"& definition=="joue"))|>
+  filter(!(token=="elles"& definition=="elle"))|> 
+  filter(!(token=="grand"& definition=="grand"))|> 
+  filter(!(token=="grands"& definition=="grand"))|> 
+  filter(!(token=="aïe"& lexical_class=="nouns"))|>
+  filter(!(token=="plein"& definition=="plein/ne"))|> 
+  filter(!(token=="pleine"& definition=="plein/ne"))|> 
+  filter(!(token=="pleins"& definition=="plein/ne"))|> 
+  filter(!(token=="oreilles"& definition=="oreiller"))|> 
+  filter(!(token=="oreille"& definition=="oreiller"))|> 
+  filter(!(token=="casser"& definition=="cassé"))|>
+  filter(!(token=="vers"& definition=="verser"))|> 
+  filter(!(token=="colle"& definition=="collants"))|> 
+  filter(!(token=="colle"& definition=="collant/e"))|> 
+  filter(!(token=="coller"& definition=="collants"))|> 
+  filter(!(token=="coller"& definition=="collant/e"))|> 
+  filter(!(token=="collé"& definition=="collants"))|> 
+  filter(!(token=="collés"& definition=="collants"))|>
+  filter(!(token=="collée"& definition=="collants"))|> 
+  filter(!(token=="collera"& definition=="collants"))|> 
+  filter(!(token=="lune"& definition=="other"))|> 
+  filter(!(token=="copains"& definition=="copain/e"))|> 
+  filter(!(token=="copain"& definition=="copain/e"))|> 
+  filter(!(token=="carottes"& definition=="carottes"))|> 
+  filter(!(token=="grandes"& definition=="grand"))|> 
+  filter(!(token=="grandi"& definition=="grand"))|>
+  filter(!(token=="grandis"& definition=="grand"))|>
+  filter(!(token=="grandir"& definition=="grand"))|>
+  filter(!(token=="grandit"& definition=="grand"))|>
+  filter(!(token=="montré"& definition=="montre"))|> 
+  filter(!(token=="papi"& definition=="papier"))|> 
+  filter(!(token=="danse"& definition=="dans"))|> 
+  filter(!(token=="dansé"& definition=="dans"))|> 
+  filter(!(token=="danses"& definition=="dans"))|>
+  filter(!(token=="dansait"& definition=="dans"))|>
+  filter(!(token=="dansant"& definition=="dans"))|>
+  filter(!(token=="dansaient"& definition=="dans"))|>
+  filter(!(token=="fou"& definition=="fou/lle"))|> 
+  filter(!(token=="mignon"& definition=="mignon/e"))|> 
+  filter(!(token=="mignons"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonne"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonnes"& definition=="mignon/e"))|> 
+  filter(!(token=="porter"& definition=="porte"))|> 
+  filter(!(token=="porté"& definition=="porte"))|> 
+  filter(!(token=="portée"& definition=="porte"))|>
+  filter(!(token=="porterai"& definition=="porte"))|>
+  filter(!(token=="goûter"& lexical_class=="other"))|> 
+  filter(!(token=="sec"& definition=="sec/he"))|>
+  filter(!(token=="casses"& definition=="cassé"))|>
+  filter(!(token=="cassais"& definition=="cassé"))|>
+  filter(!(token=="casserais"& definition=="cassé"))|>
+  filter(!(token=="montrerai"& definition=="montre"))|>
+  filter(!(token=="montreras"& definition=="montre"))|>
+  filter(!(token=="montrerais"& definition=="montre"))|>
+  filter(!(token=="montrais"& definition=="montre"))|>
+  filter(!(token=="jouera"& definition=="joue"))|>
+  filter(!(token=="joueras"& definition=="joue"))|>
+  filter(!(token=="jouerais"& definition=="joue"))|>
+  filter(!(token=="jouerait"& definition=="joue"))|>
+  filter(!(token=="jouée"& definition=="joue"))|>
+  filter(!(token=="verse"& definition=="vers"))|>
+  filter(!(token=="verses"& definition=="vers"))|>
+  filter(!(token=="versé"& definition=="vers"))|>
+  filter(!(token=="fermé"& definition=="ferme"))|>
+  filter(!(token=="fermés"& definition=="ferme"))|>
+  filter(!(token=="fermées"& definition=="ferme"))|>
+  filter(!(token=="fermait"& definition=="ferme"))|>
+  filter(!(token=="fermant"& definition=="ferme"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="aucune"& definition=="aucun/ne"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="cuisiner"& definition=="cuisine"))|>
+  filter(!(token=="balayer"& definition=="balai"))|>
+  filter(!(token=="balayé"& definition=="balai"))|>
+  filter(!(token=="peter"& definition=="petit/e"))|>
+  filter(!(token=="péter"& definition=="petit/e"))
+
    # filter(!is.na(definition)) |>
    # filter(!is.na(aoa)) 
 
@@ -446,13 +1099,14 @@ adult_tv<-adult_tv |>
 
 ```{r child_book, echo=F, message=F, warning=F}
 
-child_books <- readLines(here("data/web_stories_french.txt"))
+child_books <- readLines(here("~/Desktop/child_book.txt"))
                         
 dat <- map(child_books, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 child_book <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  #mutate(text = gsub("l ","",text))%>%
   mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
   mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
   mutate(text = gsub("là bas","là-bas",text))%>%
@@ -468,7 +1122,67 @@ child_book <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
   mutate(text = gsub("parce que","parce_que",text))%>%
   mutate(text = gsub("au revoir","au_revoir",text))%>%
+  mutate(text = gsub("petit dejeuner","petit-dejeuner",text))%>%
+  mutate(text = gsub("haricots verts","haricots-verts",text))%>%
+  mutate(text = gsub("pas bon","pas-bon",text))%>%
+  mutate(text = gsub("camion de pompier","camion-de-pompier",text))%>%
+  mutate(text = gsub("appareil photo","appareil-photo",text))%>%
+  mutate(text = gsub("bonne nuit","bonne-nuit",text))%>%
+  mutate(text = gsub("courir après","courir-après",text))%>%
+  mutate(text = gsub("à elle","à-elle",text))%>%
+  mutate(text = gsub("à lui","à-lui",text))%>%
+  mutate(text = gsub("à moi","à-moi",text))%>%
+  mutate(text = gsub("le même","le-même",text))%>%
+  mutate(text = gsub("la même","la-même",text))%>%
+  mutate(text = gsub("petits pois","petits-pois",text))%>%
+  mutate(text = gsub("raisins secs","raisins-secs",text))%>%
+  mutate(text = gsub("tondeuse à gazon","tondeuse-à-gazon",text))%>%
+  mutate(text = gsub("bonhomme de neige","bonhomme-de-neige",text))%>%
+  mutate(text = gsub("doigt de pied","doigt-de-pied",text))%>%
+  mutate(text = gsub("ce soir","ce-soir",text))%>%
+  mutate(text = gsub("brosse à dent","brosse-à-dent",text))%>%
+  mutate(text = gsub("machine à laver","machine-à-laver",text))%>%
+  mutate(text = gsub("coup de fil","coup-de-fil",text))%>%
+  mutate(text = gsub("pique nique","pique-nique",text))%>%
+  mutate(text = gsub("porte monnaie","porte-monnaie",text))%>%
+  mutate(text = gsub("au sujet de","au-sujet-de",text))%>%
+  mutate(text = gsub("autour de","autour-de",text))%>%
+  mutate(text = gsub("près de","près-de",text))%>%
+  mutate(text = gsub("au sommet de","au-sommet-de",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
+  mutate(text = gsub("bac à sable","bac-à-sable",text))%>%
+  mutate(text = gsub("serviette de table","serviette-de-table",text))%>%
+  mutate(text = gsub("centre ville","centre-ville",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
   separate_rows(text, sep = ' ') %>%
+  mutate(text = gsub("petit-dejeuner","petit dejeuner",text))%>%
+  mutate(text = gsub("haricots-verts","haricots verts",text))%>%
+  mutate(text = gsub("pas-bon","pas bon",text))%>%
+  mutate(text = gsub("camion-de-pompier","camion de pompier",text))%>%
+  mutate(text = gsub("appareil-photo","appareil photo",text))%>%
+  mutate(text = gsub("bonne-nuit","bonne nuit",text))%>%
+  mutate(text = gsub("courir-après","courir après",text))%>%
+  mutate(text = gsub("à-elle","à elle",text))%>%
+  mutate(text = gsub("à-lui","à lui",text))%>%
+  mutate(text = gsub("tondeuse-à-gazon","tondeuse à gazon",text))%>%
+  mutate(text = gsub("à-moi","à moi",text))%>%
+  mutate(text = gsub("petits-pois","petits pois",text))%>%
+  mutate(text = gsub("raisins-secs","raisins secs",text))%>%
+  mutate(text = gsub("la-même","la même",text))%>%
+  mutate(text = gsub("le-même","le même",text))%>%
+  mutate(text = gsub("bonhomme-de-neige","bonhomme de neige",text))%>%
+  mutate(text = gsub("doigt-de-pied","doigt de pied",text))%>%
+  mutate(text = gsub("ce-soir","ce soir",text))%>%
+  mutate(text = gsub("brosse-à-dent","brosse à dent",text))%>%
+  mutate(text = gsub("machine-à-laver","machine à laver",text))%>%
+  mutate(text = gsub("coup-de-fil","coup de fil",text))%>%
+  mutate(text = gsub("au-sujet-de","au sujet de",text))%>%
+  mutate(text = gsub("autour-de","autour de",text))%>%
+  mutate(text = gsub("près-de","près de",text))%>%
+  mutate(text = gsub("au-sommet-de","au sommet de",text))%>%
+  mutate(text = gsub("par-dessus","par dessus",text))%>%
+  mutate(text = gsub("bac-à-sable","bac à sable",text))%>%
+  mutate(text = gsub("serviette-de-table","serviette de table",text))%>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
@@ -499,13 +1213,114 @@ child_book <- child_book |>
     filter(!token=="")|>
     mutate(on_cdi = ifelse(as.character(token) %in% child_book_matched[[1]], 1, 0),
            source="child_book") |> distinct() |>
-    left_join(lex_cat)|>
-    left_join(aoa_df) |>
+    #left_join(lex_cat)|>
+    #left_join(aoa_df) |>
     left_join(child_book_mapped) |>
     group_by(token) |>
     mutate(word_count=sum(word_count)) |>
     dplyr::select(-rank) |>
-    distinct() 
+    distinct() |>
+  filter(!(token=="le"& definition=="gentil/le"))|>
+  filter(!(token=="le"& definition=="le/la même"))|>
+  filter(!(token=="le"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="le"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="la"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="la"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="il"& definition=="Il"))|>
+  filter(!(token=="ils"& definition=="Il"))|>
+  filter(!(token=="les"& definition=="gentil/le"))|>
+  filter(!(token=="les"& definition=="le/la même"))|>
+  filter(!(token=="les"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="les"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="elle"& definition=="ils/elles"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="dans"& definition=="danser"))|>
+  filter(!(token=="faire"& definition=="faire" & lexical_class=="function_words"))|>
+  filter(!(token=="parce"& definition=="nouns"))|>
+  filter(!(token=="es"))|>
+  filter(!(token=="e"))|>
+  filter(!(token=="lea"))|>
+  filter(!(token=="ne"& lexical_class=="adjectives"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="jouer"& definition=="joue"))|> 
+  filter(!(token=="joué"& definition=="joue"))|>
+  filter(!(token=="jouait"& definition=="joue"))|>
+  filter(!(token=="elles"& definition=="elle"))|> 
+  filter(!(token=="grand"& definition=="grand"))|> 
+  filter(!(token=="grands"& definition=="grand"))|> 
+  filter(!(token=="aïe"& lexical_class=="nouns"))|>
+  filter(!(token=="plein"& definition=="plein/ne"))|> 
+  filter(!(token=="pleine"& definition=="plein/ne"))|> 
+  filter(!(token=="pleins"& definition=="plein/ne"))|> 
+  filter(!(token=="oreilles"& definition=="oreiller"))|> 
+  filter(!(token=="oreille"& definition=="oreiller"))|> 
+  filter(!(token=="casser"& definition=="cassé"))|>
+  filter(!(token=="vers"& definition=="verser"))|> 
+  filter(!(token=="colle"& definition=="collants"))|> 
+  filter(!(token=="colle"& definition=="collant/e"))|> 
+  filter(!(token=="coller"& definition=="collants"))|> 
+  filter(!(token=="coller"& definition=="collant/e"))|> 
+  filter(!(token=="collé"& definition=="collants"))|> 
+  filter(!(token=="collés"& definition=="collants"))|>
+  filter(!(token=="collée"& definition=="collants"))|> 
+  filter(!(token=="collera"& definition=="collants"))|> 
+  filter(!(token=="lune"& definition=="other"))|> 
+  filter(!(token=="copains"& definition=="copain/e"))|> 
+  filter(!(token=="copain"& definition=="copain/e"))|> 
+  filter(!(token=="carottes"& definition=="carottes"))|> 
+  filter(!(token=="grandes"& definition=="grand"))|> 
+  filter(!(token=="grandi"& definition=="grand"))|>
+  filter(!(token=="grandis"& definition=="grand"))|>
+  filter(!(token=="grandir"& definition=="grand"))|>
+  filter(!(token=="grandit"& definition=="grand"))|>
+  filter(!(token=="montré"& definition=="montre"))|> 
+  filter(!(token=="papi"& definition=="papier"))|> 
+  filter(!(token=="danse"& definition=="dans"))|> 
+  filter(!(token=="dansé"& definition=="dans"))|> 
+  filter(!(token=="danses"& definition=="dans"))|>
+  filter(!(token=="dansait"& definition=="dans"))|>
+  filter(!(token=="dansant"& definition=="dans"))|>
+  filter(!(token=="dansaient"& definition=="dans"))|>
+  filter(!(token=="fou"& definition=="fou/lle"))|> 
+  filter(!(token=="mignon"& definition=="mignon/e"))|> 
+  filter(!(token=="mignons"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonne"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonnes"& definition=="mignon/e"))|> 
+  filter(!(token=="porter"& definition=="porte"))|> 
+  filter(!(token=="porté"& definition=="porte"))|> 
+  filter(!(token=="portée"& definition=="porte"))|>
+  filter(!(token=="porterai"& definition=="porte"))|>
+  filter(!(token=="goûter"& lexical_class=="other"))|> 
+  filter(!(token=="sec"& definition=="sec/he"))|>
+  filter(!(token=="casses"& definition=="cassé"))|>
+  filter(!(token=="cassais"& definition=="cassé"))|>
+  filter(!(token=="casserais"& definition=="cassé"))|>
+  filter(!(token=="montrerai"& definition=="montre"))|>
+  filter(!(token=="montreras"& definition=="montre"))|>
+  filter(!(token=="montrerais"& definition=="montre"))|>
+  filter(!(token=="montrais"& definition=="montre"))|>
+  filter(!(token=="jouera"& definition=="joue"))|>
+  filter(!(token=="joueras"& definition=="joue"))|>
+  filter(!(token=="jouerais"& definition=="joue"))|>
+  filter(!(token=="jouerait"& definition=="joue"))|>
+  filter(!(token=="jouée"& definition=="joue"))|>
+  filter(!(token=="verse"& definition=="vers"))|>
+  filter(!(token=="verses"& definition=="vers"))|>
+  filter(!(token=="versé"& definition=="vers"))|>
+  filter(!(token=="fermé"& definition=="ferme"))|>
+  filter(!(token=="fermés"& definition=="ferme"))|>
+  filter(!(token=="fermées"& definition=="ferme"))|>
+  filter(!(token=="fermait"& definition=="ferme"))|>
+  filter(!(token=="fermant"& definition=="ferme"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="aucune"& definition=="aucun/ne"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="cuisiner"& definition=="cuisine"))|>
+  filter(!(token=="balayer"& definition=="balai"))|>
+  filter(!(token=="balayé"& definition=="balai"))|>
+  filter(!(token=="peter"& definition=="petit/e"))|>
+  filter(!(token=="péter"& definition=="petit/e"))
+
     #filter(!is.na(definition)) |>
     #filter(!is.na(aoa)) 
 
@@ -518,14 +1333,16 @@ child_book <-child_book |>
 
 ```{r child_tv, echo=F, message=F, warning=F}
 
-child_tv <- readLines(here("~/Desktop/child_media.txt"))
+child_tv <- readLines(here("~/Desktop/child_media_fr_copy_clean1.txt"))
                         
 dat <- map(child_tv, function(x) {
   tibble(text = unlist(str_split(x, pattern = "\\n"))) 
 })
 child_tv <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub('[[:punct:] ]+',' ',text))%>%
+  #mutate(text = gsub('!','',text))%>%
   mutate(text = gsub("aujourd hui","aujourd'hui",text))%>%
+  #mutate(text = gsub("l ","",text))%>%
   mutate(text = gsub("aujourd' hui","aujourd'hui",text))%>%
   mutate(text = gsub("là bas","là-bas",text))%>%
   mutate(text = gsub("moi même","moi-même",text))%>%
@@ -540,7 +1357,67 @@ child_tv <- do.call(rbind.data.frame, dat) %>%
   mutate(text = gsub("salle de bain", "salle+de+bain",text))%>%
   mutate(text = gsub("parce que","parce_que",text))%>%
   mutate(text = gsub("au revoir","au_revoir",text))%>%
+  mutate(text = gsub("petit dejeuner","petit-dejeuner",text))%>%
+  mutate(text = gsub("haricots verts","haricots-verts",text))%>%
+  mutate(text = gsub("pas bon","pas-bon",text))%>%
+  mutate(text = gsub("camion de pompier","camion-de-pompier",text))%>%
+  mutate(text = gsub("appareil photo","appareil-photo",text))%>%
+  mutate(text = gsub("bonne nuit","bonne-nuit",text))%>%
+  mutate(text = gsub("courir après","courir-après",text))%>%
+  mutate(text = gsub("à elle","à-elle",text))%>%
+  mutate(text = gsub("à lui","à-lui",text))%>%
+  mutate(text = gsub("à moi","à-moi",text))%>%
+  mutate(text = gsub("le même","le-même",text))%>%
+  mutate(text = gsub("la même","la-même",text))%>%
+  mutate(text = gsub("petits pois","petits-pois",text))%>%
+  mutate(text = gsub("raisins secs","raisins-secs",text))%>%
+  mutate(text = gsub("tondeuse à gazon","tondeuse-à-gazon",text))%>%
+  mutate(text = gsub("bonhomme de neige","bonhomme-de-neige",text))%>%
+  mutate(text = gsub("doigt de pied","doigt-de-pied",text))%>%
+  mutate(text = gsub("ce soir","ce-soir",text))%>%
+  mutate(text = gsub("brosse à dent","brosse-à-dent",text))%>%
+  mutate(text = gsub("machine à laver","machine-à-laver",text))%>%
+  mutate(text = gsub("coup de fil","coup-de-fil",text))%>%
+  mutate(text = gsub("pique nique","pique-nique",text))%>%
+  mutate(text = gsub("porte monnaie","porte-monnaie",text))%>%
+  mutate(text = gsub("au sujet de","au-sujet-de",text))%>%
+  mutate(text = gsub("autour de","autour-de",text))%>%
+  mutate(text = gsub("près de","près-de",text))%>%
+  mutate(text = gsub("au sommet de","au-sommet-de",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
+  mutate(text = gsub("bac à sable","bac-à-sable",text))%>%
+  mutate(text = gsub("serviette de table","serviette-de-table",text))%>%
+  mutate(text = gsub("centre ville","centre-ville",text))%>%
+  mutate(text = gsub("par dessus","par-dessus",text))%>%
   separate_rows(text, sep = ' ') %>%
+  mutate(text = gsub("petit-dejeuner","petit dejeuner",text))%>%
+  mutate(text = gsub("haricots-verts","haricots verts",text))%>%
+  mutate(text = gsub("pas-bon","pas bon",text))%>%
+  mutate(text = gsub("camion-de-pompier","camion de pompier",text))%>%
+  mutate(text = gsub("appareil-photo","appareil photo",text))%>%
+  mutate(text = gsub("bonne-nuit","bonne nuit",text))%>%
+  mutate(text = gsub("courir-après","courir après",text))%>%
+  mutate(text = gsub("à-elle","à elle",text))%>%
+  mutate(text = gsub("à-lui","à lui",text))%>%
+  mutate(text = gsub("tondeuse-à-gazon","tondeuse à gazon",text))%>%
+  mutate(text = gsub("à-moi","à moi",text))%>%
+  mutate(text = gsub("petits-pois","petits pois",text))%>%
+  mutate(text = gsub("raisins-secs","raisins secs",text))%>%
+  mutate(text = gsub("la-même","la même",text))%>%
+  mutate(text = gsub("le-même","le même",text))%>%
+  mutate(text = gsub("bonhomme-de-neige","bonhomme de neige",text))%>%
+  mutate(text = gsub("doigt-de-pied","doigt de pied",text))%>%
+  mutate(text = gsub("ce-soir","ce soir",text))%>%
+  mutate(text = gsub("brosse-à-dent","brosse à dent",text))%>%
+  mutate(text = gsub("machine-à-laver","machine à laver",text))%>%
+  mutate(text = gsub("coup-de-fil","coup de fil",text))%>%
+  mutate(text = gsub("au-sujet-de","au sujet de",text))%>%
+  mutate(text = gsub("autour-de","autour de",text))%>%
+  mutate(text = gsub("près-de","près de",text))%>%
+  mutate(text = gsub("au-sommet-de","au sommet de",text))%>%
+  mutate(text = gsub("par-dessus","par dessus",text))%>%
+  mutate(text = gsub("bac-à-sable","bac à sable",text))%>%
+  mutate(text = gsub("serviette-de-table","serviette de table",text))%>%
   group_by(word = tolower(text)) %>%
   summarise(word_count = n(),
       sum_count = sum(word_count))%>%
@@ -571,13 +1448,114 @@ child_tv <- child_tv |>
     filter(!token=="")|>
     mutate(on_cdi = ifelse(as.character(token) %in% child_tv_matched[[1]], 1, 0),
            source="child_tv")|> distinct() |>
-    left_join(lex_cat)|>
-    left_join(aoa_df) |>
+    #left_join(lex_cat)|>
+    #left_join(aoa_df) |>
     left_join(child_tv_mapped) |>
     group_by(token) |>
     mutate(word_count=sum(word_count)) |>
     dplyr::select(-rank) |>
-    distinct() 
+    distinct() |>
+  filter(!(token=="le"& definition=="gentil/le"))|>
+  filter(!(token=="le"& definition=="le/la même"))|>
+  filter(!(token=="le"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="le"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="la"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="la"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="il"& definition=="Il"))|>
+  filter(!(token=="ils"& definition=="Il"))|>
+  filter(!(token=="les"& definition=="gentil/le"))|>
+  filter(!(token=="les"& definition=="le/la même"))|>
+  filter(!(token=="les"& definition=="le/la/les/quel(les)"))|>
+  filter(!(token=="les"& definition=="le/la/les/quelles"))|>
+  filter(!(token=="elle"& definition=="ils/elles"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="dans"& definition=="danser"))|>
+  filter(!(token=="faire"& definition=="faire" & lexical_class=="function_words"))|>
+  filter(!(token=="parce"& definition=="nouns"))|>
+  filter(!(token=="es"))|>
+  filter(!(token=="e"))|>
+  filter(!(token=="lea"))|>
+  filter(!(token=="ne"& lexical_class=="adjectives"))|>
+  filter(!(token=="ce"& definition=="doux/ce"))|>
+  filter(!(token=="jouer"& definition=="joue"))|> 
+  filter(!(token=="joué"& definition=="joue"))|>
+  filter(!(token=="jouait"& definition=="joue"))|>
+  filter(!(token=="elles"& definition=="elle"))|> 
+  filter(!(token=="grand"& definition=="grand"))|> 
+  filter(!(token=="grands"& definition=="grand"))|> 
+  filter(!(token=="aïe"& lexical_class=="nouns"))|>
+  filter(!(token=="plein"& definition=="plein/ne"))|> 
+  filter(!(token=="pleine"& definition=="plein/ne"))|> 
+  filter(!(token=="pleins"& definition=="plein/ne"))|> 
+  filter(!(token=="oreilles"& definition=="oreiller"))|> 
+  filter(!(token=="oreille"& definition=="oreiller"))|> 
+  filter(!(token=="casser"& definition=="cassé"))|>
+  filter(!(token=="vers"& definition=="verser"))|> 
+  filter(!(token=="colle"& definition=="collants"))|> 
+  filter(!(token=="colle"& definition=="collant/e"))|> 
+  filter(!(token=="coller"& definition=="collants"))|> 
+  filter(!(token=="coller"& definition=="collant/e"))|> 
+  filter(!(token=="collé"& definition=="collants"))|> 
+  filter(!(token=="collés"& definition=="collants"))|>
+  filter(!(token=="collée"& definition=="collants"))|> 
+  filter(!(token=="collera"& definition=="collants"))|> 
+  filter(!(token=="lune"& definition=="other"))|> 
+  filter(!(token=="copains"& definition=="copain/e"))|> 
+  filter(!(token=="copain"& definition=="copain/e"))|> 
+  filter(!(token=="carottes"& definition=="carottes"))|> 
+  filter(!(token=="grandes"& definition=="grand"))|> 
+  filter(!(token=="grandi"& definition=="grand"))|>
+  filter(!(token=="grandis"& definition=="grand"))|>
+  filter(!(token=="grandir"& definition=="grand"))|>
+  filter(!(token=="grandit"& definition=="grand"))|>
+  filter(!(token=="montré"& definition=="montre"))|> 
+  filter(!(token=="papi"& definition=="papier"))|> 
+  filter(!(token=="danse"& definition=="dans"))|> 
+  filter(!(token=="dansé"& definition=="dans"))|> 
+  filter(!(token=="danses"& definition=="dans"))|>
+  filter(!(token=="dansait"& definition=="dans"))|>
+  filter(!(token=="dansant"& definition=="dans"))|>
+  filter(!(token=="dansaient"& definition=="dans"))|>
+  filter(!(token=="fou"& definition=="fou/lle"))|> 
+  filter(!(token=="mignon"& definition=="mignon/e"))|> 
+  filter(!(token=="mignons"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonne"& definition=="mignon/e"))|> 
+  filter(!(token=="mignonnes"& definition=="mignon/e"))|> 
+  filter(!(token=="porter"& definition=="porte"))|> 
+  filter(!(token=="porté"& definition=="porte"))|> 
+  filter(!(token=="portée"& definition=="porte"))|>
+  filter(!(token=="porterai"& definition=="porte"))|>
+  filter(!(token=="goûter"& lexical_class=="other"))|> 
+  filter(!(token=="sec"& definition=="sec/he"))|>
+  filter(!(token=="casses"& definition=="cassé"))|>
+  filter(!(token=="cassais"& definition=="cassé"))|>
+  filter(!(token=="casserais"& definition=="cassé"))|>
+  filter(!(token=="montrerai"& definition=="montre"))|>
+  filter(!(token=="montreras"& definition=="montre"))|>
+  filter(!(token=="montrerais"& definition=="montre"))|>
+  filter(!(token=="montrais"& definition=="montre"))|>
+  filter(!(token=="jouera"& definition=="joue"))|>
+  filter(!(token=="joueras"& definition=="joue"))|>
+  filter(!(token=="jouerais"& definition=="joue"))|>
+  filter(!(token=="jouerait"& definition=="joue"))|>
+  filter(!(token=="jouée"& definition=="joue"))|>
+  filter(!(token=="verse"& definition=="vers"))|>
+  filter(!(token=="verses"& definition=="vers"))|>
+  filter(!(token=="versé"& definition=="vers"))|>
+  filter(!(token=="fermé"& definition=="ferme"))|>
+  filter(!(token=="fermés"& definition=="ferme"))|>
+  filter(!(token=="fermées"& definition=="ferme"))|>
+  filter(!(token=="fermait"& definition=="ferme"))|>
+  filter(!(token=="fermant"& definition=="ferme"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="aucune"& definition=="aucun/ne"))|>
+  filter(!(token=="aucun"& definition=="aucun/ne"))|>
+  filter(!(token=="cuisiner"& definition=="cuisine"))|>
+  filter(!(token=="balayer"& definition=="balai"))|>
+  filter(!(token=="balayé"& definition=="balai"))|>
+  filter(!(token=="peter"& definition=="petit/e"))|>
+  filter(!(token=="péter"& definition=="petit/e"))
+
     #filter(!is.na(definition)) |>
     #filter(!is.na(aoa)) 
 
@@ -613,13 +1591,12 @@ ch_freq_long <- rbind(child_speech, child_book, child_tv, adult_speech, adult_bo
   dplyr::select(token, source, definition, on_cdi, word_count_norm, word_count, lexical_class, aoa)  
 
 # wide - no smoothing, only keep subset of words in all corpora
-ch_freq <- ch_freq_long %>% dplyr::select(-word_count) %>%
-  pivot_wider(names_from = source, values_from = word_count_norm) %>%
+ch_freq <- ch_freq_long %>% dplyr::select(-word_count_norm) %>%
+  pivot_wider(names_from = source, values_from = word_count) %>%
   #filter(!is.na(`child_book`), !is.na(child_speech), !is.na(child_tv)) %>%
   mutate(ch_book_vs_speech = `child_book` / child_speech,
          prop_booky = `child_book` / (`child_book` + child_speech)) 
 
-# Laplace smoothing, alpha=10, keep all words in any corpus
 ch_freq_smooth <- ch_freq_long %>% dplyr::select(-word_count) %>%
   mutate(word_count_norm_smooth = word_count_norm + 10) %>%
   dplyr::select(-word_count_norm) %>%
@@ -627,6 +1604,15 @@ ch_freq_smooth <- ch_freq_long %>% dplyr::select(-word_count) %>%
   #filter(!is.na(`child_book`), !is.na(child_speech), !is.na(child_tv)) %>%
   mutate(ch_book_vs_speech = `child_book` / child_speech,
          prop_booky = `child_book` / (`child_book` + child_speech))
+
+# Laplace smoothing, alpha=10, keep all words in any corpus
+#ch_freq_smooth <- ch_freq_long%>% 
+#  mutate(word_count_norm_smooth = word_count_norm + 10) %>%
+#  dplyr::select(-word_count_norm) %>%
+#  pivot_wider(names_from = source, values_from = word_count_norm_smooth) %>% 
+#  #filter(!is.na(`child_book`), !is.na(child_speech), !is.na(child_tv)) %>%
+#  mutate(ch_book_vs_speech = `child_book` / child_speech,
+#         prop_booky = `child_book` / (`child_book` + child_speech))
 ```
 
 
@@ -752,7 +1738,7 @@ ch_freq_smooth_fr<- ch_freq_smooth %>% left_join(x1) %>%
 
 
 
-save(ch_freq_fr, ch_freq_smooth_fr, file="~/Desktop/word_freqs_fr.Rdata")
+save(ch_freq_fr, ch_freq_smooth_fr, file="~/Desktop/word_freqs_fr_complete3.Rdata")
 
 
 ```
