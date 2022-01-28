@@ -334,9 +334,9 @@ For French, we observe a similar pattern of findings for PC1-PC4, although the a
 
 
 
-```{r pca-table}
-row.names(pc_imp_en) = c("EN StdDev","EN PropVar","EN CumPropVar")
-row.names(pc_imp_fr) = c("FR StdDev","FR PropVar","FR CumPropVar")
+```{r pca-table, include=F}
+#row.names(pc_imp_en) = c("EN StdDev","EN PropVar","EN CumPropVar")
+#row.names(pc_imp_fr) = c("FR StdDev","FR PropVar","FR CumPropVar")
 
 table_1<-rbind(pc_imp_en, pc_imp_fr)
 
@@ -355,25 +355,38 @@ papaja::apa_table(df, caption="Highlights from principal components' rotation in
 ```
 
 ```{r pca-en-table, include=T}
-# temporarily included
+require(kableExtra)
 #pc_bsa$rotation  * -1
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
+#pc_bsa$rotation %>%
+#    papaja::apa_table(digits=2, caption="English principal components' rotation in the original coordinate system.", placement='h')
+
+
 pc_bsa$rotation %>%
-    papaja::apa_table(digits=2, caption="English principal components' rotation in the original coordinate system.", placement='h')
+  kbl(caption = "English principal component rotations.", digits=2) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(2, italic=T) %>% # PC1
+  column_spec(3, bold=c(F,F,T,F,F,F), italic=c(F,F,F,F,T,F)) %>% # PC2
+  column_spec(4, bold=c(F,F,F,F,F,T), italic=c(T,F,F,F,F,F)) %>%
+  column_spec(5, bold=c(F,F,F,T,F,F), italic=c(F,T,F,F,F,F)) %>%
+  column_spec(6, bold=c(F,T,F,F,F,F), italic=c(F,F,T,F,F,F)) %>%
+  column_spec(7, bold=c(T,F,F,F,F,F), italic=c(F,F,F,T,F,F))
+  #row_spec(1:2, bold = T, color = "white", background = "#D7261E") %>%
+  #row_spec(3:4, bold = T, color = "white", background = "green") %>%
+  #row_spec(5:6, bold = T, color = "white", background = "blue")
 ```
 
 ```{r pca-fr-table, include=T}
-# temporarily included
 #pc_bsa$rotation  * -1
-pc_bsa_fr$rotation = pc_bsa_fr$rotation  * -1
-pc_bsa_fr$rotation[,1] = pc_bsa_fr$rotation[,1]  * -1
+#pc_bsa_fr$rotation = pc_bsa_fr$rotation  * -1
+#pc_bsa_fr$rotation[,1] = pc_bsa_fr$rotation[,1]  * -1
 
-pc_bsa_fr$x = pc_bsa_fr$x  * -1
-pc_bsa_fr$x[,1] = pc_bsa_fr$x[,1]  * -1
+#pc_bsa_fr$x = pc_bsa_fr$x  * -1
+#pc_bsa_fr$x[,1] = pc_bsa_fr$x[,1]  * -1
 
 ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
 pc_bsa_fr$rotation %>%
-    papaja::apa_table(digits=2, caption="French principal components' rotation in the original coordinate system.", placement='h')    
+    papaja::apa_table(digits=2, caption="French principal component rotations.", placement='h')    
 ```
 
 
