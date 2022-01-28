@@ -443,7 +443,9 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
 
 ```{r}
 ## Correlation of PCs with AoA
-aoa_pc_en <- ddbsa %>% group_by(lexical_class) %>%
+aoa_pc_en <- ddbsa %>% 
+  mutate(`Lexical Class` = ifelse(lexical_class=="function_words", "func. word", lexical_class)) %>%
+  group_by(`Lexical Class`) %>%
   summarise(PC1 = cor(aoa, PC1),
             PC2 = cor(aoa, PC2),
             PC3 = cor(aoa, PC3),
@@ -451,14 +453,25 @@ aoa_pc_en <- ddbsa %>% group_by(lexical_class) %>%
             PC5 = cor(aoa, PC5),
             PC6 = cor(aoa, PC6))
 
+#aoa_pc_en %>%
+#  papaja::apa_table(digits=2, caption="Correlation of English AoA with PC loadings by LC.", placement='h')
+aoa_pc_en <- as.data.frame(aoa_pc_en)
 aoa_pc_en %>%
-  papaja::apa_table(digits=2, caption="Correlation of English AoA with PC loadings by lexical class.", placement='h')
+  kbl(caption = "Correlation of English AoA with PC loadings by LC.", digits=2, booktabs=T) %>%
+  column_spec(2, color="white", background=spec_color(aoa_pc_en[,2], option="A", end=.8)) %>% # PC1
+  column_spec(3, color="white", background=spec_color(aoa_pc_en[,3], option="A", end=.8)) %>% # PC2
+  column_spec(4, color="white", background=spec_color(aoa_pc_en[,4], option="A", end=.8)) %>%
+  column_spec(5, color="white", background=spec_color(aoa_pc_en[,5], option="A", end=.8)) %>%
+  column_spec(6, color="white", background=spec_color(aoa_pc_en[,6], option="A", end=.8)) %>%
+  column_spec(7, color="white", background=spec_color(aoa_pc_en[,7], option="A", end=.8)) %>%
+  column_spec(1, color="black", background = "white") 
 ```
 
 
 ```{r}
 aoa_pc_fr <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
-  group_by(lexical_class) %>%
+  mutate(`Lexical Class` = ifelse(lexical_class=="function_words", "func. word", lexical_class)) %>%
+  group_by(`Lexical Class`) %>%
   summarise(PC1 = cor(aoa, PC1),
             PC2 = cor(aoa, PC2),
             PC3 = cor(aoa, PC3),
@@ -466,8 +479,19 @@ aoa_pc_fr <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
             PC5 = cor(aoa, PC5),
             PC6 = cor(aoa, PC6)) 
 
+#aoa_pc_fr %>%
+#  papaja::apa_table(digits=2, caption="Correlation of French AoA with PC loadings by lexical class.", placement='h')
+
+aoa_pc_fr <- as.data.frame(aoa_pc_fr)
 aoa_pc_fr %>%
-  papaja::apa_table(digits=2, caption="Correlation of French AoA with PC loadings by lexical class.", placement='h')
+  kbl(caption = "Correlation of French AoA with PC loadings by LC.", digits=2, booktabs=T) %>%
+  column_spec(2, color="white", background=spec_color(aoa_pc_fr[,2], option="A", end=.8)) %>% # PC1
+  column_spec(3, color="white", background=spec_color(aoa_pc_fr[,3], option="A", end=.8)) %>% # PC2
+  column_spec(4, color="white", background=spec_color(aoa_pc_fr[,4], option="A", end=.8)) %>%
+  column_spec(5, color="white", background=spec_color(aoa_pc_fr[,5], option="A", end=.8)) %>%
+  column_spec(6, color="white", background=spec_color(aoa_pc_fr[,6], option="A", end=.8)) %>%
+  column_spec(7, color="white", background=spec_color(aoa_pc_fr[,7], option="A", end=.8)) %>%
+  column_spec(1, color="black", background = "white") 
 ```
 
 Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word. To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA[^p]. 
@@ -568,7 +592,8 @@ f<-coefplot(pca_lc6_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, v
 ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1))
 ```
 
-## Combining distributions with demographic data (Q3)
+
+## Principal components and maternal education (Q3)
 
 Previous findings relate SES status to book reading [@shen2022parent], which is in turn related to better language skills [@bus1995joint]. 
 These findings suggest that the vocabulary composition of children from higher-SES households may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. To test this idea, we did an exploratory logistic regression using the first four PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age. Due to lack of maternal education data for French data, we focus on American English-learning children. American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education coded as a factor (baseline (0): no more than secondary education (N=547), 1 for some/all college (N=1483), and 2 for at least some graduate school (N=746)).
