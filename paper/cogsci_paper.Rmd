@@ -470,39 +470,26 @@ aoa_pc_fr %>%
   papaja::apa_table(digits=2, caption="Correlation of French AoA with PC loadings by lexical class.", placement='h')
 ```
 
-Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6 in our regression. 
-We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word. 
-To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA[^p]. 
-For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$), while for French, only the inclusion of the first two principal components was justified ($R^2 = .08$). 
-Figure 2 shows the coefficient estimates with p<0.05 for both languages.
-
+Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word. To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA[^p]. 
+For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$). The same was observed for French, indicating that registers and sources both matter for early word learning. However, the french model explained less variation of the dependent value overall ($R^2 = .09$). Figure 2 shows the coefficient estimates with p<0.05 for both languages.
 
 [^p]:The R syntax for the sequence of regressions was `AoA`$\sim$`PC1*LC`, `AoA`$\sim$`(PC1+PC2)*LC`, ..., `AoA`$\sim$`(PC1+PC2+PC3+PC4+PC5+PC6)*LC`, with noun as the baseline LC.
 
 
-
-In general, we observed that registers and sources both matter for early word learning. 
 For English, PC1, PC2, PC3, PC4 and PC5 predict the age of acquisition. 
 Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. 
-Child-directed speech (PC2) is a negative predictor; words which are frequent in this register are learned earlier on. 
-On the contrary, adult-directed speech (PC3) is a positive predictor; words which are frequent in this register are learned later on. 
-The frequency of words in media distinguished from books is a predictor (PC4). 
-Frequency of words in child-directed speech distinguished from words in child-directed books is also a significant predictor, with earlier acquisition predicted for more speechy/less booky words. 
-We also observe that overall frequency interacts with lexical class, verbs, function words and adjectives being learned later than nouns. 
+Child-directed speech (PC2) is a predictor; words which are frequent in this register are learned earlier on. 
+On the contrary, in the adult-directed speech predictor (PC3), frequent words are learned later on. 
+Word frequency in media distinguished from words in books is a predictor (PC4); words which are frequent in media as distinguished by words in books, are learned earlier on.
+Word frequency in child-directed speech as distinguished from words in child-directed books is also a predictor, with earlier acquisition predicted for more speechy/less booky words. We also observe that overall frequency (PC1) interacts with lexical class, verbs, function words and adjectives being learned later than nouns. 
 PC2 interacts with verbs, which are learned later than nouns. 
 PC3 and PC6 each interacted with function words, which are learned later than nouns.
 
-For French, both registers and sources were important predictors of word learning. 
-PC1, PC2, PC3, PC4 and PC5 are significant predictors, showing that speech, books, media and the child-directed register are all important. 
-Overall frequency (PC1) is a predictor; words which are frequent in general are learned earlier than less frequent words. 
-Book frequency (PC2) is a predictor; words which are especially frequent in books are learned later on. 
-Child-directed speech (PC3) is a predictor; words which are especially frequent in this register are learned earlier on. 
-PC4 includes words which are often found in media versus speech, and PC5 includes words in child-directed versus adult-directed media. 
-Similarly to English, we also observe that overall frequency interacts with lexical class, with verbs, function words, and adjectives being learned later than nouns. 
-Book frequency (PC2) interacts with verbs, and child-directed media (PC5) interacted with function words.
-There is no significant effect of word length. 
+For French, PC1 and PC2 predict the age of acquisition. Words which are frequent in general are learned earlier than less frequent words, and both books and speech are important. PC4 interacts with adjectives, PC5 with function words and PC6 with other. 
+In both languages, there is no significant effect of word length. 
 
-In sum, in both languages, we observe that the predictive value of word frequency comes from speech, media and book sources, and mostly the child-directed register. The main differences across languages are that for English, the difference and difficulty of adult-directed speech is emphasized. For French, the difference and difficulty of text, independent of register, is emphasized.
+To sum up, in both languages, we observe that the predictive value of word frequency comes from both speech and books. However, for English, the difference across registers (difficulty of adult-directed versus child-directed) is emphasized. For French, the difference and difficulty of text, independent of register, is emphasized.
+
 
 
 ```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom)."}
@@ -564,7 +551,7 @@ en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCadj", "LCfunc", "LCother",
               "LCverb", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", 
               "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc", "Nletters:LCfunc")
 
-fr_coef_list = c("PC1","PC2","LCverb","LCverb","PC1:LCadj","PC1:LCfunc","PC1:LCother")
+fr_coef_list = c("PC1","PC2","PC4:LCadj","PC5:LCfunc","PC6:LCother")
 
 e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, 
               mar=c(5.5,2.5,2,2), col.pts="red", cex=.8, xlab='') + 
