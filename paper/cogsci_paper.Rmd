@@ -202,20 +202,20 @@ dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>%
   select(-ch_book_vs_speech, -prop_booky) %>%
   mutate(Nletters = nchar(token)) %>%
   group_by(definition, lexical_class) %>% # group to have 1 row per CDI item: 
-  summarize(adult_book = sum(adult_book),
-            adult_speech = sum(adult_speech),
-            child_book = sum(child_book),
-            adult_tv = sum(adult_tv),
-            child_tv = sum(child_tv),
-            child_speech = sum(child_speech),
-            Nletters = mean(Nletters),
-            aoa = mean(aoa)) %>% # sum the counts, average the aoas and Nletters
-  mutate(adult_book = ifelse(is.na(adult_book), 10, adult_book),
-         adult_speech = ifelse(is.na(adult_speech), 10, adult_speech),
-         child_book = ifelse(is.na(child_book), 10, child_book),
-         adult_tv = ifelse(is.na(adult_tv), 10, adult_tv),
-         child_tv = ifelse(is.na(child_tv), 10, child_tv),
-         child_speech = ifelse(is.na(child_speech), 10, child_speech)) %>%
+  summarize(adult_book = sum(adult_book, na.rm=T),
+            adult_speech = sum(adult_speech, na.rm=T),
+            child_book = sum(child_book, na.rm=T),
+            adult_tv = sum(adult_tv, na.rm=T),
+            child_tv = sum(child_tv, na.rm=T),
+            child_speech = sum(child_speech, na.rm=T),
+            Nletters = mean(Nletters, na.rm=T),
+            aoa = mean(aoa, na.rm=T)) %>% # sum the counts, average the aoas and Nletters
+  mutate(adult_book = ifelse(is.na(adult_book) | adult_book==0, 10, adult_book),
+         adult_speech = ifelse(is.na(adult_speech) | adult_speech==0, 10, adult_speech),
+         child_book = ifelse(is.na(child_book) | child_book==0, 10, child_book),
+         adult_tv = ifelse(is.na(adult_tv) | adult_tv==0, 10, adult_tv),
+         child_tv = ifelse(is.na(child_tv) | child_tv==0, 10, child_tv),
+         child_speech = ifelse(is.na(child_speech) | child_speech==0, 10, child_speech)) %>%
          distinct()
 
 dddc_fr <- dd_fr %>% 
@@ -289,6 +289,16 @@ pc_imp_fr <- summary(pc_bsa_fr)$importance
 var4en = sum(pc_imp_en[2,1:4]) # 
 var4fr = sum(pc_imp_fr[2,1:4]) # 93
 ```
+
+
+```{r, include=F}
+pc_bsa$rotation %>% kable(digits=2)
+```
+
+```{r, include=F}
+pc_bsa_fr$rotation %>% kable(digits=2)
+```
+
 
 
 There are both register and source effects in both English and French. 
@@ -403,7 +413,7 @@ print(xtable(tab, digits=2,
              table.placement = "H"), comment=F)
 
 lm1_fr <- lm(aoa ~ log(ChS) + log(ChM) + log(ChB) + log(AdS) + log(AdM) + log(AdB) + Nletters, data=dddc_fr)
-# R^2 = 0.3433
+# R^2 = .06
 tab_fr <- data.frame(summary(lm1_fr)$coefficients)
 tab_fr$VIF = c(NA, car::vif(lm1_fr))
 names(tab_fr) = c("Beta","SE","t-val","p-val","VIF")
@@ -452,6 +462,7 @@ aoa_pc_fr <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
 aoa_pc_fr %>%
   papaja::apa_table(digits=2, caption="Correlation of French AoA with PC loadings by lexical class.", placement='h')
 ```
+
 Given that past research has found that lexical class strongly modulates influences of word frequency, we next examined the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of each word. To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6--in decreasing order of the variance they accounted for in the PCA[^p]. The more complex model was always significantly preferred, including up to the inclusion of PC6 (English: $R^2 = .584$, French: $R^2 = .16$). Figure 2 shows the coefficient estimates with p<0.05 for both languages.
 
 
