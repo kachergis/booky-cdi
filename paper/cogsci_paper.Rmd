@@ -362,18 +362,27 @@ ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
 
 en_rot <- rbind(pc_bsa$rotation, pc_imp_en[2,]) 
 row.names(en_rot)[7] = "PVar"
+#en_rot %>%
+#  kbl(caption = "English principal component rotations.", digits=2, booktabs=T) %>%
+#  column_spec(2, italic=c(T,T,T,T,T,T,F)) %>% # PC1
+#  column_spec(3, bold=c(F,F,T,F,F,F,F), italic=c(F,F,F,F,T,F,F)) %>% # PC2
+#  column_spec(4, bold=c(F,F,F,F,F,T,F), italic=c(T,F,F,F,F,F,F)) %>%
+#  column_spec(5, bold=c(F,F,F,T,F,F,F), italic=c(F,T,F,F,F,F,F)) %>%
+#  column_spec(6, bold=c(F,T,F,F,F,F,F), italic=c(F,F,T,F,F,F,F)) %>%
+#  column_spec(7, bold=c(T,F,F,F,F,F,F), italic=c(F,F,F,T,F,F,F)) %>%
+#  kable_styling(latex_options = "striped", stripe_index = 7)
+
 en_rot %>%
   kbl(caption = "English principal component rotations.", digits=2, booktabs=T) %>%
-  column_spec(2, italic=c(T,T,T,T,T,T,F)) %>% # PC1
-  column_spec(3, bold=c(F,F,T,F,F,F,F), italic=c(F,F,F,F,T,F,F)) %>% # PC2
-  column_spec(4, bold=c(F,F,F,F,F,T,F), italic=c(T,F,F,F,F,F,F)) %>%
-  column_spec(5, bold=c(F,F,F,T,F,F,F), italic=c(F,T,F,F,F,F,F)) %>%
-  column_spec(6, bold=c(F,T,F,F,F,F,F), italic=c(F,F,T,F,F,F,F)) %>%
-  column_spec(7, bold=c(T,F,F,F,F,F,F), italic=c(F,F,F,T,F,F,F)) %>%
-  kable_styling(latex_options = "striped", stripe_index = 7)
-  #row_spec(1:2, bold = T, color = "white", background = "#D7261E") %>%
-  #row_spec(3:4, bold = T, color = "white", background = "green") %>%
-  #row_spec(5:6, bold = T, color = "white", background = "blue")
+  column_spec(2, italic=c(T,T,T,T,T,T,F), color="white", background=spec_color(en_rot[,1])) %>% # PC1
+  column_spec(3, bold=c(F,F,T,F,T,F,F), color="white", background=spec_color(en_rot[,2])) %>% # PC2
+  column_spec(4, bold=c(T,F,F,F,F,T,F), color="white", background=spec_color(en_rot[,3])) %>%
+  column_spec(5, bold=c(F,F,F,T,F,F,F), color="white", background=spec_color(en_rot[,4])) %>%
+  column_spec(6, bold=c(F,T,T,F,F,F,F), color="white", background=spec_color(en_rot[,5])) %>%
+  column_spec(7, bold=c(T,F,F,T,F,F,F), color="white", background=spec_color(en_rot[,6])) %>%
+  column_spec(1, color="black", background = "white") %>%
+  row_spec(7, color="black", background = "white")
+  #kable_styling(latex_options = "striped", stripe_index = 7)
 ```
 
 ```{r pca-fr-table, include=T}
@@ -390,13 +399,15 @@ fr_rot <- rbind(pc_bsa_fr$rotation, pc_imp_fr[2,])
 row.names(fr_rot)[7] = "PVar"
 fr_rot %>%
   kbl(caption = "French principal component rotations.", digits=2, booktabs=T) %>%
-  column_spec(2, italic=c(T,T,T,T,T,T,F)) %>% # PC1
-  column_spec(3, bold=c(F,F,T,F,F,F,F), italic=c(F,T,F,F,T,F,F)) %>% # PC2
-  column_spec(4, bold=c(F,F,F,F,F,T,F), italic=c(F,F,T,F,F,F,F)) %>%
-  column_spec(5, bold=c(T,F,F,F,F,F,F), italic=c(F,F,F,F,F,T,F)) %>%
-  column_spec(6, bold=c(F,F,F,T,F,F,F), italic=c(T,F,F,F,F,F,F)) %>%
-  column_spec(7, bold=c(F,T,F,F,F,F,F), italic=c(F,F,F,F,T,F,F)) %>%
-  kable_styling(latex_options = "striped", stripe_index = 7)
+  column_spec(2, italic=c(T,T,T,T,T,T,F), color="white", background=spec_color(fr_rot[,1])) %>% # PC1
+  column_spec(3, bold=c(F,T,T,F,T,F,F), color="white", background=spec_color(fr_rot[,2])) %>% # PC2
+  column_spec(4, bold=c(F,F,T,F,F,T,F), color="white", background=spec_color(fr_rot[,3])) %>%
+  column_spec(5, bold=c(T,F,F,F,F,T,F), color="white", background=spec_color(fr_rot[,4])) %>%
+  column_spec(6, bold=c(T,F,F,T,F,F,F), color="white", background=spec_color(fr_rot[,5])) %>%
+  column_spec(7, bold=c(F,T,F,F,T,F,F), color="white", background=spec_color(fr_rot[,6])) %>%
+  column_spec(1, color="black", background = "white") %>%
+  row_spec(7, color="black", background = "white")
+  #kable_styling(latex_options = "striped", stripe_index = 7)
 ```
 
 
