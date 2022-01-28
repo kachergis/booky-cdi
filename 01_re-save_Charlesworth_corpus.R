@@ -25,8 +25,8 @@ extra_cdi_books = data.frame(word = tricky_matches$simple_word,
 extra_cdi_childes = data.frame(word = tricky_matches$simple_word, 
                                word_count = ch_childes_counts)
 
-process_text <- function(path, source_name, extra_cdi_matches=data.frame()) {
-  words = tokenize_words(read_file(path))
+process_text <- function(path, source_name, extra_cdi_matches=data.frame(), min_count=0) {
+  words = tokenize_words(read_file(path), strip_numeric = T, strip_punct = T)
   tab <- table(words[[1]])
   wf <- data_frame(word = names(tab), word_count = as.numeric(tab))
   
@@ -35,7 +35,7 @@ process_text <- function(path, source_name, extra_cdi_matches=data.frame()) {
       group_by(word) %>% summarise(word_count = max(word_count)) # in case we got duplicates, use larger
   }
   
-  wf <- wf %>%
+  wf <- wf %>% filter(word_count >= min_count) %>%
     mutate(source = source_name,
            word_count_norm = word_count * (1e6 / sum(word_count)), # count per million tokens
            prob = word_count / sum(word_count)) %>%
@@ -46,8 +46,9 @@ process_text <- function(path, source_name, extra_cdi_matches=data.frame()) {
   return(wf)
 }
 
+
 data_dir = "data/Charlesworth-Clean-data/"
-adult_dat <- bind_rows(process_text(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt")), "books"),
+adult_dat <- bind_rows(process_text(here(paste0(data_dir, "Adult_Books/gutenberg_corpus.txt")), "books", min_count = 5),
                        process_text(here(paste0(data_dir, "Adult_Speech/adult_speech_corpus.txt")), "speech")) 
 # or lemmatized_adult_speech_corpus.txt
 # loaded 827414 word types (35143617 tokens)
@@ -56,9 +57,9 @@ adult_dat <- bind_rows(process_text(here(paste0(data_dir, "Adult_Books/gutenberg
 
 # combine the TV corpora
 tv1 <- process_text(here(paste0(data_dir, "Adult_TV/pbs_adults_corpus.txt")), "tv1")
-# loaded 45351 word types (4175570 tokens)
+# loaded 44200 word types (4146006 tokens)
 tv2 <- process_text(here(paste0(data_dir, "Adult_TV/simply_scripts_corpus.txt")), "tv2")
-# loaded 103079 word types (2056384 tokens)
+# loaded 99142 word types (1976786 tokens)
 #tv1 %>% select(word, word_count) 
 
 adult_tv <- full_join(tv1 %>% select(word, word_count), 

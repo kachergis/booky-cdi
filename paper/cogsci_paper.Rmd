@@ -202,7 +202,7 @@ dddc <- dddc %>%
 
 # use the minimum normalized count values for these (large) corpora 
 dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
-                                 `AdM` = 0.32)) 
+                                 `AdM` = 0.33)) 
 
 
 dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>% 
@@ -564,7 +564,7 @@ en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCadj", "LCfunc", "LCother",
               "LCverb", "PC1:LCadj", "PC1:LCfunc", "PC1:LCother", "PC1:LCverb", 
               "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc", "Nletters:LCfunc")
 
-fr_coef_list = c("PC1","PC2","LCverb","LCverb","PC1:LCadj","PC1:LCfunc","PC1:LCother")
+fr_coef_list = c("PC1","PC2","PC3","PC4","LCadj","LCverb","PC1:LCadj","PC1:LCfunc","PC1:LCother")
 
 e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, 
               mar=c(5.5,2.5,2,2), col.pts="red", cex=.8, xlab='') + 
