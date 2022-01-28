@@ -295,13 +295,6 @@ var4fr = sum(pc_imp_fr[2,1:4]) # 93
 
 Figure 1 shows the word frequency correlations between different corpus sources ([Adult- vs. Child-directed] x [Speech, Books, Media]) for the matched CDI words (left: English, right: French). Unsurprisingly, there were strong correlations across these different corpora, but correlations were stronger within register and within source for both English and French. 
 
-```{r, include=F}
-pc_bsa$rotation %>% kable(digits=2)
-```
-
-```{r, include=F}
-pc_bsa_fr$rotation %>% kable(digits=2)
-```
 
 
 We thus turned to PCA to disentangle these correlated distributions and to understand their relationship. PCA allows us to project word frequencies into a space in which the first dimension captures the shared variance between frequences from different sources and registers, and subsequent dimensions capture other consistent sources of variation. Since the logarithm of frequency is typically used as a psycholinguistic predictor in previous studies [@braginsky2019consistency; @goodman2008], we perform our PCA over log frequencies.
@@ -352,10 +345,7 @@ table_1 %>%
 
 
 
-
-
 ```{r}
-
 df <- data.frame(
 Order = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
 EN = c("Freq:-.31...-.52", "ChS:.65; AdB:-.47", "AdS:.79; ChM:-.35", "M Ch:.40 A:.48; B  Ch:-.63 A:-.44", "ChS:-.60; ChB:.53", "ChM:.73; AdM:-.53"),
@@ -367,8 +357,8 @@ papaja::apa_table(df, caption="Highlights from principal components' rotation in
 # temporarily included
 #pc_bsa$rotation  * -1
 ddbsa <- cbind(dddc, data.frame(pc_bsa$x))
-#pc_bsa$rotation %>%
-#    papaja::apa_table(digits=2, caption="English principal components' rotation in the #original coordinate system.", placement='h')
+pc_bsa$rotation %>%
+    papaja::apa_table(digits=2, caption="English principal components' rotation in the original coordinate system.", placement='h')
 ```
 
 ```{r pca-fr-table, include=T}
@@ -381,8 +371,8 @@ pc_bsa_fr$x = pc_bsa_fr$x  * -1
 pc_bsa_fr$x[,1] = pc_bsa_fr$x[,1]  * -1
 
 ddbsa_fr <- cbind(dddc_fr, data.frame(pc_bsa_fr$x))
-#pc_bsa_fr$rotation %>%
-#    papaja::apa_table(digits=2, caption="French principal components' rotation in the #original coordinate system.", placement='h')    
+pc_bsa_fr$rotation %>%
+    papaja::apa_table(digits=2, caption="French principal components' rotation in the original coordinate system.", placement='h')    
 ```
 
 
