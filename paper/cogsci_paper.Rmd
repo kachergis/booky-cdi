@@ -228,7 +228,10 @@ dddc_fr <- dd_fr %>%
 
 ```
 
-Children's early word learning data is drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from X kids for American English and X kids for French French). CDIs are parental reports on their children’s lexical development, proven to be reliable indicators of a child’s language. CDIs are survey instruments, where parents mark whether their child (age ranges 8-15 and 16-30 months old) understands or produces particular words out of a list of several hundred words. All word frequencies were normalized to number of tokens per million (TPM). We focus our analysis on the 674 words from the English CDI that we were able to find in at least some of the corpora, and 470 words from the French CDI (for French, words were matched to related words in corpora via a stemmer). For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
+Children's early word learning data is drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from 5520 children aged 16-30 months for the American English CDI: Words & Sentences (WS) form, and 641 children for the French French CDI:WS form). 
+CDIs are a parent-reported measure of a child's lexical development, which have proven to be a reliable and valid method for measuring young children's language skill. 
+CDIs are survey instruments, where parents mark whether their child understands or produces particular words out of a list of several hundred words. All word frequencies were normalized to number of tokens per million (TPM). 
+We focus our analysis on the `r length(unique(dddc$definition))` words from the English CDI that we were able to find in at least some of the corpora, and `r length(unique(dddc_fr$definition))` words from the French CDI (for French, words were matched to related words in corpora via a stemmer). For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
 
 
 # Results
@@ -272,57 +275,65 @@ cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
                       caption="Correlations in word frequency between different sources for CDI words (French).")
 ```
 
+```{r pca}
+pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
+                             "AdM","AdB","AdS")])) # add Montag separately?
+eigenvalues_en = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
+
+pc_bsa_fr <- prcomp(log(dddc_fr[,c("ChM","ChB","ChS",
+                             "AdM","AdB","AdS")])) 
+eigenvalues_fr = pc_bsa_fr$sdev^2 # only first 2 PCs have eigenvalues >1
+
+pc_imp_en <- summary(pc_bsa)$importance
+pc_imp_fr <- summary(pc_bsa_fr)$importance 
+var4en = sum(pc_imp_en[2,1:4]) # 
+var4fr = sum(pc_imp_fr[2,1:4]) # 93
+```
+
 
 There are both register and source effects in both English and French. 
 Unsurprisingly, there were strong correlations across these different corpora. 
 We thus turned to PCA to disentangle these correlated distributions and to understand their interrelations.
 
 Table 1 shows the standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6) for each language. 
-PC1 already explains the bulk the variance (89% for English and for French), and PC2-PC4 each only capture an additional 2-4% of the variance. 
-In total, the first four components captured >98% of the variance for both languages.
+PC1 already explains the bulk of the variance (`r round(pc_imp_en[2,1],3)*100`% for English and `r round(pc_imp_fr[2,1],3)*100`% for French), and PC2-PC4 each only capture an additional 2-4% of the variance for English, and 5-8% for French. 
+In total, the first four components captured >`r round(var4en,2)*100`% of the variance for English, and >`r round(var4fr,2)*100`% for French.
 
 Table 2 summarizes the eigenvectors of the principal components (PC1-PC6) in relation to the original six frequency distributions for English and French. 
 The first PC is similar for both English and French, and captures shared variance between all frequency sources, representing words that are high or low frequency across registers and sources. 
-This component captures for example that 'the' (EN), 'le' (FR the), 'et' (FR and) are frequent in spoken and written sources, whether directed to adults or children. 
-For English, PC2 (3.8% of variance) mostly captures child-directed speech, differentiating it from the other registers. 
-For example, words such as 'peekaboo' are more present child-directed speech. 
-For French, PC2 (6% of variance) mostly captures books for children and adults. 
+This component captures for example that 'the' (EN), 'le' (FR 'the'), 'et' (FR 'and') are frequent in spoken and written sources, whether directed to adults or children. 
+For English, PC2 (`r round(pc_imp_en[2,2],3)*100`% of variance) mostly captures child-directed speech, differentiating it from the other registers. 
+For example, words such as 'peekaboo' are more present in child-directed speech. 
+For French, PC2 (`r round(pc_imp_fr[2,2],3)*100`% of variance) also captures child-directed speech (e.g., 'gâteau' = 'sweet'), distinguishing it from adult- and child-directed books.
+
+<!-- mostly captures books for children and adults. 
 This component captures that some words are very frequent in text in general, such as 'sombre' ('dark'), 'lune' ('moon') or 'autrement' ('otherwise') in comparison to the other registers. 
+-->
 
-For English, PC3 (3% of variance) captures adult-directed speech, differentiating it from the other registers. It captures words such as 'mower', 'downtown' or 'vitamins', frequent in discussions between adults. 
-For French, PC3 (3%) is similar to PC2 in English, capturing child-directed speech, with words such as 'gâteau' = 'sweet'. 
-For English, PC4 (2.2% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed books. 
+For English, PC3 (`r round(pc_imp_en[2,3],3)*100`% of variance) captures adult-directed speech, differentiating it from the other registers. It captures words such as 'mower', 'downtown' or 'vitamins', frequent in discussions between adults. 
+For French, PC3 (`r round(pc_imp_fr[2,3],3)*100`%) similarly captures adult-directed speech, with words such as ... 
+For English, PC4 (`r round(pc_imp_en[2,4],3)*100`% of variance) captures the similarity of child- and adult-directed media, distinguishing them from child- and adult-directed books. 
 This component captures that some words are very frequent in media in general, but infrequent in books (e.g. 'camera', 'TV') and vice-versa (e.g. 'none', 'beads', 'poor'). 
-For French, PC4 (2% of variance) captures the similarity of child- and adult-directed media (e.g. 'étoile' = 'star'), distinguishing them from child- and adult-directed speech (e.g. 'voiture' = 'car'). 
+For French, PC4 (`r round(pc_imp_fr[2,4],3)*100`% of variance) captures the similarity of child- and adult-directed media (e.g. 'étoile' = 'star'), distinguishing them from child- and adult-directed speech (e.g. 'voiture' = 'car'). 
 
-For English, PC5 (1% of variance) captures child-directed speech, distinguishing it from child-directed books. 
+For English, PC5 (`r round(pc_imp_en[2,5],3)*100`% of variance) captures child-directed speech, distinguishing it from child-directed books. 
 This component captures that some words are very frequent in child-directed speech, but infrequent in child-directed books (e.g.'mommy', 'juice') and vice-versa (e.g. 'firetruck', 'snowsuit'). 
-For French, PC5 (3% of variance) distinguishes child-directed media (e.g. 'ferme' = 'farm') from adult-media (e.g. 'café'). 
-Lastly, for English, PC6 (<1% of variance) is similar to PC5 in French (1% of variance), capturing child-directed media (.73), and distinguishing it in particular from adult-directed media. 
+For French, PC5 (`r round(pc_imp_fr[2,5],3)*100`%% of variance) distinguishes child-directed media (e.g. 'ferme' = 'farm') from adult-media (e.g. 'café'). 
+Lastly, for English, PC6 (<1% of variance) is similar to PC5 in French (`r round(pc_imp_fr[2,5],3)*100`% of variance), capturing child-directed media (.73), and distinguishing it in particular from adult-directed media. 
 This component captures that some words are very frequent in child-directed media, but infrequent in adult-directed media (e.g. 'penguin', 'snowman') and vice versa (e.g.'drawer', 'medicine').  
-For French, PC6 (1%) distinguishes child-directed books (e.g. 'ours' = 'bear') from adult-directed books (e.g. 'tuer' = 'kill'). 
+For French, PC6 (`r round(pc_imp_fr[2,6],3)*100`%) distinguishes child-directed books (e.g. 'ours' = 'bear') from adult-directed books (e.g. 'tuer' = 'kill'). 
 
 In summary, the PCs align surprisingly well with particular dimensions of the English frequency distributions: PC1 with overall frequency, PC2 with child-directed speech, PC3 with adult-directed speech, PC4 with media vs. books, PC5 with child-directed books vs. speech, and PC6 with adult- vs. child-directed media. 
-For French, we observe a similar pattern of findings, although the importance and order of the PCs is not quite the same. Variance is similarly distributed across the PCs, but some frequency differences across different registers are more pronounced than for English. 
-Importantly, frequency particularities in ChS come third in order in French, compared to second in English. On the contrary, word frequency in books differs from all other registers in French, and comes second in order.
+For French, we observe a similar pattern of findings for PC1-PC4, although the amount of variance explained is not quite the same. In PC5 and PC6, some frequency differences across different registers are more pronounced for French than for English. 
+<!--Importantly, frequency particularities in ChS come third in order in French, compared to second in English. On the contrary, word frequency in books differs from all other registers in French, and comes second in order.-->
 
 
 
-```{r pca}
-pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
-                             "AdM","AdB","AdS")])) # add Montag separately?
-#eigenvalues = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
-pc_imp <- summary(pc_bsa)$importance 
-row.names(pc_imp) = c("StdDev Eng","PropVar Eng","CumPropVar Eng")
+```{r pca-table}
+row.names(pc_imp_en) = c("EN StdDev","EN PropVar","EN CumPropVar")
+row.names(pc_imp_fr) = c("FR StdDev","FR PropVar","FR CumPropVar")
 
-pc_bsa_fr <- prcomp(log(dddc_fr[,c("ChM","ChB","ChS",
-                             "AdM","AdB","AdS")])) # add Montag separately?
-#eigenvalues = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
-
-pc_imp_fr <- summary(pc_bsa_fr)$importance 
-row.names(pc_imp_fr) = c("StdDev Fr","PropVar Fr","CumPropVar Fr")
-
-table_1<-rbind(pc_imp, pc_imp_fr)
+table_1<-rbind(pc_imp_en, pc_imp_fr)
 
 table_1 %>%
     papaja::apa_table(digits=2, caption="Importance of components from PCA for English (above) and French (below).", placement='h')
