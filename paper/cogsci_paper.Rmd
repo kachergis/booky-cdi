@@ -347,8 +347,8 @@ table_1 %>%
 
 df <- data.frame(
 Order = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-EN = c("Freq -.26...-.52", "ChS .65; AdB -.47", "AdS .79; ChM -.35", "M/B .40.48/-.44-.63", "ChS/ChB -.60/.53", "ChM/AdM .73/-.53"),
-FR = c("Freq -.39...-.44", "ChS .65; AdB -.67", "AdS .63; ChM -.69", "M/S .65.23/-.20-.68", "ChM/AdM -.53/.69", "ChB/AdB -.59/.70"))
+EN = c("Freq -.26...-.52", "ChS .65; AdB -.47", "AdS .79; ChM -.35", "M Ch:.40, A:.48; B -.44-.63", "ChS/ChB -.60/.53", "ChM/AdM .73/-.53"),
+FR = c("Freq -.39...-.44", "ChS .65; AdB -.67", "AdS .63; ChM -.69", "M Ch:.57, A:.27; S -.20-.68", "ChM/AdM -.53/.69", "ChB/AdB -.59/.70"))
 papaja::apa_table(df, caption="Highlights from principal components' rotation in the original coordinate system.")
 ```
 
@@ -423,19 +423,32 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
 
 ```{r}
 ## Correlation of PCs with AoA
-aoa_pc_en <- cor(ddbsa[,"aoa"], ddbsa[,paste0("PC",1:6)]) 
-ddbsa_fr_nona <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
-  group_by(definition) %>% 
-  summarize(aoa=mean(aoa), PC1=mean(PC1), PC2=mean(PC2), PC3=mean(PC3), 
-            PC4=mean(PC4), PC5=mean(PC5), PC6=mean(PC6))
-  
-aoa_pc_fr <- cor(ddbsa_fr_nona[,"aoa"], ddbsa_fr_nona[,paste0("PC",1:6)]) 
-aoa_vs_pc <- rbind(aoa_pc_en, aoa_pc_fr)
-row.names(aoa_vs_pc) = c("Eng AoA", "Fr AoA")
-aoa_vs_pc %>%
-  papaja::apa_table(digits=2, caption="Correlation of PC loadings with frequency distributions.", placement='h')
+aoa_pc_en <- ddbsa %>% group_by(lexical_class) %>%
+  summarise(PC1 = cor(aoa, PC1),
+            PC2 = cor(aoa, PC2),
+            PC3 = cor(aoa, PC3),
+            PC4 = cor(aoa, PC4),
+            PC5 = cor(aoa, PC5),
+            PC6 = cor(aoa, PC6))
+
+aoa_pc_en %>%
+  papaja::apa_table(digits=2, caption="Correlation of English AoA with PC loadings by lexical class.", placement='h')
 ```
 
+
+```{r}
+aoa_pc_fr <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
+  group_by(lexical_class) %>%
+  summarise(PC1 = cor(aoa, PC1),
+            PC2 = cor(aoa, PC2),
+            PC3 = cor(aoa, PC3),
+            PC4 = cor(aoa, PC4),
+            PC5 = cor(aoa, PC5),
+            PC6 = cor(aoa, PC6)) 
+
+aoa_pc_fr %>%
+  papaja::apa_table(digits=2, caption="Correlation of French AoA with PC loadings by lexical class.", placement='h')
+```
 
 
 ```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom)."}
