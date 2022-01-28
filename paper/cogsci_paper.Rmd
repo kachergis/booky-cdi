@@ -326,7 +326,7 @@ This component captures that some words are very frequent in text in general, su
 <!--Importantly, frequency particularities in ChS come third in order in French, compared to second in English. On the contrary, word frequency in books differs from all other registers in French, and comes second in order.-->
 
 
-```{r pca-table}
+```{r pca-table, include=F}
 row.names(pc_imp_en) = c("EN StdDev","EN PropVar","EN CumPropVar")
 row.names(pc_imp_fr) = c("FR StdDev","FR PropVar","FR CumPropVar")
 
