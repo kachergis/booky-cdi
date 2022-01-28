@@ -19,8 +19,7 @@ abstract: >
     and predictable variability between them. For example, function words are far more frequent
     in books than in everyday speech, while early-learned nouns (e.g., 'ball' and 'mommy') are 
     more frequent in child-directed speech than from other sources. Children receive a mixture 
-    of these different frequency distributions, and the ratios of the mixture may be
-    predictive of their early word learning. The goal of this paper is to better understand
+    of these different frequency distributions. The goal of this paper is to better understand
     the shared and unique variance in these sources of input--in both English and French--and 
     to evaluate how predictive these input frequencies are of children's early word learning.
     
@@ -80,17 +79,19 @@ Input word frequency varies significantly depending on the context.
 Previous studies have shown that frequency matters for children's word learning [for a review, see @ambridge2015ubiquity], and have observed an association between word frequency in children's language environments and age of acquisition [@goodman2008]. 
 For instance, word frequency in books is not the same as frequency in conversational speech, with many function words being far more frequent in books than in speech [@dawson2021features; @montag2015words]. 
 
-Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech, yet not so common in children's books, and even more rare in books meant for all ages. But other differences are less intuitive: "of" is frequent in books meant for all ages, and while still frequent in child-directed speech, it is relatively less frequent as compared to children's books. In general, speech--whether directed to children, or to adults--contains relatively fewer function words, and tends to score lower on measures of lexical diversity than books, which have a higher ratio of types (i.e. unique words) per set of tokens [i.e., instances of words; @dawson2021features].
+Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech, yet not so common in children's books, and even more rare in books meant for all ages. But other differences are less intuitive: "of" is frequent in books meant for all ages, and while still frequent in child-directed speech, it is relatively less frequent as compared to children's books. In general, speech -- whether directed to children or to adults -- contains relatively fewer function words and tends to score lower on measures of lexical diversity than books, which have a higher ratio of types (unique words) per set of tokens [instances of words; @dawson2021features].
 
-The primary questions of this paper are, first, to examine shared and unique variance in word frequency across different sources of English and French input, ranging from children's books and movies to child-directed speech and even comparing to adult-directed books, movies, and speech, which we accomplish using principle components analysis (PCA).
+In this paper, we have three goals. First, we examine shared and unique variance in word frequency across different sources of English and French input, ranging from children's books and movies to child-directed speech and even comparing to adult-directed books, movies, and speech. Because of the substantial correlations between these different input sources, we employ principal components analysis (PCA) for dimensionality reduction. 
 
-Second, we investigate how well these components predict English- and French-learning children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. The CDIs have proven to be reliable and valid indicators of child's language, with high internal consistency and predictive of later language outcomes [@fenson1994variability]. We approximate early word learning with the Age of Acquisition (AoA) prediction paradigm, which consists in predicting each CDI item's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency; @goodman2008]. 
+Second, we investigate how well these components predict English- and French-learning children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. CDIs are parent report forms for children's early vocabulary, and they have proven to be reliable and valid indicators of child's language [@fenson1994variability]. Critically, CDI forms provide details about the individual words that children produce. These data allow us to investigate the role of different frequency sources using the Age of Acquisition (AoA) prediction paradigm, in which we use regression models to predict each CDI item's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency; @goodman2008]. 
 
-We expect less contribution to word learning from sources related to adult-directed speech, movies and books, because of other factors relevant to quality: for example, adult-directed sources may include longer length of utterances, more lexical diversity and less interaction  with respect to child-directed speech, movies and books [@rowe2012longitudinal]. Factors may also relate to quantity; children may simply receive less language from adult-directed sources.
+<!-- We expect less contribution to word learning from adult-directed speech, movies and books, because of other factors relevant to quality: for example, adult-directed sources may include longer length of utterances, more lexical diversity and less interaction compared with child-directed speech, movies and books [@rowe2012longitudinal]. Factors may also relate to quantity; children may simply receive less language from adult-directed sources. -->
 
-Third, we examine how well the frequency components predict individual differences in English-learning children's word learning in combination with their mother's education, which may be related to how much children are read to at home. Past research has found that young children from higher-SES households tend to have larger vocabulary [@fernald2013ses], and parents with higher-SES tend to report reading more to their young children than parents with lower SES. Can vocabulary composition of children from higher-SES households be better predicted by book word frequency?
+Third, we examine how well different input sources predict SES differences in  word learning for English-learning children. We index SES using maternal education, a common proxy measure. Young children from higher-SES households tend to have larger vocabulary [@fernald2013ses] and parents with higher-SES tend to report reading more to their young children than parents with lower SES. 
 
-The questions investigated in this paper aim to shed light on the importance of input sources on language development and its interaction with parental SES, would can be useful for informing future interventions.
+<!-- Can vocabulary composition of children from higher-SES households be better predicted by book word frequency? -->
+
+<!-- The questions investigated in this paper aim to shed light on the importance of input sources on language development and its interaction with parental SES, would can be useful for informing future interventions. -->
 
 
 # Method
@@ -135,13 +136,13 @@ total_adult_tokens_fr <- ch_freq_fr %>%
 ```
 
 
-Corpora from different sources are used to identify shared and distinct variance in frequencies, with the help of PCA. 
+Corpora from different sources are used to identify shared and distinct variance in frequencies. These corpora vary widely in size due to data accessibility; several were created for the current study and are available in our GitHub repository.
 
 ### Child-directed Speech (ChS).
 Utterances of ChS were extracted from the CHILDES corpus [@macwhinney2000childes], a collection of transcripts of interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years). After cleaning, the CHILDES English corpus yielded `r format(round(subset(total_child_tokens, source=="speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens, source=="speech")$n, scientific=F)` word types. The French ChS yielded `r format(round(subset(total_child_tokens_fr, source=="child_speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_speech")$n, scientific=F)` word types.
 
 ### Child-directed books (ChB).
-We used a sample of 98 English children's books from Project Gutenberg's open-source database, previously used in machine learning research on language comprehension [@hill2015goldilocks]. The books were published between 1820 and 1922, but include well-known titles as *The Legend of Sleep Hollow*. We also used 130 popular French children stories accessible in parenting websites (https://fr.hellokids.com/) and 10 French children books from Project Gutenberg. After cleaning, the English ChB corpus totals `r format(round(subset(total_child_tokens, source=="books")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens, source=="books")$n, scientific=F)` word types, and the French ChB totals `r format(round(subset(total_child_tokens_fr, source=="child_book")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_book")$n, scientific=F)` word types.
+We used a sample of 98 English children's books from Project Gutenberg's open-source database, previously used in machine learning research on language comprehension [@hill2015goldilocks]. The books were published between 1820 and 1922, but include well-known titles as *The Legend of Sleepy Hollow*. We also used 130 popular French children stories accessible in parenting websites (https://fr.hellokids.com/) and 10 French children books from Project Gutenberg. After cleaning, the English ChB corpus totals `r format(round(subset(total_child_tokens, source=="books")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens, source=="books")$n, scientific=F)` word types, and the French ChB totals `r format(round(subset(total_child_tokens_fr, source=="child_book")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_book")$n, scientific=F)` word types.
 
 ### Child-directed Media (ChM).
 Transcripts were extracted from English television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes taken from @charlesworth2021gender (available here: [https://osf.io/kqux5/](https://osf.io/kqux5/). Openly accessible transcripts (https://www.subsynchro.com/) were also extracted from 100 French films directed to children. After cleaning, the English ChM totals `r format(subset(total_child_tokens, source=="tv")$word_count, scientific=F)` tokens across `r format(subset(total_child_tokens, source=="tv")$n, scientific=F)` word types.  The French ChM totals `r format(round(subset(total_child_tokens_fr, source=="child_tv")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_tv")$n, scientific=F)` word types. 
@@ -155,6 +156,11 @@ The English AdB is comprised of `r format(round(subset(total_adult_tokens, sourc
 
 ### Adult-directed Media (AdM).
 The English AdM is comprised of `r format(round(subset(total_adult_tokens, source=="TV")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens, source=="TV")$n, scientific=F)` word types. The French AdM corpus is comprised of `r format(round(subset(total_adult_tokens_fr, source=="adult_tv")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_tv")$n, scientific=F)` word types, after cleaning openly accessible movie subtitles (https://www.subsynchro.com/) from 100 films.
+
+### Age of Acquisition data
+
+CDI data were downloaded from the Wordbank database [@frank2017wordbank], including data from XYZ children acquiring American English and XYZ children for French. Age of acquisition estimates were calculated via the wordbankr package using the XYZ method.
+
 
 ## Merging the Corpora
 
@@ -228,7 +234,9 @@ dddc_fr <- dd_fr %>%
 
 ```
 
-Children's early word learning data is drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from X kids for American English and X kids for French French). CDIs are parental reports on their children’s lexical development, proven to be reliable indicators of a child’s language. CDIs are survey instruments, where parents mark whether their child (age ranges 8-15 and 16-30 months old) understands or produces particular words out of a list of several hundred words. All word frequencies were normalized to number of tokens per million (TPM). We focus our analysis on the 674 words from the English CDI that we were able to find in at least some of the corpora, and 470 words from the French CDI (for French, words were matched to related words in corpora via a stemmer). For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
+We focus our analysis on the 674 words from the English CDI that we were able to identify in at least some of the corpora, and the comparable 470 words from the French CDI. For French, because of the presence of more complex morphology, CDI words were matched to related words in corpora via a stemmer. 
+For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
+All word frequencies were normalized to number of tokens per million (TPM). 
 
 
 # Results
