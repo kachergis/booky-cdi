@@ -644,16 +644,20 @@ There were significant interactions of mother's education with PC1-PC3 (all $p<.
 load(here("data/en_ws.Rdata"))
 
 en_mom_ed = table(en_demo$mom_ed)
-# None = 0, Primary = 8, Some Secondary = 123
+# None = 0, Primary = 8, Some Secondary = 123, Secondary = 416,
+# Some College = 613, College = 870, Some Graduate = 162, Graduate = 584
+# low = 1160
+# high = 870 + 162 + 584 = 1616
 
 en_dat <- en_long_ws %>% left_join(en_demo) %>%
   filter(!is.na(mom_ed)) %>%
-  mutate(mom_ed_num = case_when(as.numeric(mom_ed)<5 ~ -1, # secondary or less
-                                as.numeric(mom_ed)<7 ~ 0, # some college / college
-                                TRUE ~ 1)) %>%  # some graduate / graduate
-  mutate(MotherEd = case_when(as.numeric(mom_ed)<5 ~ "Secondary", # secondary or less
-                                as.numeric(mom_ed)<7 ~ "College", # some college / college
-                                TRUE ~ "Graduate")) %>%
+  #mutate(mom_ed_num = case_when(as.numeric(mom_ed)<5 ~ -1, # secondary or less
+  #                              as.numeric(mom_ed)<7 ~ 0, # some college / college
+  #                              TRUE ~ 1)) %>%  # some graduate / graduate
+  #mutate(MotherEd = case_when(as.numeric(mom_ed)<5 ~ "Secondary", # secondary or less
+  #                              as.numeric(mom_ed)<7 ~ "College", # some college / college
+  #                              TRUE ~ "Graduate")) %>%
+  mutate(MotherEd = ifelse(as.numeric(mom_ed)<=5, "Some College", "College Grad+")) %>%
   group_by(age, MotherEd, definition) %>%
   summarise(total_prod = sum(produces, na.omit=T), 
             total_not_prod = sum(produces==0, na.omit=T))
@@ -665,7 +669,8 @@ en_dat <- en_dat %>% left_join(ddbsa %>% select(definition, Nletters, PC1, PC2, 
 
 # scale/center the PC vars?
 
-en_dat$MotherEd = factor(en_dat$MotherEd, levels=c("Secondary","College","Graduate"))
+#en_dat$MotherEd = factor(en_dat$MotherEd, levels=c("Secondary","College","Graduate"))
+en_dat$MotherEd = factor(en_dat$MotherEd, levels=c("Some College","College Grad+"))
 
 # whenever we center age (age_sc), matrix is rank deficient and age_sc main effect doesn't appear... 
 en2 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2) + (1|definition), family = binomial(logit), nAGQ=0, data=en_dat) 
@@ -676,14 +681,19 @@ en3 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2 + P
 
 en4 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2 + PC3 + PC4) + (1|definition), family = binomial(logit), nAGQ=0, data=en_dat)
 
+en5 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2 + PC3 + PC4 + PC5) + (1|definition), family = binomial(logit), nAGQ=0, data=en_dat)
 
-#anova(en2, en3)
-#anova(en3, en4)
+en6 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2 + PC3 + PC4 + PC5 + PC6) + (1|definition), family = binomial(logit), nAGQ=0, data=en_dat)
+
+#anova(en2, en3) # en3***
+#anova(en3, en4) # en4***
+#anova(en4, en5) # en5***
+#anova(en5, en6) # en5 p=.1
 
 #summary(en2)
 #summary(en3)
-mom_ed_tab <- summary(en4)$coefficients
-
+mom_ed_tab <- summary(en5)$coefficients
+#round(mom_ed_tab, 2)
 colnames(mom_ed_tab) = c("Beta","SE","t-val","p-val")
 
 print(xtable(mom_ed_tab[1:14,], digits=2,
@@ -706,24 +716,36 @@ print(xtable(mom_ed_tab[1:14,], digits=2,
 
 ylab_momed = "Prob. of Production"
 
+# all of the PCs have sig. main effects, as well as significant interactions with age.
+age_pc1 <- ggpredict(en5, c("age", "PC1")) %>% plot() + # consider using "PC1 [all]" ?
+  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+  theme(plot.title = element_blank())
+
+age_pc2 <- ggpredict(en5, c("age", "PC2")) %>% plot() + # consider using "PC1 [all]" ?
+  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+  theme(plot.title = element_blank())
+
 # ToDo: titles with PC descriptions?
-pc1 <- ggpredict(en4, c("PC1", "MotherEd")) %>% plot() + # consider using "PC1 [all]" ?
+pc1 <- ggpredict(en5, c("PC1", "MotherEd")) %>% plot() + # consider using "PC1 [all]" ?
   ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
   theme(plot.title = element_blank())
 
-pc2 <- ggpredict(en4, c("PC2", "MotherEd")) %>% plot() + 
-  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) +
-  theme(plot.title = element_blank())
+# not significant
+#pc2 <- ggpredict(en5, c("PC2", "MotherEd")) %>% plot() + 
+#  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) +
+#  theme(plot.title = element_blank())
+#pc3 <- ggpredict(en5, c("PC3", "MotherEd")) %>% plot() + 
+#  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+#  theme(plot.title = element_blank())
+#pc4 <- ggpredict(en5, c("PC4", "MotherEd")) %>% plot() + 
+#  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+#  theme(plot.title = element_blank())
 
-pc3 <- ggpredict(en4, c("PC3", "MotherEd")) %>% plot() + 
+pc5 <- ggpredict(en5, c("PC5", "MotherEd")) %>% plot() + 
   ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
   theme(plot.title = element_blank())
 
-pc4 <- ggpredict(en4, c("PC4", "MotherEd")) %>% plot() + 
-  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
-  theme(plot.title = element_blank())
-
-ggarrange(pc1, pc2, pc3, pc4, nrow=2, ncol=2, common.legend = T)
+ggarrange(pc1, pc5, nrow=2, ncol=1, common.legend = T)
 ```
 
 
