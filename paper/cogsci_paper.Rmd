@@ -642,7 +642,7 @@ Thus, we analyzed the model that included the first five PCs.
 
 This model showed significant main effects of age ($\beta = 0.24$), mother's education (college grad+ $\beta = -1.03$), and all five PCs (all $p<.001$).
 Faster learning was predicted for words with higher values on PC1 ($\beta=.10$), PC2 ($\beta=.45$), on PC4 ($\beta=.28$).
-Slower learning was predicted for words with higher values on PC3 ($\beta=-.34$) or PC5 ($\beta=-.49$)
+Slower learning was predicted for words with higher values on PC3 ($\beta=-.34$) or PC5 ($\beta=-.49$).
 
 There was a significant positive interaction of age with mother's education ($\beta=.06$, $p<.001$), shown in Figure 3.
 There were also significant interactions of age and all five PCs, although the coefficients were all of a small magnitude ($\beta$s < .01).
