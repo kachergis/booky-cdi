@@ -148,14 +148,18 @@ We used a sample of 98 English children's books from Project Gutenberg's open-so
 Transcripts were extracted from English television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes taken from @charlesworth2021gender (available here: [https://osf.io/kqux5/](https://osf.io/kqux5/). Openly accessible transcripts (https://www.subsynchro.com/) were also extracted from 100 French films directed to children. After cleaning, the English ChM totals `r format(subset(total_child_tokens, source=="tv")$word_count, scientific=F)` tokens across `r format(subset(total_child_tokens, source=="tv")$n, scientific=F)` word types.  The French ChM totals `r format(round(subset(total_child_tokens_fr, source=="child_tv")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_tv")$n, scientific=F)` word types. 
 
 ### Adult-directed Speech (AdS).
-English AdS was obtained from the Switchboard-1 Telephone Speech Corpus (Godfrey & Holliman, 1993), a corpus of transcripts from dyadic telephone conversations. French AdS was obtained from the TCOF corpus [@andre2010mise], the CLAPI corpus [@balthasar2005plateforme] and the CFPP corpus [@branca2012discours]. After cleaning, the English AdS yielded `r format(round(subset(total_adult_tokens, source=="speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens, source=="speech")$n, scientific=F)` word types. The French AdS yielded `r format(round( subset(total_adult_tokens_fr, source=="adult_speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_speech")$n, scientific=F)` word types.
+English AdS was obtained from the Switchboard-1 Telephone Speech Corpus (Godfrey & Holliman, 1993), a corpus of transcripts from approximately 2,400 dyadic telephone conversations.
+After cleaning, the English AdS yielded 3104000 tokens across `r format(subset(total_adult_tokens, source=="speech")$n, scientific=F)` word types.
+French AdS was obtained from the TCOF corpus [@andre2010mise], the CLAPI corpus [@balthasar2005plateforme] and the CFPP corpus [@branca2012discours]. The French AdS yielded `r format(round( subset(total_adult_tokens_fr, source=="adult_speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_speech")$n, scientific=F)` word types.
 
 ### Adult-directed Books (AdB).
-The English AdB is comprised of `r format(round(subset(total_adult_tokens, source=="books")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens, source=="books")$n, scientific=F)` word types. The French AdB is comprised of books taken from the 1999 Association de Bibliophiles Universels, an open-source database of french books. After cleaning, it yielded `r format(round(subset(total_adult_tokens_fr, source=="adult_book")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_book")$n, scientific=F)` word types.
+The English AdB corpus is taken from a sample of 1,000 Project Gutenberg books tokens randomly selected by @charlesworth2021gender, totaling 40252700 tokens across `r format(subset(total_adult_tokens, source=="books")$n, scientific=F)` word types. 
+The French AdB is comprised of books taken from the 1999 Association de Bibliophiles Universels, an open-source database of french books. After cleaning, it yielded `r format(round(subset(total_adult_tokens_fr, source=="adult_book")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_book")$n, scientific=F)` word types.
 
 
 ### Adult-directed Media (AdM).
-The English AdM is comprised of `r format(round(subset(total_adult_tokens, source=="TV")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens, source=="TV")$n, scientific=F)` word types. The French AdM corpus is comprised of `r format(round(subset(total_adult_tokens_fr, source=="adult_tv")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_tv")$n, scientific=F)` word types, after cleaning openly accessible movie subtitles (https://www.subsynchro.com/) from 100 films.
+The English AdM is comprised of `r format(round(subset(total_adult_tokens, source=="TV")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens, source=="TV")$n, scientific=F)` word types compiled by @charlesworth2021gender from online transcripts of movies and TV shows dating from the 1960s (e.g., *Doctor Who*) through the present (e.g., *Breaking Bad*). 
+The French AdM corpus is comprised of `r format(round(subset(total_adult_tokens_fr, source=="adult_tv")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_tv")$n, scientific=F)` word types, after cleaning openly accessible movie subtitles (https://www.subsynchro.com/) from 100 films.
 
 ### Age of Acquisition data
 
@@ -640,8 +644,8 @@ The series of ANOVAs indicated that PC1 through PC5 significantly improved the m
 Thus, we analyzed the model that included the first five PCs.
 <!--The R syntax for the formula is `cbind(total_producing, total_not_producing) ~ age * mother_ed * (PC1 + PC2 + PC3 + PC4)`.-->
 
-This model showed significant main effects of age ($\beta = 0.24$), mother's education (college grad+ $\beta = -1.03$), and all five PCs (all $p<.001$).
-Faster learning was predicted for words with higher values on PC1 ($\beta=.10$), PC2 ($\beta=.45$), on PC4 ($\beta=.28$).
+This model showed significant main effects of age, mother's education, and all five PCs (all $p<.001$).
+Faster learning was predicted for words with higher values on PC1 (overall frequency; $\beta=.10$), PC2 (child-directed speech; $\beta=.45$), or PC4 ( $\beta=.28$).
 Slower learning was predicted for words with higher values on PC3 ($\beta=-.34$) or PC5 ($\beta=-.49$).
 
 There was a significant positive interaction of age with mother's education ($\beta=.06$, $p<.001$), shown in Figure 3.
@@ -717,7 +721,7 @@ print(xtable(mom_ed_tab[1:14,], digits=2,
 
 
 
-```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.5, fig.height=3.9, set.cap.width=T, num.cols.cap=1, fig.cap = "Predicted effects of maternal education and PC1-PC4 on the probability of children producing CDI words."}
+```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=4.3, set.cap.width=T, num.cols.cap=1, fig.cap = "Predicted effects of maternal education and PC1-PC4 on the probability of children producing CDI words."}
 # ggpredict returns conditional effects, while ggeffect/ggemmeans return marginal means
 # (i.e. averaged over the levels of factors)
 
