@@ -306,11 +306,14 @@ In summary, the PCs align surprisingly well with particular dimensions of the En
 
 ```{r table1}
 df <- data.frame(
-Order = c("PC1_EN", "PC1_FR", "PC2_EN", "PC2_FR", "PC3_EN", "PC3_FR", "PC4_EN", "PC4_FR", "PC5_EN", "PC5_FR", "PC6_EN", "PC6_FR"),
-Description= c("overall freq", "overall freq", "CDS", "Books vs Speech", "ADS", "CDS vs ADS", "Media vs Books", "Media vs Speech", "CDS vs CDB", "CDM vs ADM", "CDM vs ADM", "CDB vs ADB"),
-Example = c("the (EN)", "le (FR the)", "peekaboo (EN)", "autrement vs gâteau (FR otherwise, sweet)", "mower (EN)", "xxxxx (FR)", "camera vs beads (EN)", "étoile vs voiture (FR star, car)", "juice vs firetruck (EN)", "ferme vs café (FR farm, cafe)", "snowman vs medicine (EN)", "ours vs tuer (FR bear, kill)")) 
+Lang = c("EN", "EN", "EN", "EN","EN","EN", "FR","FR","FR","FR","FR","FR"), 
+Order = c("1", "2", "3", "4", "5", "6", "1", "2", "3", "4", "5", "6"),
+Description = c("overall freq", "CDS", "ADS", "Media/Book", "CDS/CDB", "CDM/ADM",
+ "overall freq","Book/Speech","CDS/ADS", "Media/Speech","CDM/ADM","CDB/ADB"),
+Highest = c("play dough", "don't", "don't", "camera", "grrr", "beans", "doigt de pied", "sombre", "élephant", "parce que", "grand-mère ", "carottes" ),
+Lowest = c("the", "tissue", "gotta", "was", "mommy", "don't", "le", "ça", "lequel", "salut", "madeleine", "grand-mère")
+) 
 
-#  c("Freq:-.39...-.44", "ChS:.63; AdB:-.67", "AdS:.67; ChM:-.68", "ChM:.55; ChS:-.63", #"AdM:-.83; AdS:.50", "ChB:.79; AdB:.-56"))
 papaja::apa_table(df, caption="Descriptions of English and French PCs")
 
 ```
