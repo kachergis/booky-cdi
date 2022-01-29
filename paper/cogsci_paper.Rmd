@@ -18,7 +18,7 @@ abstract: >
     of word frequency distributions from these different input sources, there is also significant
     and predictable variability between them. For example, function words are far more frequent
     in books than in everyday speech, while early-learned nouns (e.g., 'ball' and 'mommy') are 
-    more frequent in child-directed speech than from other sources. Children receive a mixture 
+    more frequent in child-directed speech than in other sources. Children receive a mixture 
     of these different frequency distributions. The goal of this paper is to better understand
     the shared and unique variance in these sources of input--in both English and French--and 
     to evaluate how predictive these input frequencies are of children's early word learning.
@@ -81,13 +81,13 @@ For instance, word frequency in books is not the same as frequency in conversati
 
 Some differences between frequency distributions are intuitive: "mommy" is quite frequent in child-directed speech, yet not so common in children's books, and even more rare in books meant for all ages. But other differences are less intuitive: "of" is frequent in books meant for all ages, and while still frequent in child-directed speech, it is relatively less frequent as compared to children's books. In general, speech -- whether directed to children or to adults -- contains relatively fewer function words and tends to score lower on measures of lexical diversity than books, which have a higher ratio of types (unique words) per set of tokens [instances of words; @dawson2021features].
 
-In this paper, we have three goals. First, we examine shared and unique variance in word frequency across different sources of English and French input, ranging from children's books and movies to child-directed speech and even comparing to adult-directed books, movies, and speech. Because of the substantial correlations between these different input sources, we employ principal components analysis (PCA) for dimensionality reduction. 
+In this paper, we have three goals. Question 1: First, we examine shared and unique variance in word frequency across different sources of English and French input, ranging from children's books and movies to child-directed speech and even comparing to adult-directed books, movies, and speech. Because of the substantial correlations between these different input sources, we employ principal components analysis (PCA) for dimensionality reduction. 
 
-Second, we investigate how well these components predict English- and French-learning children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. CDIs are parent report forms for children's early vocabulary, and they have proven to be reliable and valid indicators of child's language [@fenson1994variability]. Critically, CDI forms provide details about the individual words that children produce. These data allow us to investigate the role of different frequency sources using the Age of Acquisition (AoA) prediction paradigm, in which we use regression models to predict each CDI item's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency; @goodman2008]. 
+Question 2: Second, we investigate how well these components predict English- and French-learning children's early word learning, using aggregate MacArthur-Bates Communicative Development Inventories (CDI) data from Wordbank [@frank2017wordbank]. CDIs are parent report forms for children's early vocabulary, and they have proven to be reliable and valid indicators of child's language [@fenson1994variability]. Critically, CDI forms provide details about the individual words that children produce. These data allow us to investigate the role of different frequency sources using the Age of Acquisition (AoA) prediction paradigm, in which we use regression models to predict each CDI item's mean Age of Acquisition (AoA) -- the mean age (in months) at which 50% of children are expected to know a given word [@braginsky2019consistency; @goodman2008]. 
 
 <!-- We expect less contribution to word learning from adult-directed speech, movies and books, because of other factors relevant to quality: for example, adult-directed sources may include longer length of utterances, more lexical diversity and less interaction compared with child-directed speech, movies and books [@rowe2012longitudinal]. Factors may also relate to quantity; children may simply receive less language from adult-directed sources. -->
 
-Third, we examine how well different input sources predict SES differences in  word learning for English-learning children. We index SES using maternal education, a common proxy measure. Young children from higher-SES households tend to have larger vocabulary [@fernald2013ses] and parents with higher-SES tend to report reading more to their young children than parents with lower SES. 
+Question 3: Third, we examine how well different input sources predict SES differences in  word learning for English-learning children. We index SES using maternal education, a common proxy measure. Young children from higher-SES households tend to have larger vocabulary [@fernald2013ses] and parents with higher-SES tend to report reading more to their young children than parents with lower SES. 
 
 <!-- Can vocabulary composition of children from higher-SES households be better predicted by book word frequency? -->
 
@@ -163,8 +163,7 @@ The French AdM corpus is comprised of `r format(round(subset(total_adult_tokens_
 
 ### Age of Acquisition data
 
-Children's early word learning data is drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from 5520 children aged 16-30 months for the American English CDI: Words & Sentences (WS) form, and 641 children for the French French CDI:WS form). Age of acquisition estimates were calculated via the wordbankr package using the XYZ method. 
-<!-- FIXME -->
+Children's early word learning data is drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from 5520 children aged 16-30 months for the American English CDI: Words & Sentences (WS) form, and 641 children for the French French CDI:WS form). Age of acquisition estimates were calculated via the wordbankr package. We computed the proportion of children at each age who were reported to produce each word on the CDI forms completed by parents. We then fit a curve to these proportions using a regression model, got the distribution of acquisition trajectory for each word and determined when the curve crosses 0.5 (when at least 50% of children produce the word) . 
 
 
 ## Merging the Corpora
@@ -313,16 +312,18 @@ In summary, the PCs align surprisingly well with particular dimensions of the En
 ```{r table1}
 df <- data.frame(
 Lang = c("EN", "EN", "EN", "EN","EN","EN", "FR","FR","FR","FR","FR","FR"), 
-Order = c("1", "2", "3", "4", "5", "6", "1", "2", "3", "4", "5", "6"),
+PC = c("1", "2", "3", "4", "5", "6", "1", "2", "3", "4", "5", "6"),
 Description = c("overall freq", "CDS", "ADS", "Media/Book", "CDS/CDB", "CDM/ADM",
  "overall freq","Book/Speech","CDS/ADS", "Media/Speech","CDM/ADM","CDB/ADB"),
 Highest = c("play dough", "don't", "don't", "camera", "grrr", "beans", "doigt de pied", "sombre", "élephant", "parce que", "grand-mère ", "carottes" ),
 Lowest = c("the", "tissue", "gotta", "was", "mommy", "don't", "le", "ça", "lequel", "salut", "madeleine", "grand-mère")
 ) 
 
-papaja::apa_table(df, caption="Descriptions of English and French PCs")
+papaja::apa_table(df, caption="Descriptions of English and French PCs based on their order of importance, as well as the words with the highest and lowest values within each PC. CDS stands for child-directed speech. ADS stands for adult-directed speech. CDB stands for child-directed books. CDM stands for child-directed media. ADM stands for adult-directed speech. ADB stands for adult-directed books. EN stands for English and FR stands for French. 'le' = 'the', 'ça' = 'this', 'lequel' = 'which', 'salut' = 'hi', 'madeleine' = 'small cake', 'grand-mère' = 'grandmother', 'doigt de pied' = 'toe', 'sombre' = 'dark', 'parce que' = 'because', 'carottes' = 'carrots'.")
 
 ```
+
+
 
 <!-- standard deviation (Std Dev) and proportion of variance explained, both individually (Prop Var) and cumulatively (Cum Prop Var) by the principal components (PC1-PC6) for each language. 
 PC1 already explains the bulk of the variance (`r round(pc_imp_en[2,1],3)*100`% for English and `r round(pc_imp_fr[2,1],3)*100`% for French); and PC2-PC4 each only capture an additional 2-4% of the variance for English, and 5-8% for French.  -->
@@ -364,7 +365,7 @@ row.names(en_rot)[7] = "PVar"
 #  kable_styling(latex_options = "striped", stripe_index = 7)
 
 en_rot %>%
-  kbl(caption = "English principal component rotations.", digits=2, booktabs=T) %>%
+  kbl(caption = "English PC rotations and the proportion of variance (PVar) for each PC. The lowest values have black cells, and the highest values have orange cells.", digits=2, booktabs=T) %>%
   column_spec(2, italic=c(T,T,T,T,T,T,F), color="white", background=spec_color(en_rot[,1], option="A", end=.8)) %>% # PC1
   column_spec(3, bold=c(F,F,T,F,T,F,F), color="white", background=spec_color(en_rot[,2], option="A", end=.8)) %>% # PC2
   column_spec(4, bold=c(T,F,F,F,F,T,F), color="white", background=spec_color(en_rot[,3], option="A", end=.8)) %>%
@@ -566,12 +567,9 @@ PC3 and PC6 each interacted with function words, which are learned later than no
 For French, PC2 significantly predicts the age of acquisition, implying the importance of both speech and book sources in explaining variation. In general, the PC1 coefficient direction indicates that frequent words are learned earlier than less frequent words, but it is not a significant predictor in this regression. This could be attributed to  PC1 being explained away by PC2, or it is an artifact of the data e.g. some lexical category being more represented than others). PC1 interacts significantly with function words. Verbs are also a significant predictor. 
 In both languages, there is no significant effect of word length. 
 
-To sum up, in both languages, we observe that the predictive value of word frequency comes from both speech and books. However, for English, the difference across registers (difficulty of adult-directed versus child-directed) is emphasized. For French, the difference and difficulty of text, independent of register, is emphasized.
 
 
-
-
-```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom)."}
+```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Significant regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom). 'func' stands for function words, 'other' stands for words refering to games, routines and people. 'adj' stands for 'adjective'. "}
 # could try adding in PCs one by one..
 
 ddbsa$LC <- fct_relevel(ddbsa$LC, "noun")
@@ -621,11 +619,11 @@ en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCadj", "LCfunc", "LCother",
 fr_coef_list = c("PC1", "PC2","LC:verb","PC1:LCfunc")
 
 e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, 
-              mar=c(5.5,2.5,2,2), col.pts="red", cex=.8, xlab='') + 
-  theme_bw() + theme(plot.title = element_text(size=10))
+              mar=c(5.5,2.5,2,2), col.pts="red", cex=.8, xlab='', ylab='') + 
+  theme_bw() 
 f<-coefplot(pca_lc2_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, vertical=TRUE, 
-              mar=c(5.5,2.5,2,2), cex=.8, xlab='', offset=.2) + 
-  theme_bw() + theme(plot.title = element_text(size=10))
+              mar=c(5.5,2.5,2,2), cex=.8, ylab='', xlab='', offset=.2) + 
+  theme_bw()
 
 #multiplot(English, French, coefficients = en_coef_list, cex=.8, xlab='', decreasing=TRUE)+
 #  theme_bw() + 
@@ -633,6 +631,8 @@ f<-coefplot(pca_lc2_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, v
 
 ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1))
 ```
+
+To sum up, in both languages, we observe that the predictive value of word frequency comes from both speech and books. However, for English, the difference across registers (difficulty of adult-directed versus child-directed) is emphasized. For French, the difference and difficulty of text, independent of register, is emphasized.
 
 
 ## Principal components and maternal education (Q3)
