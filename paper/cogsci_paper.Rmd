@@ -632,14 +632,25 @@ ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1))
 ## Principal components and maternal education (Q3)
 
 Previous findings relate SES status to book reading [@shen2022parent], which is in turn related to better language skills [@bus1995joint]. 
-These findings suggest that the vocabulary composition of children from higher-SES households may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. To test this idea, we did an exploratory logistic regression using the first four PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age. Due to lack of maternal education data for French data, we focus on American English-learning children. American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education coded as a factor (baseline (0): no more than secondary education (N=547), 1 for some/all college (N=1483), and 2 for at least some graduate school (N=746)).
+These findings suggest that the vocabulary composition of children whose mothers are more highly-educated (a proxy for household SES) may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
+To test this idea, we did a series of exploratory logistic regressions successively adding the PCs to predict the number of children in Wordbank who produce or don't produce each item, along with interactions of mother's education and children's age with each included PC.
+Due to lack of maternal education data for French data, we focus on American English-learning children. 
+American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education dichotomously coded (N=1160 with at most some college education; N=1616 with a college degree or more).
+The series of ANOVAs indicated that PC1 through PC5 significantly improved the model fits, but that adding PC6 was not justified.
+Thus, we analyzed the model that included the first five PCs.
 <!--The R syntax for the formula is `cbind(total_producing, total_not_producing) ~ age * mother_ed * (PC1 + PC2 + PC3 + PC4)`.-->
 
-There were significant main effects of age, mother's education, and PC1-PC4 (all $p<.001$).
-There were significant interactions of age with mother's education ($p<.001$), PC2 ($p<.001$), and PC4 ($p=.009$).
-There were significant interactions of mother's education with PC1-PC3 (all $p<.001$), shown in Figure 3.
+This model showed significant main effects of age ($\beta = 0.24$), mother's education (college grad+ $\beta = -1.03$), and all five PCs (all $p<.001$).
+Faster learning was predicted for words with higher values on PC1 ($\beta=.10$), PC2 ($\beta=.45$), on PC4 ($\beta=.28$).
+Slower learning was predicted for words with higher values on PC3 ($\beta=-.34$) or PC5 ($\beta=-.49$)
 
+There was a significant positive interaction of age with mother's education ($\beta=.06$, $p<.001$), shown in Figure 3.
+There were also significant interactions of age and all five PCs, although the coefficients were all of a small magnitude ($\beta$s < .01).
+Only PC1 and PC5 interacted significantly with mother's education.
+Shown in Figure 3, children of higher-educated mothers were more likely to know words that were higher on PC1 (overall frequency; $\beta = .03$, $p<.001$), while they were less likely to know words that were high on PC5 ($\beta = -.09$, $p=.01$).
+Words more frequent in child-directed speech are high on PC5, while words that are more often in child-directed books are low on PC5, meaning that this interaction indicates children with higher-educated mothers are more likely to learn booky (rather than speechy) words.
 
+There was one significant 3-way interaction of age, mother's education, and PC1, with a small magnitude negative coefficient ($\beta=-.001$).
 
 ```{r en-momed-regression, include=T, results='asis'}
 load(here("data/en_ws.Rdata"))
@@ -690,7 +701,9 @@ en6 <- glmer(cbind(total_prod, total_not_prod) ~ age * MotherEd * (PC1 + PC2 + P
 #anova(en3, en4) # en4***
 #anova(en4, en5) # en5***
 #anova(en5, en6) # en5 p=.1
+```
 
+```{r, include=F}
 #summary(en2)
 #summary(en3)
 mom_ed_tab <- summary(en5)$coefficients
@@ -716,6 +729,10 @@ print(xtable(mom_ed_tab[1:14,], digits=2,
 #  ylab("Probability of Production") + ggtitle("")
 
 ylab_momed = "Prob. of Production"
+
+age_momed <- ggpredict(en5, c("age", "MotherEd")) %>% plot() + # consider using "PC1 [all]" ?
+  ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
+  theme(plot.title = element_blank())
 
 # all of the PCs have sig. main effects, as well as significant interactions with age.
 age_pc1 <- ggpredict(en5, c("age", "PC1")) %>% plot() + # consider using "PC1 [all]" ?
@@ -746,7 +763,7 @@ pc5 <- ggpredict(en5, c("PC5", "MotherEd")) %>% plot() +
   ylab(ylab_momed) + ggtitle("") + theme_classic(base_size=10) + 
   theme(plot.title = element_blank())
 
-ggarrange(pc1, pc5, nrow=2, ncol=1, common.legend = T)
+ggarrange(age_momed, pc1, pc5, nrow=3, ncol=1, common.legend = T)
 ```
 
 
