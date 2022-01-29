@@ -459,46 +459,35 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
 ```
 
 
-```{r}
+```{r, include=F}
 ## Correlation of PCs with AoA
 aoa_pc_en <- ddbsa %>% 
   group_by(LC) %>%
-  summarise(PC1 = cor(aoa, PC1),
-            PC2 = cor(aoa, PC2),
-            PC3 = cor(aoa, PC3),
-            PC4 = cor(aoa, PC4),
-            PC5 = cor(aoa, PC5),
-            PC6 = cor(aoa, PC6))
+  summarise(PC1 = cor(aoa, PC1), PC2 = cor(aoa, PC2), PC3 = cor(aoa, PC3),
+            PC4 = cor(aoa, PC4), PC5 = cor(aoa, PC5), PC6 = cor(aoa, PC6))
 
-#aoa_pc_en %>%
-#  papaja::apa_table(digits=2, caption="Correlation of English AoA with PC loadings by LC.", placement='h')
 aoa_pc_en <- as.data.frame(aoa_pc_en)
+sc = c(min(unlist(aoa_pc_en[,2:7])), max(unlist(aoa_pc_en[,2:7])))
 aoa_pc_en %>%
   kbl(caption = "Correlation of English AoA with PC loadings by LC.", digits=2, booktabs=T) %>%
-  column_spec(2, color="white", background=spec_color(aoa_pc_en[,2], option="A", end=.8)) %>% # PC1
-  column_spec(3, color="white", background=spec_color(aoa_pc_en[,3], option="A", end=.8)) %>% # PC2
-  column_spec(4, color="white", background=spec_color(aoa_pc_en[,4], option="A", end=.8)) %>%
-  column_spec(5, color="white", background=spec_color(aoa_pc_en[,5], option="A", end=.8)) %>%
-  column_spec(6, color="white", background=spec_color(aoa_pc_en[,6], option="A", end=.8)) %>%
-  column_spec(7, color="white", background=spec_color(aoa_pc_en[,7], option="A", end=.8)) %>%
+  column_spec(2, color="white", background=spec_color(aoa_pc_en[,2], option="A", end=.8, scale_from=sc)) %>% # PC1
+  column_spec(3, color="white", background=spec_color(aoa_pc_en[,3], option="A", end=.8, scale_from=sc)) %>% # PC2
+  column_spec(4, color="white", background=spec_color(aoa_pc_en[,4], option="A", end=.8, scale_from=sc)) %>%
+  column_spec(5, color="white", background=spec_color(aoa_pc_en[,5], option="A", end=.8, scale_from=sc)) %>%
+  column_spec(6, color="white", background=spec_color(aoa_pc_en[,6], option="A", end=.8, scale_from=sc)) %>%
+  column_spec(7, color="white", background=spec_color(aoa_pc_en[,7], option="A", end=.8, scale_from=sc)) %>%
   column_spec(1, color="black", background = "white") 
 ```
 
 
-```{r}
+```{r, include=F}
 aoa_pc_fr <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
   group_by(LC) %>%
-  summarise(PC1 = cor(aoa, PC1),
-            PC2 = cor(aoa, PC2),
-            PC3 = cor(aoa, PC3),
-            PC4 = cor(aoa, PC4),
-            PC5 = cor(aoa, PC5),
-            PC6 = cor(aoa, PC6)) 
-
-#aoa_pc_fr %>%
-#  papaja::apa_table(digits=2, caption="Correlation of French AoA with PC loadings by lexical class.", placement='h')
+  summarise(PC1 = cor(aoa, PC1), PC2 = cor(aoa, PC2), PC3 = cor(aoa, PC3),
+            PC4 = cor(aoa, PC4), PC5 = cor(aoa, PC5), PC6 = cor(aoa, PC6)) 
 
 aoa_pc_fr <- as.data.frame(aoa_pc_fr)
+sc = c(-.4,.4) #c(min(unlist(aoa_pc_fr[,2:7])), max(unlist(aoa_pc_fr[,2:7])))
 aoa_pc_fr %>%
   kbl(caption = "Correlation of French AoA with PC loadings by LC.", digits=2, booktabs=T) %>%
   column_spec(2, color="white", background=spec_color(aoa_pc_fr[,2], option="A", end=.8)) %>% # PC1
@@ -511,8 +500,8 @@ aoa_pc_fr %>%
 ```
 
 
-```{r, include=T}
-## Correlation of PCs with AoA
+```{r, include=F}
+## Mean PC values by LC
 m_pc_en <- ddbsa %>% 
   group_by(LC) %>%
   summarise(PC1 = mean(PC1), PC2 = mean(PC2), PC3 = mean(PC3), 
@@ -531,8 +520,8 @@ m_pc_en %>%
 ```
 
 
-```{r, include=T}
-## Correlation of PCs with AoA
+```{r, include=F}
+## Mean PC values by LC
 m_pc_fr <- ddbsa_fr %>% 
   group_by(LC) %>%
   summarise(PC1 = mean(PC1), PC2 = mean(PC2), PC3 = mean(PC3), 
