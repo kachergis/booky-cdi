@@ -407,6 +407,24 @@ We thus used the CDI items' PCA loadings in lieu of the frequency distributions 
 
 <!-- Figures showing the loadings of CDI items on PC1-PC4 by lexical class vs. the average age of acquisition (AoA; in months) can be found on [OSF](https://osf.io/46gj2/?view_only=2db5950a96a44f289b6e778e60391662). -->
 
+```{r}
+ddbsa <- ddbsa %>%
+  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
+                        lexical_class=="verbs" ~ "verb",
+                        lexical_class=="adjectives" ~ "adj",
+                        lexical_class=="function_words" ~ "func",
+                        lexical_class=="other" ~ "other",
+                        TRUE ~ as.character(lexical_class)))
+
+ddbsa_fr <- ddbsa_fr %>%
+  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
+                        lexical_class=="verbs" ~ "verb",
+                        lexical_class=="adjectives" ~ "adj",
+                        lexical_class=="function_words" ~ "func",
+                        lexical_class=="other" ~ "other",
+                        TRUE ~ as.character(lexical_class)))
+
+```
 
 
 ```{r raw-logfreq-aoa-regression, include=F, results='asis'}
@@ -444,8 +462,7 @@ cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>
 ```{r}
 ## Correlation of PCs with AoA
 aoa_pc_en <- ddbsa %>% 
-  mutate(`Lexical Class` = ifelse(lexical_class=="function_words", "func. word", lexical_class)) %>%
-  group_by(`Lexical Class`) %>%
+  group_by(LC) %>%
   summarise(PC1 = cor(aoa, PC1),
             PC2 = cor(aoa, PC2),
             PC3 = cor(aoa, PC3),
@@ -470,8 +487,7 @@ aoa_pc_en %>%
 
 ```{r}
 aoa_pc_fr <- ddbsa_fr %>% filter(aoa<40, !is.na(aoa)) %>%
-  mutate(`Lexical Class` = ifelse(lexical_class=="function_words", "func. word", lexical_class)) %>%
-  group_by(`Lexical Class`) %>%
+  group_by(LC) %>%
   summarise(PC1 = cor(aoa, PC1),
             PC2 = cor(aoa, PC2),
             PC3 = cor(aoa, PC3),
@@ -491,6 +507,46 @@ aoa_pc_fr %>%
   column_spec(5, color="white", background=spec_color(aoa_pc_fr[,5], option="A", end=.8)) %>%
   column_spec(6, color="white", background=spec_color(aoa_pc_fr[,6], option="A", end=.8)) %>%
   column_spec(7, color="white", background=spec_color(aoa_pc_fr[,7], option="A", end=.8)) %>%
+  column_spec(1, color="black", background = "white") 
+```
+
+
+```{r, include=T}
+## Correlation of PCs with AoA
+m_pc_en <- ddbsa %>% 
+  group_by(LC) %>%
+  summarise(PC1 = mean(PC1), PC2 = mean(PC2), PC3 = mean(PC3), 
+            PC4 = mean(PC4), PC5 = mean(PC5), PC6 = mean(PC6))
+
+m_pc_en <- as.data.frame(m_pc_en)
+m_pc_en %>%
+  kbl(caption = "Mean PC values of English words by lexical class.", digits=2, booktabs=T) %>%
+  column_spec(2, color="white", background=spec_color(m_pc_en[,2], option="A", end=.8)) %>% # PC1
+  column_spec(3, color="white", background=spec_color(m_pc_en[,3], option="A", end=.8)) %>% # PC2
+  column_spec(4, color="white", background=spec_color(m_pc_en[,4], option="A", end=.8)) %>%
+  column_spec(5, color="white", background=spec_color(m_pc_en[,5], option="A", end=.8)) %>%
+  column_spec(6, color="white", background=spec_color(m_pc_en[,6], option="A", end=.8)) %>%
+  column_spec(7, color="white", background=spec_color(m_pc_en[,7], option="A", end=.8)) %>%
+  column_spec(1, color="black", background = "white") 
+```
+
+
+```{r, include=T}
+## Correlation of PCs with AoA
+m_pc_fr <- ddbsa_fr %>% 
+  group_by(LC) %>%
+  summarise(PC1 = mean(PC1), PC2 = mean(PC2), PC3 = mean(PC3), 
+            PC4 = mean(PC4), PC5 = mean(PC5), PC6 = mean(PC6))
+
+m_pc_fr <- as.data.frame(m_pc_fr)
+m_pc_fr %>%
+  kbl(caption = "Mean PC values of French words by lexical class.", digits=2, booktabs=T) %>%
+  column_spec(2, color="white", background=spec_color(m_pc_fr[,2], option="A", end=.8)) %>% # PC1
+  column_spec(3, color="white", background=spec_color(m_pc_fr[,3], option="A", end=.8)) %>% # PC2
+  column_spec(4, color="white", background=spec_color(m_pc_fr[,4], option="A", end=.8)) %>%
+  column_spec(5, color="white", background=spec_color(m_pc_fr[,5], option="A", end=.8)) %>%
+  column_spec(6, color="white", background=spec_color(m_pc_fr[,6], option="A", end=.8)) %>%
+  column_spec(7, color="white", background=spec_color(m_pc_fr[,7], option="A", end=.8)) %>%
   column_spec(1, color="black", background = "white") 
 ```
 
@@ -518,13 +574,7 @@ To sum up, in both languages, we observe that the predictive value of word frequ
 
 ```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom)."}
 # could try adding in PCs one by one..
-ddbsa <- ddbsa %>%
-  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
-                        lexical_class=="verbs" ~ "verb",
-                        lexical_class=="adjectives" ~ "adj",
-                        lexical_class=="function_words" ~ "func",
-                        lexical_class=="other" ~ "other",
-                        TRUE ~ as.character(lexical_class)))
+
 ddbsa$LC <- fct_relevel(ddbsa$LC, "noun")
 pca_lc1 <- lm(aoa ~ PC1 * LC, data=ddbsa) # R^2=.26
 pca_lc2 <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa) # R^2=.47
@@ -547,21 +597,14 @@ names(pca_tab2) = c("Beta","SE","t-val","p-val")
 #             caption = "Regression predicting English CDI AoAs with PCs and lexical class.",
 #             table.placement = "H"), comment=F)
 
-ddbsa_fr_ <- ddbsa_fr %>%
-  mutate(LC = case_when(lexical_class=="nouns" ~ "noun",
-                        lexical_class=="verbs" ~ "verb",
-                        lexical_class=="adjectives" ~ "adj",
-                        lexical_class=="function_words" ~ "func",
-                        lexical_class=="other" ~ "other",
-                        TRUE ~ as.character(lexical_class)))
-ddbsa_fr_$LC <- fct_relevel(ddbsa_fr_$LC, "noun")
-pca_lc1_fr <- lm(aoa ~ PC1 * LC, data=ddbsa_fr_) 
-pca_lc2_fr <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa_fr_) 
-pca_lc3_fr <- lm(aoa ~ (PC1 + PC2 + PC3) * LC, data=ddbsa_fr_)
-pca_lc4_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa_fr_)
-pca_lc5_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa_fr_) 
-pca_lc6_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6  + Nletters) * LC, data=ddbsa_fr_)
-French <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6  + Nletters) * LC, data=ddbsa_fr_)
+ddbsa_fr$LC <- fct_relevel(ddbsa_fr$LC, "noun")
+pca_lc1_fr <- lm(aoa ~ PC1 * LC, data=ddbsa_fr) 
+pca_lc2_fr <- lm(aoa ~ (PC1 + PC2) * LC, data=ddbsa_fr) 
+pca_lc3_fr <- lm(aoa ~ (PC1 + PC2 + PC3) * LC, data=ddbsa_fr)
+pca_lc4_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4) * LC, data=ddbsa_fr)
+pca_lc5_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5) * LC, data=ddbsa_fr) 
+pca_lc6_fr <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6  + Nletters) * LC, data=ddbsa_fr)
+French <- lm(aoa ~ (PC1 + PC2 + PC3 + PC4 + PC5 + PC6  + Nletters) * LC, data=ddbsa_fr)
 
 ttt_fr <- anova(pca_lc1_fr, pca_lc2_fr) # 2***
 ttt_fr <- rbind(ttt_fr, anova(pca_lc2_fr, pca_lc3_fr)[2,]) # not better! PC1 + PC2 only
@@ -581,7 +624,7 @@ fr_coef_list = c("PC1","PC2","PC4:LCadj","PC5:LCfunc","PC6:LCother")
 e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, 
               mar=c(5.5,2.5,2,2), col.pts="red", cex=.8, xlab='') + 
   theme_bw() + theme(plot.title = element_text(size=10))
-f<-coefplot(pca_lc6_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, vertical=TRUE, 
+f<-coefplot(pca_lc2_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, vertical=TRUE, 
               mar=c(5.5,2.5,2,2), cex=.8, xlab='', offset=.2) + 
   theme_bw() + theme(plot.title = element_text(size=10))
 
