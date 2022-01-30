@@ -20,8 +20,8 @@ abstract: >
     in books than in everyday speech, while early-learned nouns (e.g., 'ball' and 'mommy') are 
     more frequent in child-directed speech than in other sources. Children receive a mixture 
     of these different frequency distributions. The goal of this paper is to better understand
-    the shared and unique variance in these sources of input--in both English and French--and 
-    to evaluate how predictive these input frequencies are of children's early word learning.
+    the shared and unique variance in these input sources--in both English and French--and 
+    to evaluate how predictive these distributions are of children's early word learning.
     
 keywords: >
     early language learning; CDI; vocabulary development; word frequency distributions.
@@ -313,15 +313,18 @@ In summary, the PCs align surprisingly well with particular dimensions of the En
 
 ```{r table1}
 df <- data.frame(
-Lang = c("EN", "EN", "EN", "EN","EN","EN", "FR","FR","FR","FR","FR","FR"), 
-PC = c("1", "2", "3", "4", "5", "6", "1", "2", "3", "4", "5", "6"),
-Description = c("overall freq", "CDS", "ADS", "Media/Book", "CDS/CDB", "CDM/ADM",
- "overall freq","Book/Speech","CDS/ADS", "Media/Speech","CDM/ADM","CDB/ADB"),
-Highest = c("play dough", "don't", "don't", "camera", "grrr", "beans", "doigt de pied", "sombre", "élephant", "parce que", "grand-mère ", "carottes" ),
-Lowest = c("the", "tissue", "gotta", "was", "mommy", "don't", "le", "ça", "lequel", "salut", "madeleine", "grand-mère")
+  Lang = c("EN", "EN", "EN", "EN","EN","EN", "FR","FR","FR","FR","FR","FR"), 
+  PC = c("1", "2", "3", "4", "5", "6", 
+         "1", "2", "3", "4", "5", "6"),
+  Description = c("overall freq", "CDS", "ADS", "Media/Book", "CDS/CDB", "CDM/ADM",
+                  "overall freq","Book/Speech","CDS/ADS", "Media/Speech","CDM/ADM","CDB/ADB"),
+  Highest = c("play dough", "don't", "don't", "camera", "grrr", "beans", 
+              "doigt de pied", "sombre", "élephant", "parce que", "grand-mère ", "carottes"),
+  Lowest = c("the", "tissue", "gotta", "was", "mommy", "don't", 
+             "le", "ça", "lequel", "salut", "madeleine", "grand-mère")
 ) 
 
-papaja::apa_table(df, caption="Descriptions of English and French PCs based on their order of importance, as well as the words with the highest and lowest values within each PC. CDS stands for child-directed speech. ADS stands for adult-directed speech. CDB stands for child-directed books. CDM stands for child-directed media. ADM stands for adult-directed speech. ADB stands for adult-directed books. EN stands for English and FR stands for French. 'le' = 'the', 'ça' = 'this', 'lequel' = 'which', 'salut' = 'hi', 'madeleine' = 'small cake', 'grand-mère' = 'grandmother', 'doigt de pied' = 'toe', 'sombre' = 'dark', 'parce que' = 'because', 'carottes' = 'carrots'.")
+papaja::apa_table(df, caption="English (EN) & French (FR) PC descriptions.", note="PCs ordered by importance, and example words have highest and lowest values on each PC. CDS = child-directed speech; ADS = adult-directed speech; CDB = child-directed books; CDM = child-directed media; ADM = adult-directed speech; ADB = adult-directed books. FR to EN translations: 'le' = 'the', 'ça' = 'this', 'lequel' = 'which', 'salut' = 'hi', 'madeleine' = 'small cake', 'grand-mère' = 'grandmother', 'doigt de pied' = 'toe', 'sombre' = 'dark', 'parce que' = 'because', 'carottes' = 'carrots'.")
 
 ```
 
@@ -367,7 +370,7 @@ row.names(en_rot)[7] = "PVar"
 #  kable_styling(latex_options = "striped", stripe_index = 7)
 
 en_rot %>%
-  kbl(caption = "English PC rotations and the proportion of variance (PVar) for each PC. The lowest values have black cells, and the highest values have orange cells.", digits=2, booktabs=T) %>%
+  kbl(caption = "English PC rotations and proportion of variance (PVar) for each PC, colored by value (low=black; high=orange).", digits=2, booktabs=T) %>%
   column_spec(2, italic=c(T,T,T,T,T,T,F), color="white", background=spec_color(en_rot[,1], option="A", end=.8)) %>% # PC1
   column_spec(3, bold=c(F,F,T,F,T,F,F), color="white", background=spec_color(en_rot[,2], option="A", end=.8)) %>% # PC2
   column_spec(4, bold=c(T,F,F,F,F,T,F), color="white", background=spec_color(en_rot[,3], option="A", end=.8)) %>%
@@ -551,7 +554,8 @@ m_pc_fr %>%
   column_spec(1, color="black", background = "white") 
 ```
 
-Given that past research has found that lexical class strongly modulates influences of word frequency, we included the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of producing each word [within each language, this predictor is extremely correlated with the number of phonemes and serves as a good proxy for production complexity; @braginsky2018consistency]. To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6 -- in decreasing order of the variance they accounted for in the PCA[^p]. 
+Given that past research has found that lexical class strongly modulates influences of word frequency, we included the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of producing each word [within each language, this predictor is extremely correlated with the number of phonemes and serves as a good proxy for production complexity; @braginsky2019consistency].
+To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6 -- in decreasing order of the variance they accounted for in the PCA[^p]. 
 For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$). For French, the model which only included PC1 and PC2 as predictors was significantly preferred, even though the french model explained less variation of the dependent value overall ($R^2 = .06$). Figure 2 shows the coefficient estimates with p<0.05 for both languages.
 
 [^p]:The R syntax for the sequence of regressions was `AoA`$\sim$`PC1*LC`, `AoA`$\sim$`(PC1+PC2)*LC`, ..., `AoA`$\sim$`(PC1+PC2+PC3+PC4+PC5+PC6)*LC`, with noun as the baseline LC.
@@ -618,13 +622,13 @@ en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCadj", "LCfunc", "LCother",
               "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc", "Nletters:LCfunc")
 
 #fr_coef_list = c("PC1","PC2","PC3","PC4","LCadj","LCverb","PC1:LCadj","PC1:LCfunc","PC1:LCother")
-fr_coef_list = c("PC1", "PC2","LC:verb","PC1:LCfunc")
+fr_coef_list = c("PC1", "PC2", "LCverb","PC1:LCfunc") # "LCadj", "LCfunc",
 
-e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, 
-              mar=c(5.5,2.5,2,2), col.pts="red", cex=.8, xlab='', ylab='') + 
+e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, title="English AoA Coefficients",
+              col.pts="red", mar=c(1,1,1,1), cex=.8, xlab='', ylab='') + # mar=c(5.5,2.5,2,2), 
   theme_bw() 
 f<-coefplot(pca_lc2_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, vertical=TRUE, 
-              mar=c(5.5,2.5,2,2), cex=.8, ylab='', xlab='', offset=.2) + 
+              title="French AoA Coefficients", mar=c(1,1,1,1), cex=.8, ylab='', xlab='', offset=.2) + # mar=c(3.5,2.5,2,2),
   theme_bw()
 
 #multiplot(English, French, coefficients = en_coef_list, cex=.8, xlab='', decreasing=TRUE)+
