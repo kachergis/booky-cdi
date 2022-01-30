@@ -324,7 +324,7 @@ df <- data.frame(
              "le", "ça", "lequel", "salut", "madeleine", "grand-mère")
 ) 
 
-papaja::apa_table(df, caption="English (EN) & French (FR) PC descriptions.", note="PCs ordered by importance, and example words have highest and lowest values on each PC. CDS = child-directed speech; ADS = adult-directed speech; CDB = child-directed books; CDM = child-directed media; ADM = adult-directed speech; ADB = adult-directed books. FR to EN translations: 'le' = 'the', 'ça' = 'this', 'lequel' = 'which', 'salut' = 'hi', 'madeleine' = 'small cake', 'grand-mère' = 'grandmother', 'doigt de pied' = 'toe', 'sombre' = 'dark', 'parce que' = 'because', 'carottes' = 'carrots'.")
+papaja::apa_table(df, caption="English (EN) & French (FR) PC descriptions.", note="PCs ordered by importance, and example words have highest and lowest values on each PC. CDS = child-directed speech; ADS = adult-directed speech; CDB = child-directed books; CDM = child-directed media; ADM = adult-directed speech; ADB = adult-directed books. FR to EN translations: `le' = `the', `ça' = `this', `lequel' = `which', `salut' = 'hi', `madeleine' = `cookie', `grand-mère' = `grandmother', `doigt de pied' = `toe', `sombre' = `dark', `parce que' = `because', `carottes' = `carrots'.")
 
 ```
 
@@ -370,7 +370,7 @@ row.names(en_rot)[7] = "PVar"
 #  kable_styling(latex_options = "striped", stripe_index = 7)
 
 en_rot %>%
-  kbl(caption = "English PC rotations and proportion of variance (PVar) for each PC, colored by value (low=black; high=orange).", digits=2, booktabs=T) %>%
+  kbl(caption = "English PC rotations and proportion of variance (PVar), colored by value (low=black; high=orange).", digits=2, booktabs=T) %>%
   column_spec(2, italic=c(T,T,T,T,T,T,F), color="white", background=spec_color(en_rot[,1], option="A", end=.8)) %>% # PC1
   column_spec(3, bold=c(F,F,T,F,T,F,F), color="white", background=spec_color(en_rot[,2], option="A", end=.8)) %>% # PC2
   column_spec(4, bold=c(T,F,F,F,F,T,F), color="white", background=spec_color(en_rot[,3], option="A", end=.8)) %>%
@@ -412,7 +412,7 @@ fr_rot %>%
 ## PCA-based Age of Acquisition Regression (Q2)
 
 
-Next, we turned to our second question: how well different frequency distributions predict English- and French-learning children's early word learning. 
+Next, we turned to the question of how well these frequency distributions predict English- and French-learning children's early word learning. 
 Our approach was to fit a linear regression model predicting each CDI word's mean AoA, following previous work [@braginsky2019consistency; @goodman2008].
 
 
@@ -570,10 +570,6 @@ Word frequency in child-directed speech as distinguished from words in child-dir
 PC2 interacts with verbs, which are learned later than nouns. 
 PC3 and PC6 each interacted with function words, which are learned later than nouns.
 
-For French, PC2 significantly predicts the age of acquisition, implying the importance of both speech and book sources in explaining variation. In general, the PC1 coefficient direction indicates that frequent words are learned earlier than less frequent words, but it is not a significant predictor in this regression. This could be attributed to  PC1 being explained away by PC2, or it is an artifact of the data e.g. some lexical category being more represented than others). PC1 interacts significantly with function words. Verbs are also a significant predictor. 
-In both languages, there is no significant effect of word length. 
-
-
 
 ```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Significant regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom). 'func' stands for function words, 'other' stands for words refering to games, routines and people. 'adj' stands for 'adjective'. "}
 # could try adding in PCs one by one..
@@ -637,6 +633,9 @@ f<-coefplot(pca_lc2_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, v
 
 ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1))
 ```
+For French, PC2 significantly predicts the age of acquisition, implying the importance of both speech and book sources in explaining variation. In general, the PC1 coefficient direction indicates that frequent words are learned earlier than less frequent words, but it is not a significant predictor in this regression. This could be attributed to  PC1 being explained away by PC2, or it is an artifact of the data e.g. some lexical category being more represented than others). PC1 interacts significantly with function words. Verbs are also a significant predictor. 
+In both languages, there is no significant effect of word length. 
+
 
 
 ```{r}
@@ -677,7 +676,7 @@ Thus, we analyzed the model that included the first five PCs.
 <!--The R syntax for the formula is `cbind(total_producing, total_not_producing) ~ age * mother_ed * (PC1 + PC2 + PC3 + PC4)`.-->
 
 This model showed significant main effects of age, mother's education, and all five PCs (all $p<.001$).
-Faster learning was predicted for words with higher values on PC1 (overall frequency; $\beta=.10$), PC2 (child-directed speech; $\beta=.45$), or PC4 ( $\beta=.28$).
+Faster learning was predicted for words with higher values on PC1 (overall frequency; $\beta=.10$), PC2 (child-directed speech; $\beta=.45$), or PC4 (media vs. books; $\beta=.28$).
 Slower learning was predicted for words with higher values on PC3 ($\beta=-.34$) or PC5 ($\beta=-.49$).
 
 There was a significant positive interaction of age with mother's education ($\beta=.06$, $p<.001$), shown in Figure 3.
