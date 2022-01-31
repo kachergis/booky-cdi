@@ -165,7 +165,7 @@ The French AdM corpus is comprised of `r format(round(subset(total_adult_tokens_
 
 ### Age of Acquisition data
 
-Children's early word learning data was drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from 5520 children aged 16-30 months for the American English CDI: Words & Sentences (WS) form, and 641 children for the French French CDI:WS form). Age of acquisition estimates were calculated via the wordbankr package. We computed the proportion of children at each age who were reported to produce each word on the CDI forms completed by parents. We then fit a curve to these proportions using a logistic regression model and determined when the predicted acquisition curve crossed 0.5 (when at least 50% of children produce the word) . 
+Children's early word learning data was drawn from the CDIs [@fenson2007], aggregated in the Wordbank database [@frank2017wordbank] (data from 5520 children aged 16-30 months for the American English CDI: Words & Sentences (WS) form, and 641 children for the French French CDI:WS form). Age of acquisition estimates were calculated via the Wordbankr package. We computed the proportion of children at each age who were reported to produce each word on the CDI forms completed by parents. We then fit a curve to these proportions using a logistic regression model and determined when the predicted acquisition curve crossed 0.5 (when at least 50% of children produce the word) . 
 
 
 ## Merging the Corpora
@@ -820,7 +820,7 @@ We set out to investigate the sources of linguistic input and registers that chi
 We found the principal components (PCs) of these distributions, and described how these PCs capture variation both in adult- vs. child-directedness, as well as between modalities (e.g., books and speech). 
 
 Our findings show that PC1 explains 90% of the variance in frequency distributions for both languages. This means that most frequency is shared by all the different sources and registers in our study, and is thus accounted for by this one component. 
-In spite of this, the remaining prinicipal components in both languages picked up on consistent differences in both register and source.
+In spite of this, the remaining principal components in both languages picked up on consistent differences in both register and source.
 In English, child-directed speech captures a large part of the variance as a second principal component, which shows that CDI word frequencies actually differ a lot compared to all other sources. 
 In French, in contrast, child-directed speech loaded strongly on the third principal component, while the second component picked up on bookish words (both child- and adult-directed) -- a distinction captured in PC4 for English.
 
