@@ -742,8 +742,7 @@ res_en <- tibble(model = list(pca_lc0, pca_lc1, pca_lc2, pca_lc3, pca_lc4, pca_l
 #rownames(new_tab) = c("LC","+PC1","+PC2","+PC3","+PC4","+PC5","+PC6")
 #new_tab[2,3] = new_tab[2,4]
 #new_tab[2,4] = "now"
-new_tab = rbind(c("Lang PC","Top 5 Words"),
-                #c("EN LC","quack, yum, potty, woof, water"),
+new_tab = rbind(#c("EN LC","quack, yum, potty, woof, water"),
                 c("EN +1","can, no, cockadoodledoo, now, time"),
                 c("EN +2","yes, gas, don't, uhoh, no"),
                 c("EN +3","camping, bye, jeans, smile, babysitter"), 
@@ -751,17 +750,21 @@ new_tab = rbind(c("Lang PC","Top 5 Words"),
                 c("EN +5","mommy, grrr, cockadoodledoo, tissue, babysitter"), 
                 c("EN +6","would, mine, does, my, could"),
                 #c("FR LC", "faire, orange, lune, aller, parc"),
-                c("FR +1", "le, faire, au sommet de, au sujet de, lequel"),
-                c("FR +2", "coincé, sombre, maître, oui, aïe"), 
-                c("FR +3", "mouillé, essuyer, cinema, travailler, coquin"), 
-                c("FR +4", "coincé, jaune, fou, bruyant, mignon"), 
-                c("FR +5","lequel, près de, là-bas, le même, notre"),     
-                c("FR +6", "au sujet de, maman, grand-mère, miam, forêt")
+                c("FR +1", "le, faire, au sommet de, au sujet de, lequel \n (EN: the, do, on top, about, which)"),
+                c("FR +2", "coincé, sombre, maître, oui, aïe \n (EN: stuck, dark, teacher, yes, ouch)"), 
+                c("FR +3", "mouillé, essuyer, cinema, travailler, coquin \n (EN: wet, wipe, theater, work, naughty)"), 
+                c("FR +4", "coincé, jaune, fou, bruyant, mignon \n (EN: stuck, yellow, crazy, noisy, cute)"), 
+                c("FR +5","lequel, près de, là-bas, le même, notre \n (EN: which, near, there, the same, our)"),     
+                c("FR +6", "au sujet de, maman, grand-mère, miam, forêt \n (EN: about, mommy, grandma, yummy, forest)")
                 )
-new_tab %>% 
-  kbl(caption = "Top 5 words with improved prediction of AoA when adding each PC for English (EN) and French (FR)",align='c',  booktabs=T,linesep = "") %>%
-kable_styling(latex_options = "striped")  %>%
-footnote(general = "FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'", threeparttable = T)
+
+colnames(new_tab) = c("Lang PC","Top 5 Words")
+
+as_tibble(new_tab) %>% 
+  mutate_all(linebreak) %>%
+  kbl(caption = "Top 5 words with improved prediction of AoA when adding each PC for English (EN) and French (FR)",align='c', booktabs=T, linesep = "", escape=F) %>%
+kable_styling(latex_options = "striped")  #%>%
+#footnote(general = "FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'", threeparttable = T)
 ```
 
 
