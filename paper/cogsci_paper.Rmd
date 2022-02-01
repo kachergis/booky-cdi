@@ -615,7 +615,8 @@ en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCadj", "LCfunc", "LCother",
               "PC2:LCother", "PC2:LCverb", "PC3:LCfunc", "PC6:LCfunc", "Nletters:LCfunc")
 
 #fr_coef_list = c("PC1","PC2","PC3","PC4","LCadj","LCverb","PC1:LCadj","PC1:LCfunc","PC1:LCother")
-fr_coef_list = c("PC1", "PC2", "LCverb","PC1:LCfunc") # "LCadj", "LCfunc",
+fr_coef_list = c("PC1", "PC2", "LCverb","PC1:LCfunc", "LCadj", "LCfunc", "LCother", 
+              "LCverb") # "LCadj", "LCfunc",
 
 e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, title="English AoA Coefficients",
               col.pts="red", mar=c(1,1,1,1), cex=.8, xlab='', ylab='') + # mar=c(5.5,2.5,2,2), 
@@ -672,21 +673,21 @@ res_en <- tibble(model = list(pca_lc0, pca_lc1, pca_lc2, pca_lc3, pca_lc4, pca_l
 #rownames(new_tab) = c("LC","+PC1","+PC2","+PC3","+PC4","+PC5","+PC6")
 #new_tab[2,3] = new_tab[2,4]
 #new_tab[2,4] = "now"
-new_tab = rbind(c("Lang","y","Top 5 Words"),
-                c("EN","LC","quack, yum, potty, woof, water"),
-                c("EN","+1","can, no, cockadoodledoo, now, time"),
-                c("EN","+2","yes, gas, don't, uhoh, no"),
-                c("EN","+3","camping, bye, jeans, smile, babysitter"), 
-                c("EN","+4", "was, lot, lips, gonna, hafta"), 
-                c("EN","+5","mommy, grrr, cockadoodledoo, tissue, babysitter"), 
-                c("EN","+6","would, mine, does, my, could"),
-                c("FR","LC", "faire, orange, lune, aller, parc"),
-                c("FR","+1", "le, faire, au sommet de, au sujet de, lequel"),
-                c("FR","+2", "coincé, sombre, maître, oui, aïe"), 
-                c("FR","+3", "mouillé, essuyer, cinema, travailler, coquin"), 
-                c("FR","+4", "coincé, jaune, fou, bruyant, mignon"), 
-                c("FR","+5","lequel, près de, là-bas, le même, notre"),     
-                c("FR","+6", "au sujet de, maman, grand-mère, miam, forêt")
+new_tab = rbind(c("Lang PC","Top 5 Words"),
+                #c("EN LC","quack, yum, potty, woof, water"),
+                c("EN +1","can, no, cockadoodledoo, now, time"),
+                c("EN +2","yes, gas, don't, uhoh, no"),
+                c("EN +3","camping, bye, jeans, smile, babysitter"), 
+                c("EN +4", "was, lot, lips, gonna, hafta"), 
+                c("EN +5","mommy, grrr, cockadoodledoo, tissue, babysitter"), 
+                c("EN +6","would, mine, does, my, could"),
+                #c("FR LC", "faire, orange, lune, aller, parc"),
+                c("FR +1", "le, faire, au sommet de, au sujet de, lequel"),
+                c("FR +2", "coincé, sombre, maître, oui, aïe"), 
+                c("FR +3", "mouillé, essuyer, cinema, travailler, coquin"), 
+                c("FR +4", "coincé, jaune, fou, bruyant, mignon"), 
+                c("FR +5","lequel, près de, là-bas, le même, notre"),     
+                c("FR +6", "au sujet de, maman, grand-mère, miam, forêt")
                 )
 new_tab %>% 
   kbl(caption = "Top 5 words with improved prediction of AoA when adding each predictor, lexical category (LC) and PCs, for English (EN) and French (FR). FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`the same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'. ",align='c',  booktabs=T,linesep = "") %>%
