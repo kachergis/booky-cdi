@@ -103,7 +103,6 @@ Together, the answers to these questions provide insight into whether word frequ
 ```{r load-data}
 load("../data/merged_word_freqs.Rdata")
 load("../data/merged_word_freqs_fr.Rdata") 
-# ToDo: try smoothing with +1 or dropping missing words, save new versions and re-run
 
 aoas <- readRDS("../data/english_(american)_aoa_bydefinition.rds") %>%
   filter(measure=="produces")
@@ -118,7 +117,6 @@ total_adult_tokens <- adult_dat %>% group_by(source) %>%
     summarise(word_count = sum(word_count),
               n = n())
               
-# TODO: these word_counts are already normalized -- we want raw counts!
 total_child_tokens_fr <- ch_freq_fr %>% 
   select(-adult_speech, -adult_tv, -adult_book) %>%
   pivot_longer(c(child_speech,  child_book, child_tv), names_to = "source", values_to = "word_count") %>%
@@ -127,7 +125,6 @@ total_child_tokens_fr <- ch_freq_fr %>%
     summarise(word_count = sum(word_count, na.rm=TRUE),
               n = n())
 
-# TODO: these word_counts are already normalized -- we want raw counts!
 total_adult_tokens_fr <- ch_freq_fr %>% 
   select(-child_speech, -child_tv, -child_book) %>%
   pivot_longer(c(adult_speech,  adult_book, adult_tv), names_to = "source", values_to = "word_count") %>%
@@ -135,6 +132,15 @@ total_adult_tokens_fr <- ch_freq_fr %>%
     group_by(source) %>%
     summarise(word_count = sum(word_count, na.rm=TRUE),
               n = n())
+```
+
+```{r, include=F}
+# correlations among the 959 words in all 6 French corpora is pretty high:
+cor(na.omit(ch_freq_fr)[,c("child_speech","child_book","child_tv","adult_speech","adult_book","adult_tv")])
+cor(na.omit(ch_freq_smooth_fr)[,c("child_speech","child_book","child_tv","adult_speech","adult_book","adult_tv")])
+require(car)
+tmp <- ch_freq_smooth_fr %>% filter(on_cdi==1)
+scatterplotMatrix(log(tmp[,c("child_speech","child_book","child_tv","adult_speech","adult_book","adult_tv")]))
 ```
 
 
@@ -171,7 +177,6 @@ Children's early word learning data was drawn from the CDIs [@fenson2007], aggre
 ## Merging the Corpora
 
 ```{r}
-#load("../data/Charlesworth-unlemmatized-counts.Rdata") 
 # Montag corpus
 dd <- ch_freq_smooth %>% filter(on_cdi==1) %>% 
   select(-ch_book_vs_speech) 
@@ -184,7 +189,10 @@ ddd <- dd %>% select(-prop_booky) %>%
   left_join(dd_novels %>% select(-prop_booky)) %>%
   mutate(Nletters = ifelse(is.na(Nletters), nchar(word), Nletters)) %>%
   left_join(aoas %>% select(-measure))
+```
 
+```{r smoothing, eval=T}
+# our smoothing: replace NAs with minimum value per distro
 dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 0.07322, adult_books),
                        speech = ifelse(is.na(speech), 10, speech),
                        books = ifelse(is.na(books), 10, books),
@@ -195,7 +203,7 @@ adult_dat <- adult_dat %>% filter(source!="books") %>%
   select(source, word, word_count_norm) %>%
   pivot_wider(id_col = word, names_from = source, values_from = word_count_norm) %>%
   rename(`AdS` = speech,
-         `AdM` = TV)
+         `AdM` = TV) 
 
 dddc <- dddc %>% 
   rename(`AdB` = adult_books, # Google books
@@ -205,9 +213,62 @@ dddc <- dddc %>%
   select(-CHILDES) %>% # less well-cleaned version
   left_join(adult_dat)
 
-# use the minimum normalized count values for these (large) corpora 
+# our smoothing: use the minimum normalized count values for these (large) corpora 
 dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
-                                 `AdM` = 0.33)) 
+                                 `AdM` = 0.33))
+
+dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>% 
+  select(-ch_book_vs_speech, -prop_booky) %>%
+  mutate(Nletters = nchar(token)) %>%
+  group_by(definition, lexical_class) %>% # group to have 1 row per CDI item: 
+  summarize(adult_book = sum(adult_book, na.rm=T),
+            adult_speech = sum(adult_speech, na.rm=T),
+            child_book = sum(child_book, na.rm=T),
+            adult_tv = sum(adult_tv, na.rm=T),
+            child_tv = sum(child_tv, na.rm=T),
+            child_speech = sum(child_speech, na.rm=T),
+            Nletters = mean(Nletters, na.rm=T),
+            aoa = mean(aoa, na.rm=T)) %>% # sum the counts, average the aoas and Nletters
+  replace_na(list(adult_book=10, adult_speech=10, adult_tv=10, 
+                  child_book=10, child_speech=10, child_tv=10)) %>%
+  mutate(adult_book = ifelse(adult_book==0, 10, adult_book),
+         adult_speech = ifelse(adult_speech==0, 10, adult_speech),
+         adult_tv = ifelse(adult_tv==0, 10, adult_tv),
+         child_book = ifelse(child_book==0, 10, child_book),
+         child_speech = ifelse(child_speech==0, 10, child_speech),
+         child_tv = ifelse(child_tv==0, 10, child_tv)) %>%
+         distinct()
+# scatterplotMatrix(log(dd_fr[,c("child_speech","child_book","child_tv","adult_speech","adult_book","adult_tv")]))
+```
+
+
+```{r charlesworth-smoothing, eval=F}
+# Charlesworth smoothing: add 10 to everything
+dddc <- ddd %>% mutate(adult_books = ifelse(is.na(adult_books), 10, adult_books+10),
+                      speech = ifelse(is.na(speech), 10, speech+10),
+                      books = ifelse(is.na(books), 10, books+10),
+                      tv = ifelse(is.na(tv), 10, tv+10)) %>%
+ distinct()
+
+adult_dat <- adult_dat %>% filter(source!="books") %>%
+  select(source, word, word_count_norm) %>%
+  pivot_wider(id_col = word, names_from = source, values_from = word_count_norm) %>%
+  rename(`AdS` = speech,
+         `AdM` = TV) 
+
+dddc <- dddc %>% 
+  rename(`AdB` = adult_books, # Google books
+         `ChB` = books, # Facebooks children's books (novels..)
+         `ChM` = tv,
+         `ChS` = speech) %>% 
+  select(-CHILDES) %>% # less well-cleaned version
+  left_join(adult_dat)
+
+# Charlesworth smoothing:
+dddc <- dddc %>% replace_na(list(`AdS` = 0,
+                                `AdM` = 0)) %>%
+ mutate(AdS = AdS + 10,
+        AdM = AdM + 10)
 
 
 dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>% 
@@ -222,14 +283,20 @@ dd_fr <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>%
             child_speech = sum(child_speech, na.rm=T),
             Nletters = mean(Nletters, na.rm=T),
             aoa = mean(aoa, na.rm=T)) %>% # sum the counts, average the aoas and Nletters
-  mutate(adult_book = ifelse(is.na(adult_book) | adult_book==0, 10, adult_book),
-         adult_speech = ifelse(is.na(adult_speech) | adult_speech==0, 10, adult_speech),
-         child_book = ifelse(is.na(child_book) | child_book==0, 10, child_book),
-         adult_tv = ifelse(is.na(adult_tv) | adult_tv==0, 10, adult_tv),
-         child_tv = ifelse(is.na(child_tv) | child_tv==0, 10, child_tv),
-         child_speech = ifelse(is.na(child_speech) | child_speech==0, 10, child_speech)) %>%
+  replace_na(list(adult_book=0, adult_speech=0, adult_tv=0, 
+                  child_book=0, child_speech=0, child_tv=0)) %>%
+  mutate(adult_book = adult_book + 10,
+         adult_speech = adult_speech + 10,
+         child_book = child_book + 10,
+         adult_tv = adult_tv + 10,
+         child_tv = child_tv + 10,
+         child_speech = child_speech + 10) %>%
          distinct()
+# scatterplotMatrix(log(dd_fr[,c("child_speech","child_book","child_tv","adult_speech","adult_book","adult_tv")]))
+```
 
+
+```{r rename-vars}
 dddc_fr <- dd_fr %>% 
   rename(`AdB` = adult_book,  
          `ChB` = child_book, 
@@ -237,7 +304,6 @@ dddc_fr <- dd_fr %>%
          `AdS` = adult_speech,
          `ChS` = child_speech,
          `ChM` = child_tv)
-
 ```
 
 
@@ -285,13 +351,18 @@ cor(dddc_fr[,c("ChS","ChM","ChB","AdS","AdM","AdB")]) %>%
 ```
 
 ```{r pca}
+#dddc %>% ggplot(aes(x=lexical_class, y=log(AdB))) +
+#  geom_violin()
+#dddc_fr %>% ggplot(aes(x=lexical_class, y=log(AdB))) +
+#  geom_violin()
+
 pc_bsa <- prcomp(log(dddc[,c("ChM","ChB","ChS",
                              "AdM","AdB","AdS")])) # add Montag separately?
 eigenvalues_en = pc_bsa$sdev^2 # only first 2 PCs have eigenvalues >1
 
 pc_bsa_fr <- prcomp(log(dddc_fr[,c("ChM","ChB","ChS",
                              "AdM","AdB","AdS")])) 
-eigenvalues_fr = pc_bsa_fr$sdev^2 # only first 2 PCs have eigenvalues >1
+eigenvalues_fr = pc_bsa_fr$sdev^2 # only first PC has eigenvalues >1
 
 pc_imp_en <- summary(pc_bsa)$importance
 pc_imp_fr <- summary(pc_bsa_fr)$importance 
@@ -470,6 +541,8 @@ print(xtable(tab_fr, digits=2,
 ## Correlation of PCA with original Frequency Distributions
 cor(ddbsa[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa[,paste0("PC",1:6)]) %>%
   papaja::apa_table(digits=2, caption="Correlation of PC loadings with frequency distributions.", placement='h')
+
+#cor(ddbsa_fr[,c("ChM","ChB","ChS","AdM","AdB","AdS")], ddbsa_fr[,paste0("PC",1:6)])
 ```
 
 
