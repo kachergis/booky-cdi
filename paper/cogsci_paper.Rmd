@@ -690,7 +690,7 @@ new_tab = rbind(c("Lang PC","Top 5 Words"),
                 c("FR +6", "au sujet de, maman, grand-mère, miam, forêt")
                 )
 new_tab %>% 
-  kbl(caption = "Top 5 words with improved prediction of AoA when adding each predictor, lexical category (LC) and PCs, for English (EN) and French (FR)",align='c',  booktabs=T,linesep = "") %>%
+  kbl(caption = "Top 5 words with improved prediction of AoA when adding each PC for English (EN) and French (FR)",align='c',  booktabs=T,linesep = "") %>%
 kable_styling(latex_options = "striped")  %>%
 footnote(general = "FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'", threeparttable = T)
 ```
