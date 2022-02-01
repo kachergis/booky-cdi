@@ -672,7 +672,7 @@ res_en <- tibble(model = list(pca_lc0, pca_lc1, pca_lc2, pca_lc3, pca_lc4, pca_l
 #rownames(new_tab) = c("LC","+PC1","+PC2","+PC3","+PC4","+PC5","+PC6")
 #new_tab[2,3] = new_tab[2,4]
 #new_tab[2,4] = "now"
-new_tab = rbind(c("Lang","y","words"),
+new_tab = rbind(c("Lang","y","Top 5 Words"),
                 c("EN","LC","quack, yum, potty, woof, water"),
                 c("EN","+1","can, no, cockadoodledoo, now, time"),
                 c("EN","+2","yes, gas, don't, uhoh, no"),
@@ -689,9 +689,9 @@ new_tab = rbind(c("Lang","y","words"),
                 c("FR","+6", "au sujet de, maman, grand-mère, miam, forêt")
                 )
 new_tab %>% 
-  kbl(caption = "Top 5 words with improved prediction of AoA when adding each predictor, lexical category (LC) and PCs, for English (EN) and French (FR). ",align='c',  booktabs=T,linesep = "") %>%
-kable_styling(latex_options = "striped")  %>%
-footnote(general = "FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`the same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'", threeparttable = T)
+  kbl(caption = "Top 5 words with improved prediction of AoA when adding each predictor, lexical category (LC) and PCs, for English (EN) and French (FR). FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`the same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'. ",align='c',  booktabs=T,linesep = "") %>%
+kable_styling(latex_options = "striped") # %>%
+#footnote(general = "FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet #de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', #`mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', #`bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`the same', #`maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'", threeparttable = T)
 ```
 
 
