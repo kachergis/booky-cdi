@@ -309,7 +309,9 @@ dddc_fr <- dd_fr %>%
 
 We focus our analysis on the `r length(unique(dddc$definition))` words from the English CDI and `r length(unique(dddc_fr$definition))` words from the French CDI that were present in at least one of the corpora. For French, because of the presence of more complex morphology, CDI words were matched to related words in corpora via a stemmer. 
 All word frequencies were normalized to number of tokens per million (TPM). 
-For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.
+For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.[^1]
+
+[^1]: Other forms of smoothing, e.g. Laplace smoothing ($\alpha=10$; added to all counts, including missing words) yielded similar results.
 
 # Results
 
@@ -626,7 +628,8 @@ m_pc_fr %>%
 
 Given that past research has found that lexical class strongly modulates influences of word frequency, we included the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of producing each word [within each language, this predictor is extremely correlated with the number of phonemes and serves as a good proxy for production complexity; @braginsky2019consistency].
 To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6 -- in decreasing order of the variance they accounted for in the PCA[^p]. 
-For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$). For French, the model which only included PC1 and PC2 as predictors was significantly preferred, even though the french model explained less variation of the dependent value overall ($R^2 = .06$). Figure 2 shows the coefficient estimates with p<0.05 for both languages. Table 4 shows the top 5 words with the most improvement in predicting their AoA when using a particular PC as a regression predictor for both languages. 
+For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$). For French, the model which only included PC1 and PC2 as predictors was significantly preferred, even though the french model explained less variation of the dependent value overall ($R^2 = .06$). 
+Figure 2 shows the significant coefficient estimates ($p<0.05$) for English, and all main effects for French, as well as the one significant interaction.
 
 [^p]:The R syntax for the sequence of regressions was `AoA`$\sim$`PC1*LC`, `AoA`$\sim$`(PC1+PC2)*LC`, ..., `AoA`$\sim$`(PC1+PC2+PC3+PC4+PC5+PC6)*LC`, with noun as the baseline LC.
 
@@ -641,7 +644,7 @@ PC2 interacts with verbs, which are learned later than nouns.
 PC3 and PC6 each interacted with function words, which are learned later than nouns.
 
 
-```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Significant regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom). 'func' stands for function words, 'other' stands for words refering to games, routines and people. 'adj' stands for 'adjective'. "}
+```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=5.0, set.cap.width=T, num.cols.cap=1, fig.cap = "Significant regression coefficients for predicting CDI AoAs with PCs and lexical class for English (top) and French (bottom). Abbreviated levels of lexical class (LC) are function words (`func'), adjectives (`adj'), and 'other' includes items refering to games, routines, and people."}
 # could try adding in PCs one by one..
 
 ddbsa$LC <- fct_relevel(ddbsa$LC, "noun")
@@ -689,23 +692,27 @@ en_coef_list = c("PC1","PC2","PC3","PC4","PC5", "LCadj", "LCfunc", "LCother",
 
 #fr_coef_list = c("PC1","PC2","PC3","PC4","LCadj","LCverb","PC1:LCadj","PC1:LCfunc","PC1:LCother")
 fr_coef_list = c("PC1", "PC2", "LCverb","PC1:LCfunc", "LCadj", "LCfunc", "LCother", 
-              "LCverb") # "LCadj", "LCfunc",
+              "LCverb") 
 
 e<-coefplot(pca_lc6, coefficients = en_coef_list, vertical=TRUE, title="English AoA Coefficients",
-              col.pts="red", mar=c(1,1,1,1), cex=.8, xlab='', ylab='') + # mar=c(5.5,2.5,2,2), 
-  theme_bw() 
+              col.pts="red", mar=c(1,1,1,1), cex=.8, xlab='', ylab='') + 
+  theme_bw() + theme(plot.title = element_text(size=10), plot.margin = margin(0.1,0.1,0.1,0.1, "cm"))
 f<-coefplot(pca_lc2_fr, add=TRUE, col.pts="blue", coefficients = fr_coef_list, vertical=TRUE, 
-              title="French AoA Coefficients", mar=c(1,1,1,1), cex=.8, ylab='', xlab='', offset=.2) + # mar=c(3.5,2.5,2,2),
-  theme_bw()
+              title="French AoA Coefficients", mar=c(1,1,1,1), cex=.8, ylab='', xlab='', offset=.2) +
+  theme_bw() + theme(plot.title = element_text(size=10), plot.margin = margin(0.1,0.1,0.1,0.1, "cm"))
 
 #multiplot(English, French, coefficients = en_coef_list, cex=.8, xlab='', decreasing=TRUE)+
 #  theme_bw() + 
 #  theme(plot.title = element_text(size=10 ))+ theme(legend.position='bottom')
 
-ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1))
+ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1)) +
+  theme(plot.margin = margin(0.1,0.1,0.1,0.1, "cm")) # top, right, bottom, left
 ```
 For French, PC2 significantly predicts the age of acquisition, implying the importance of both speech and book sources in explaining variation. In general, the PC1 coefficient direction indicates that frequent words are learned earlier than less frequent words, but it is not a significant predictor in this regression. This could be attributed to  PC1 being explained away by PC2, or it is an artifact of the data e.g. some lexical category being more represented than others). PC1 interacts significantly with function words. Verbs are also a significant predictor. 
 In both languages, there is no significant effect of word length. 
+Table 4 shows the top 5 words with the most-improved AoA prediction with the addition of each particular PC as a regression predictor for both languages. 
+Many of these words would be frequent in everyday speech (e.g., "gonna", "yes"/"oui", "no"), and some in particular more likely in child-directed speech ("babysitter", "cockadoodledoo", "maman").
+<!--Characterize each PC??  -->
 
 To sum up, in both languages, we observe that the predictive value of word frequency was especially high for words that are highly frequent in child directed speech However, for English, the difference across registers (difficulty of adult-directed versus child-directed) appears more important. For French, the difference and difficulty of text, independent of register, appears more important. 
 
