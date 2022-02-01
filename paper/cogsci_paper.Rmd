@@ -5,9 +5,12 @@ csl: apa6.csl
 document-params: "10pt, letterpaper"
 
 author-information: > 
-    \author{{\large \bf George Kachergis* (kachergis@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
-    \AND {\large \bf Georgia Loukatou* (@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA
-    \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\ Department of Psychology, Stanford University \\ Stanford, CA 94305 USA}
+    \author{{\large \bf George Kachergis* (kachergis@stanford.edu)}
+    \AND {\large \bf Georgia Loukatou* (loukatou@stanford.edu)} 
+    \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\ 
+    \newline\\
+    Department of Psychology, Stanford University, Stanford, CA 94305 USA\\
+    *equal first authorship}
 
 abstract: >
     Children's early word learning is to a large extent driven by the prevalence of
