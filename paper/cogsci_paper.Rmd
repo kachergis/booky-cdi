@@ -635,6 +635,19 @@ In both languages, there is no significant effect of word length.
 
 
 
+
+
+To sum up, in both languages, we observe that the predictive value of word frequency was especially high for words that are highly frequent in child directed speech However, for English, the difference across registers (difficulty of adult-directed versus child-directed) appears more important. For French, the difference and difficulty of text, independent of register, appears more important. 
+
+
+## Principal components and maternal education (Q3)
+
+Previous findings relate SES status to book reading [@shen2022parent], which is in turn related to better language skills [@bus1995joint]. 
+These findings suggest that the vocabulary composition of children whose mothers are more highly-educated (a proxy for household SES) may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
+To test this idea, we fit a series of exploratory logistic regressions successively adding the PCs to predict the number of children in Wordbank who produce or don't produce each item.
+Due to lack of maternal education data for French data, we focus on American English-learning children. 
+We included interactions of mother's education and children's age with each included PC; interactions of this type indicate that a particular type of register or source might be more important to acquisition for one SES group or another. 
+
 ```{r}
 pca_lc0_fr <- lm(aoa ~ LC, data=ddbsa_fr) # R^2=.02
 pca_lc0 <- lm(aoa ~ LC, data=ddbsa) # R^2=.17
@@ -659,27 +672,28 @@ res_en <- tibble(model = list(pca_lc0, pca_lc1, pca_lc2, pca_lc3, pca_lc4, pca_l
 #rownames(new_tab) = c("LC","+PC1","+PC2","+PC3","+PC4","+PC5","+PC6")
 #new_tab[2,3] = new_tab[2,4]
 #new_tab[2,4] = "now"
-new_tab = rbind(c("LC","quack, yum, potty, woof, water"),
-                  c("+PC1","can, no, cockadoodledoo, now, time"),
-                  c("+PC2","yes, gas, don't, uhoh, no"),
-                  c("+PC3","camping, bye, jeans, smile, babysitter"), 
-                  c("+PC4","was, lot, lips, gonna, hafta"), 
-                  c("+PC5","mommy, grrr, cockadoodledoo, tissue, babysitter"), 
-                  c("+PC6","would, mine, does, my, could"))
+new_tab = rbind(c("Lang","y","words"),
+                c("EN","LC","quack, yum, potty, woof, water"),
+                c("EN","+1","can, no, cockadoodledoo, now, time"),
+                c("EN","+2","yes, gas, don't, uhoh, no"),
+                c("EN","+3","camping, bye, jeans, smile, babysitter"), 
+                c("EN","+4", "was, lot, lips, gonna, hafta"), 
+                c("EN","+5","mommy, grrr, cockadoodledoo, tissue, babysitter"), 
+                c("EN","+6","would, mine, does, my, could"),
+                c("FR","LC", "faire, orange, lune, aller, parc"),
+                c("FR","+1", "le, faire, au sommet de, au sujet de, lequel"),
+                c("FR","+2", "coincé, sombre, maître, oui, aïe"), 
+                c("FR","+3", "mouillé, essuyer, cinema, travailler, coquin"), 
+                c("FR","+4", "coincé, jaune, fou, bruyant, mignon"), 
+                c("FR","+5","lequel, près de, là-bas, le même, notre"),     
+                c("FR","+6", "au sujet de, maman, grand-mère, miam, forêt")
+                )
 new_tab %>% 
-  kbl(caption = "Top 5 improved words when adding each PC.", booktabs=T)
+  kbl(caption = "Top 5 words with improved prediction of AoA when adding each predictor, lexical category (LC) and PCs, for English (EN) and French (FR). ",align='c',  booktabs=T,linesep = "") %>%
+kable_styling(latex_options = "striped")  %>%
+footnote(general = "FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`the same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'", threeparttable = T)
 ```
 
-To sum up, in both languages, we observe that the predictive value of word frequency was especially high for words that are highly frequent in child directed speech However, for English, the difference across registers (difficulty of adult-directed versus child-directed) appears more important. For French, the difference and difficulty of text, independent of register, appears more important. 
-
-
-## Principal components and maternal education (Q3)
-
-Previous findings relate SES status to book reading [@shen2022parent], which is in turn related to better language skills [@bus1995joint]. 
-These findings suggest that the vocabulary composition of children whose mothers are more highly-educated (a proxy for household SES) may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
-To test this idea, we fit a series of exploratory logistic regressions successively adding the PCs to predict the number of children in Wordbank who produce or don't produce each item.
-Due to lack of maternal education data for French data, we focus on American English-learning children. 
-We included interactions of mother's education and children's age with each included PC; interactions of this type indicate that a particular type of register or source might be more important to acquisition for one SES group or another. 
 
 American English data from Wordbank contained 2,776 CDI:WS administrations with mother's education dichotomously coded (N=1160 with at most some college education; N=1616 with a college degree or more).
 The series of ANOVAs indicated that PC1 through PC5 significantly improved the model fits, but that adding PC6 was not justified.
@@ -762,6 +776,20 @@ print(xtable(mom_ed_tab[1:14,], digits=2,
 
 
 
+
+
+There was one significant 3-way interaction of age, mother's education, and PC1, with a small magnitude negative coefficient ($\beta=-.001$).
+
+
+# Discussion
+We set out to investigate the sources of linguistic input and registers that children may experience, using word frequency distributions garnered from child-directed and adult-directed corpora of speech, books, and media (TV and movies). 
+We found the principal components (PCs) of these distributions, and described how these PCs capture variation both in adult- vs. child-directedness, as well as between modalities (e.g., books and speech). 
+
+Our findings show that PC1 explains 90% of the variance in frequency distributions for both languages. This means that most frequency is shared by all the different sources and registers in our study, and is thus accounted for by this one component. 
+In spite of this, the remaining principal components in both languages picked up on consistent differences in both register and source.
+In English, child-directed speech captures a large part of the variance as a second principal component, which shows that CDI word frequencies actually differ a lot compared to all other sources. 
+In French, in contrast, child-directed speech loaded strongly on the third principal component, while the second component picked up on bookish words (both child- and adult-directed) -- a distinction captured in PC4 for English.
+
 ```{r, fig.env = "figure", fig.pos = "H", fig.align='center', fig.width=3.3, fig.height=4.3, set.cap.width=T, num.cols.cap=1, fig.cap = "Predicted effects on the probability of English-speaking children producing CDI:WS words based level of maternal education. A significant positive interaction with age (top) shows an increasing effect of maternal education as children age. A significant positive interaction with PC1 (middle) shows that words with higher overall frequency are produced more by children with more educated mothers. Finally, a negative interaction with PC5 shows that children with more educated mothers are likely to produce words more representative of child-directed books, rather than child-directed speech."}
 # ggpredict returns conditional effects, while ggeffect/ggemmeans return marginal means
 # (i.e. averaged over the levels of factors)
@@ -811,18 +839,6 @@ pc5 <- ggpredict(en5, c("PC5", "MotherEd")) %>% plot() +
 ggarrange(age_momed, pc1, pc5, nrow=3, ncol=1, common.legend = T)
 ```
 
-
-There was one significant 3-way interaction of age, mother's education, and PC1, with a small magnitude negative coefficient ($\beta=-.001$).
-
-
-# Discussion
-We set out to investigate the sources of linguistic input and registers that children may experience, using word frequency distributions garnered from child-directed and adult-directed corpora of speech, books, and media (TV and movies). 
-We found the principal components (PCs) of these distributions, and described how these PCs capture variation both in adult- vs. child-directedness, as well as between modalities (e.g., books and speech). 
-
-Our findings show that PC1 explains 90% of the variance in frequency distributions for both languages. This means that most frequency is shared by all the different sources and registers in our study, and is thus accounted for by this one component. 
-In spite of this, the remaining principal components in both languages picked up on consistent differences in both register and source.
-In English, child-directed speech captures a large part of the variance as a second principal component, which shows that CDI word frequencies actually differ a lot compared to all other sources. 
-In French, in contrast, child-directed speech loaded strongly on the third principal component, while the second component picked up on bookish words (both child- and adult-directed) -- a distinction captured in PC4 for English.
 
 Multiple components are predictive of children's age of acquisition of words from the CDI in English. 
 Child-directed speech, adult-directed speech, but also books and media are all relevant in predicting age of acquisition. 
