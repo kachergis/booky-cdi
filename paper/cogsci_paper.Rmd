@@ -159,7 +159,7 @@ We used a sample of 98 English children's books from Project Gutenberg's open-so
 Transcripts were extracted from English television shows (e.g., from PBS Kids and Nickelodeon) and movies (e.g., *Beauty and the Beast*), including 1,078 movies and 4,309 TV episodes taken from @charlesworth2021gender (available here: [https://osf.io/kqux5/](https://osf.io/kqux5/). Openly accessible transcripts (https://www.subsynchro.com/) were also extracted from 100 French films directed to children. After cleaning, the English ChM totals `r format(subset(total_child_tokens, source=="tv")$word_count, scientific=F)` tokens across `r format(subset(total_child_tokens, source=="tv")$n, scientific=F)` word types.  The French ChM totals `r format(round(subset(total_child_tokens_fr, source=="child_tv")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_tv")$n, scientific=F)` word types. 
 
 ### Adult-directed Speech (AdS).
-English AdS was obtained from the Switchboard-1 Telephone Speech Corpus (Godfrey & Holliman, 1993), a corpus of transcripts from approximately 2,400 dyadic telephone conversations.
+English AdS was obtained from the Switchboard-1 Telephone Speech Corpus [@godfrey1993switchboard], a corpus of transcripts from approximately 2,400 dyadic telephone conversations.
 After cleaning, the English AdS yielded 3104000 tokens across `r format(subset(total_adult_tokens, source=="speech")$n, scientific=F)` word types.
 French AdS was obtained from the TCOF corpus [@andre2010mise], the CLAPI corpus [@balthasar2005plateforme] and the CFPP corpus [@branca2012discours]. The French AdS yielded `r format(round( subset(total_adult_tokens_fr, source=="adult_speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_adult_tokens_fr, source=="adult_speech")$n, scientific=F)` word types.
 
@@ -711,16 +711,13 @@ ggarrange(e,f, ncol=1, legend = "none", heights=c(2,1)) +
   theme(plot.margin = margin(0.1,0.1,0.1,0.1, "cm")) # top, right, bottom, left
 ```
 
-For French, PC2 significantly predicts the age of acquisition, implying the importance of both speech and book sources in explaining variation. In general, the PC1 coefficient direction indicates that frequent words are learned earlier than less frequent words, but it is not a significant predictor in this regression. This finding could be attributed to  PC1 being explained away by PC2, or it could be an artifact of the data e.g. some lexical category being more represented than others). PC1 also interacted significantly with function words. 
+For French, PC2 significantly predicts the age of acquisition, implying the importance of both speech and book sources in explaining variation. In general, the PC1 coefficient direction indicates that frequent words are learned earlier than less frequent words, but it is not a significant predictor in this regression. This finding could be attributed to  PC1 being explained away by PC2, or it could be an artifact of the data e.g. some lexical category being more represented than others. PC1 also interacted significantly with function words. 
 
 In both languages, there was no significant effect of word length, unlike in prior studies; this finding may indicate that prior effects of word length were confounded with register or source frequency effects [@braginsky2019consistency]. 
 
 Table 4 shows the top 5 words with the most-improved AoA prediction (greatest decrease in residual squared error) with the addition of each particular PC as a regression predictor for both languages. These show qualitative correspondence with the interpretations of the PCs shown in Table 3. For example, when PC2 -- roughly corresponding to child-directed speech -- is added to the English model, "uh oh" and "no" improve; when PC5 -- roughly corresponding to child-directed books -- is added, several animal noises like "grrr" and "cockadoodledoo" improve. 
 <!-- Many of these words are frequent in everyday speech (e.g., "gonna", "yes"/"oui", "no"), and some in particular are more likely in child-directed speech ("babysitter", "cockadoodledoo", "maman"). -->
 <!--Characterize each PC??  -->
-
-To sum up, in both languages, we observe that the predictive value of word frequency was especially high for words that are highly frequent in child directed speech. However, for English, the difference across registers (difficulty of adult-directed versus child-directed) appears more important. For French, the difference and difficulty of text, independent of register, appears more important. 
-
 
 ## Principal components and maternal education (Q3)
 
@@ -763,11 +760,7 @@ new_tab = rbind(#c("EN LC","quack, yum, potty, woof, water"),
                 c("EN +6","would, mine, does, my, could"),
                 #c("FR LC", "faire, orange, lune, aller, parc"),
                 c("FR +1", "le, faire, au sommet de, au sujet de, lequel \n (EN: the, do, on top, about, which)"),
-                c("FR +2", "coincé, sombre, maître, oui, aïe \n (EN: stuck, dark, teacher, yes, ouch)"), 
-                c("FR +3", "mouillé, essuyer, cinema, travailler, coquin \n (EN: wet, wipe, theater, work, naughty)"), 
-                c("FR +4", "coincé, jaune, fou, bruyant, mignon \n (EN: stuck, yellow, crazy, noisy, cute)"), 
-                c("FR +5","lequel, près de, là-bas, le même, notre \n (EN: which, near, there, the same, our)"),     
-                c("FR +6", "au sujet de, maman, grand-mère, miam, forêt \n (EN: about, mommy, grandma, yummy, forest)")
+                c("FR +2", "coincé, sombre, maître, oui, aïe \n (EN: stuck, dark, teacher, yes, ouch)")
                 )
 
 colnames(new_tab) = c("Lang PC","Top 5 Words")
@@ -777,6 +770,12 @@ as_tibble(new_tab) %>%
   kbl(caption = "Top 5 words with improved prediction of AoA when adding each PC for English (EN) and French (FR)",align='c', booktabs=T, linesep = "", escape=F) %>%
 kable_styling(latex_options = "striped")  #%>%
 #footnote(general = "FR to EN translations: `le'=`the', `faire'=`do', `au sommet de'=`on top', `au sujet de'=`about', `lequel'=`which', `coincé'=`stuck', `sombre'=`dark', `maître'=`teacher', `oui'=`yes', `mouillé'=`wet', `essuyer'=`wipe', `travailler'=`work', `coquin'=`naughty', `jaune'=`yellow', `fou'=`crazy', `bruyant'=`noisy', `mignon'=`cute', `près de'=`near',`là-bas'=`there', `le même'=`same', `maman'=`mum',`notre'=`our', `grand-mère'=`grandmother', `forêt'=`forest'", threeparttable = T)
+
+#                c("FR +3", "mouillé, essuyer, cinema, travailler, coquin \n (EN: wet, wipe, theater, work, naughty)"), 
+#                c("FR +4", "coincé, jaune, fou, bruyant, mignon \n (EN: stuck, yellow, crazy, noisy, cute)"), 
+#                c("FR +5","lequel, près de, là-bas, le même, notre \n (EN: which, near, there, the same, our)"),     
+#                c("FR +6", "au sujet de, maman, grand-mère, miam, forêt \n (EN: about, mommy, grandma, yummy, forest)")
+
 ```
 
 
