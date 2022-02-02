@@ -166,7 +166,7 @@ scatterplotMatrix(log(tmp[,c("child_speech","child_book","child_tv","adult_speec
 ```
 
 
-We used corpora from different sources to identify shared and distinct variance in frequencies. These corpora vary widely in size due to data accessibility; several were created for the current study and are available in our GitHub repository.
+We used corpora from different sources to identify shared and distinct variance in frequencies. These corpora vary widely in size due to data accessibility; several were created for the current study and are available in our GitHub repository, together with all analysis scripts.
 
 ### Child-directed Speech (ChS).
 Utterances of ChS were extracted from the CHILDES corpus [@macwhinney2000childes], a collection of transcripts of interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years). After cleaning, the CHILDES English corpus yielded `r format(round(subset(total_child_tokens, source=="speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens, source=="speech")$n, scientific=F)` word types. The French ChS yielded `r format(round(subset(total_child_tokens_fr, source=="child_speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_speech")$n, scientific=F)` word types.
@@ -401,7 +401,7 @@ var4fr = sum(pc_imp_fr[2,1:4]) # 93
 ```
 
 Figure 1 shows the word frequency correlations between different corpus sources ([Adult- vs. Child-directed] x [Speech, Books, Media]) for the matched CDI words (left: English, right: French). Unsurprisingly, there were strong correlations across these different corpora, but correlations were stronger within register and within source for both English and French. 
-Overall, French distributions were more highly correlated with one another, likely because of the smaller sizes of the corpora.^[The French corpora had a large number of CDI words missing (and thus smoothed): `r fr_AdB_na` in AdB; `r fr_AdS_na` in AdS; `r fr_AdM_na` in AdM; `r fr_ChB_na` in ChB; `r fr_ChS_na` in ChS; `r fr_ChM_na`. In comparison, English had 1 missing in ChB, ChS, and ChM; `r en_AdB_na` in Adb; `r en_AdS_na` in AdS; `r en_AdM_na` in AdM.]
+Overall, French distributions were more highly correlated with one another, likely because of the smaller sizes of the corpora.^[The French corpora had a large number of CDI words missing (and thus smoothed): `r fr_AdB_na` in AdB; `r fr_AdS_na` in AdS; `r fr_AdM_na` in AdM; `r fr_ChB_na` in ChB; `r fr_ChS_na` in ChS; `r fr_ChM_na` in ChM. In comparison, English had 1 missing in ChB, ChS, and ChM; `r en_AdB_na` in Adb; `r en_AdS_na` in AdS; `r en_AdM_na` in AdM.]
 
 We used principal components analysis to disentangle these correlated distributions and to understand their relationship. PCA allows us to project word frequencies into a space in which the first dimension captures the shared variance between frequencies from different sources and registers, and subsequent dimensions capture other consistent sources of variation. Since the logarithm of frequency is typically used as a psycholinguistic predictor in previous studies [@braginsky2019consistency; @goodman2008], we perform our PCAs over log frequencies. 
 
@@ -504,7 +504,7 @@ df <- data.frame(
 ) 
 
 papaja::apa_table(df, caption="English (EN) & French (FR) PC descriptions.", 
-                  note="PCs ordered by importance, and example words have highest and lowest values on each PC. CDS = child-directed speech; ADS = adult-directed speech; CDB = child-directed books; CDM = child-directed media; ADM = adult-directed speech; ADB = adult-directed books. FR to EN translations: `le'=`the', `ça'=`this', `lequel'=`which', `salut'='hi', `madeleine'=`cookie', `grand-mère'=`grandmother', `doigt de pied'=`toe', `sombre'=`dark', `parce que'=`because', `carottes'=`carrots'.")
+                  note="PCs ordered by importance, and example words have highest and lowest values on each PC. CDS = child-directed speech; ADS = adult-directed speech; CDB = child-directed books; CDM = child-directed media; ADM = adult-directed media; ADB = adult-directed books. FR to EN translations: `le'=`the', `ça'=`this', `lequel'=`which', `salut'='hi', `madeleine'=`cookie', `grand-mère'=`grandmother', `doigt de pied'=`toe', `sombre'=`dark', `parce que'=`because', `carottes'=`carrots'.")
 
 ```
 
@@ -750,8 +750,8 @@ Table 4 shows the top 5 words with the most-improved AoA prediction (greatest de
 Previous findings relate SES status to book reading [@shen2022parent], which is in turn related to better language skills [@bus1995joint]. 
 These findings suggest that the vocabulary composition of children whose mothers are more highly-educated (a proxy for household SES) may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
 To test this idea, we fit a series of exploratory logistic regressions successively adding the PCs to predict the number of children in Wordbank who produce or don't produce each item.
-Due to lack of maternal education data for French data, we focus on American English-learning children. 
-We included interactions of mother's education and children's age with each included PC; interactions of this type indicate that a particular type of register or source might be more important to acquisition for one SES group or another. 
+Due to lack of maternal education data for French data, we focused on American English-learning children. 
+We included interactions of mother's education and children's age with each PC; interactions of this type indicate that a particular type of register or source might be more important to acquisition for one SES group or another. 
 
 ```{r}
 pca_lc0_fr <- lm(aoa ~ LC, data=ddbsa_fr) # R^2=.02
@@ -905,7 +905,7 @@ In spite of this, other principal components in both languages picked up on cons
 In English, child-directed speech captured a substantial part of the variance as a second principal component, suggesting real differences in word frequencies in this register.
 In French, in contrast, child-directed speech loaded strongly on the third principal component, while the second component picked up on bookish words (both child- and adult-directed) -- a distinction captured by a smaller PC for English.
 
-```{r, fig.env = "figure", fig.pos = "t", fig.align='center', fig.width=3.3, fig.height=4.3, set.cap.width=T, num.cols.cap=1, fig.cap = "Predicted effects on the probability of English-speaking children producing CDI:WS words based level of maternal education. A significant positive interaction with age (top) shows an increasing effect of maternal education as children age. A significant positive interaction with PC1 (middle) shows that words with higher overall frequency are produced more by children with more educated mothers. Finally, a negative interaction with PC5 shows that children with more educated mothers are likely to produce words more representative of child-directed books, rather than child-directed speech."}
+```{r, fig.env = "figure", fig.pos = "t", fig.align='center', fig.width=3.3, fig.height=4.3, set.cap.width=T, num.cols.cap=1, fig.cap = "Predicted effects on the probability of English-speaking children producing CDI:WS words based on level of maternal education. A significant positive interaction with age (top) shows an increasing effect of maternal education as children age. A significant positive interaction with PC1 (middle) shows that words with higher overall frequency are produced more by children with more educated mothers. Finally, a negative interaction with PC5 shows that children with more educated mothers are likely to produce words more representative of child-directed books, rather than child-directed speech."}
 # ggpredict returns conditional effects, while ggeffect/ggemmeans return marginal means
 # (i.e. averaged over the levels of factors)
 
