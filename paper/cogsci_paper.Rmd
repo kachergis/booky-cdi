@@ -10,7 +10,7 @@ author-information: >
     \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\ 
     \newline\\
     Department of Psychology, Stanford University, Stanford, CA 94305 USA\\
-    *equal first authorship}
+    *equal contributions}
 
 abstract: >
     Children's early word learning is to a large extent driven by the prevalence of
@@ -137,6 +137,25 @@ total_adult_tokens_fr <- ch_freq_fr %>%
               n = n())
 ```
 
+```{r get-missing-cdi-item-counts}
+fr_miss <- ch_freq_smooth_fr %>% filter(on_cdi==1) %>%
+  group_by(definition, lexical_class) %>% 
+  summarise(ChS = sum(child_speech, na.rm=T),
+            ChB = sum(child_book, na.rm=T),
+            ChM = sum(child_tv, na.rm=T),
+            AdS = sum(adult_speech, na.rm=T),
+            AdB = sum(adult_book, na.rm=T),
+            AdM = sum(adult_tv, na.rm=T))
+
+fr_ChS_na = length(which(fr_miss$ChS==0)) # 12
+fr_ChB_na = length(which(fr_miss$ChB==0)) # 99
+fr_ChM_na = length(which(fr_miss$ChM==0)) # 53
+fr_AdS_na = length(which(fr_miss$AdS==0)) # 77
+fr_AdB_na = length(which(fr_miss$AdB==0)) # 95
+fr_AdM_na = length(which(fr_miss$AdM==0)) # 70
+```
+
+
 ```{r, include=F}
 # correlations among the 959 words in all 6 French corpora is pretty high:
 cor(na.omit(ch_freq_fr)[,c("child_speech","child_book","child_tv","adult_speech","adult_book","adult_tv")])
@@ -215,6 +234,14 @@ dddc <- dddc %>%
          `ChS` = speech) %>% 
   select(-CHILDES) %>% # less well-cleaned version
   left_join(adult_dat)
+
+# get number of NAs for English CDI defs
+en_ChB_na = length(which(is.na(ddd$books))) # 1
+en_ChS_na = length(which(is.na(ddd$speech))) # 1
+en_ChM_na = length(which(is.na(ddd$tv))) # 1
+en_AdB_na = length(which(is.na(ddd$adult_books))) # 14
+en_AdS_na = length(which(is.na(dddc$AdS))) # 45
+en_AdM_na = length(which(is.na(dddc$AdM))) # 28
 
 # our smoothing: use the minimum normalized count values for these (large) corpora 
 dddc <- dddc %>% replace_na(list(`AdS` = 0.32,
@@ -312,9 +339,7 @@ dddc_fr <- dd_fr %>%
 
 We focus our analysis on the `r length(unique(dddc$definition))` words from the English CDI and `r length(unique(dddc_fr$definition))` words from the French CDI that were present in at least one of the corpora. For French, because of the presence of more complex morphology, CDI words were matched to related words in corpora via a stemmer [@porter2001snowball]. 
 All word frequencies were normalized to number of tokens per million (TPM). 
-For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.[^1]
-
-[^1]: Other forms of smoothing, e.g. Laplace smoothing ($\alpha=10$; added to all counts, including missing words) yielded similar results.
+For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.^[Other forms of smoothing, e.g. Laplace smoothing ($\alpha=10$; added to all counts, including missing words) yielded similar results.]
 
 # Results
 
@@ -375,7 +400,8 @@ var4en = sum(pc_imp_en[2,1:4]) #
 var4fr = sum(pc_imp_fr[2,1:4]) # 93
 ```
 
-Figure 1 shows the word frequency correlations between different corpus sources ([Adult- vs. Child-directed] x [Speech, Books, Media]) for the matched CDI words (left: English, right: French). Unsurprisingly, there were strong correlations across these different corpora, but correlations were stronger within register and within source for both English and French. Overall, French distributions were more highly correlated with one another, likely because of the smaller sizes of the corpora.
+Figure 1 shows the word frequency correlations between different corpus sources ([Adult- vs. Child-directed] x [Speech, Books, Media]) for the matched CDI words (left: English, right: French). Unsurprisingly, there were strong correlations across these different corpora, but correlations were stronger within register and within source for both English and French. 
+Overall, French distributions were more highly correlated with one another, likely because of the smaller sizes of the corpora.^[The French corpora had a large number of CDI words missing (and thus smoothed): `r fr_AdB_na` in AdB; `r fr_AdS_na` in AdS; `r fr_AdM_na` in AdM; `r fr_ChB_na` in ChB; `r fr_ChS_na` in ChS; `r fr_ChM_na`. In comparison, English had 1 missing in ChB, ChS, and ChM; `r en_AdB_na` in Adb; `r en_AdS_na` in AdS; `r en_AdM_na` in AdM.]
 
 We used principal components analysis to disentangle these correlated distributions and to understand their relationship. PCA allows us to project word frequencies into a space in which the first dimension captures the shared variance between frequencies from different sources and registers, and subsequent dimensions capture other consistent sources of variation. Since the logarithm of frequency is typically used as a psycholinguistic predictor in previous studies [@braginsky2019consistency; @goodman2008], we perform our PCAs over log frequencies. 
 
@@ -630,7 +656,7 @@ m_pc_fr %>%
 
 Given that past research has found that lexical class strongly modulates influences of word frequency, we included the interaction of lexical class (LC) with PC1 - PC6 in our regression. We also included the number of letters as a predictor (Nletters) to help control for the overall difficulty of producing each word [within each language, this predictor is extremely correlated with the number of phonemes and serves as a good proxy for production complexity; @braginsky2019consistency].
 To determine if the inclusion of all PCs was justified, we ran a series of ANOVAs building up from PC1 to PC6 -- in decreasing order of the variance they accounted for in the PCA[^p]. 
-For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$). For French, the model which only included PC1 and PC2 as predictors was significantly preferred, even though the french model explained less variation of the dependent value overall ($R^2 = .06$). 
+For English, the more complex model was always significantly preferred, including up to the inclusion of PC6 ($R^2 = .58$). For French, the model which only included PC1 and PC2 as predictors was significantly preferred, even though the French model explained less variation of the dependent variable overall ($R^2 = .06$). 
 Figure 2 shows the significant coefficient estimates ($p<0.05$) for English, and all main effects for French, as well as the one significant interaction.
 
 [^p]:The R syntax for the sequence of regressions was `AoA`$\sim$`PC1*LC`, `AoA`$\sim$`(PC1+PC2)*LC`, ..., `AoA`$\sim$`(PC1+PC2+PC3+PC4+PC5+PC6)*LC`, with noun as the baseline lexical category.

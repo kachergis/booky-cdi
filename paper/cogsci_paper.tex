@@ -52,8 +52,7 @@
 % \textwidth 16cm
 % \textheight 21cm
 
-\title{Identifying the distributional sources of children's early
-vocabulary}
+\title{Identifying the distributional sources of children's early vocabulary}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -70,13 +69,8 @@ vocabulary}
 \usepackage{makecell}
 \usepackage{xcolor}
 
-\author{{\large \bf George Kachergis* (kachergis@stanford.edu)} \AND {\large \bf Georgia Loukatou* (loukatou@stanford.edu)}  \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\  \newline\\ Department of Psychology, Stanford University, Stanford, CA 94305 USA\\ *equal first authorship}
+\author{{\large \bf George Kachergis* (kachergis@stanford.edu)} \AND {\large \bf Georgia Loukatou* (loukatou@stanford.edu)}  \AND {\large \bf Michael C. Frank (mcfrank@stanford.edu)} \\  \newline\\ Department of Psychology, Stanford University, Stanford, CA 94305 USA\\ *equal contributions}
 
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-\newenvironment{CSLReferences}%
-  {}%
-  {\par}
 
 \begin{document}
 
@@ -122,8 +116,8 @@ different input sources may vary from child to child, which may account
 for some of the great variability seen in children's early vocabulary
 growth (Fenson et al., 1994). Indeed, higher measures of input quantity
 and quality have been found to relate to children's faster vocabulary
-growth, and to often be related to parents' socioeconomic status {[}SES;
-Rowe (2012); Hoff (2003){]}.
+growth, and to often be related to parents' socioeconomic status (SES;
+Rowe, 2012; Hoff, 2003).
 
 Input word frequency varies significantly depending on the context.
 Previous studies have shown that frequency matters for children's word
@@ -144,8 +138,7 @@ relatively less frequent as compared to children's books. In general,
 speech -- whether directed to children or to adults -- contains
 relatively fewer function words and tends to score lower on measures of
 lexical diversity than books, which have a higher ratio of types (unique
-words) per set of tokens {[}instances of words; Dawson, Hsiao, Wei Ming
-Tan, Banerji, \& Nation (2021){]}.
+words) per set of tokens (instances of words; Dawson et al., 2021).
 
 In this paper, we have three primary research questions. Question 1: How
 different are different input sources? We examine shared and unique
@@ -170,8 +163,7 @@ investigate the role of different frequency sources using the Age of
 Acquisition (AoA) prediction paradigm, in which we use regression models
 to predict each CDI item's mean Age of Acquisition (AoA) -- the mean age
 (in months) at which 50\% of children are expected to know a given word
-(Braginsky, Yurovsky, Marchman, \& Frank, 2019; Goodman, Dale, \& Li,
-2008).
+(Braginsky, Yurovsky, Marchman, \& Frank, 2019; Goodman et al., 2008).
 
 Question 3: How do input frequencies relate to SES? We index SES using
 maternal education, a common proxy measure. Young children from
@@ -254,38 +246,38 @@ types.
 (AdB).}\label{adult-directed-books-adb.}}
 
 The English AdB corpus is taken from a sample of 1,000 Project Gutenberg
-books tokens randomly selected by Charlesworth, Yang, Mann, Kurdi, \&
-Banaji (2021), totaling 40252700 tokens across 147937 word types. The
-French AdB is comprised of books taken from the 1999 Association de
-Bibliophiles Universels, an open-source database of french books. After
-cleaning, it yielded 2288000 tokens across 30615 word types.
+books tokens randomly selected by Charlesworth et al. (2021), totaling
+40252700 tokens across 147937 word types. The French AdB is comprised of
+books taken from the 1999 Association de Bibliophiles Universels, an
+open-source database of french books. After cleaning, it yielded 2288000
+tokens across 30615 word types.
 
 \hypertarget{adult-directed-media-adm.}{%
 \subsubsection{Adult-directed Media
 (AdM).}\label{adult-directed-media-adm.}}
 
 The English AdM is comprised of 6060000 tokens across 60626 word types
-compiled by Charlesworth, Yang, Mann, Kurdi, \& Banaji (2021) from
-online transcripts of movies and TV shows dating from the 1960s (e.g.,
-\emph{Doctor Who}) through the present (e.g., \emph{Breaking Bad}). The
-French AdM corpus is comprised of 766000 tokens across 15662 word types,
-after cleaning openly accessible movie subtitles
-(\url{https://www.subsynchro.com/}) from 100 films.
+compiled by Charlesworth et al. (2021) from online transcripts of movies
+and TV shows dating from the 1960s (e.g., \emph{Doctor Who}) through the
+present (e.g., \emph{Breaking Bad}). The French AdM corpus is comprised
+of 766000 tokens across 15662 word types, after cleaning openly
+accessible movie subtitles (\url{https://www.subsynchro.com/}) from 100
+films.
 
 \hypertarget{age-of-acquisition-data}{%
 \subsubsection{Age of Acquisition data}\label{age-of-acquisition-data}}
 
 Children's early word learning data was drawn from the CDIs (Fenson et
-al., 2007), aggregated in the Wordbank database (Frank, Braginsky,
-Yurovsky, \& Marchman, 2017) (data from 5520 children aged 16-30 months
-for the American English CDI: Words \& Sentences (WS) form, and 641
-children for the French French CDI:WS form). Age of acquisition
-estimates were calculated via the Wordbankr package. We computed the
-proportion of children at each age who were reported to produce each
-word on the CDI forms completed by parents. We then fit a curve to these
-proportions using a logistic regression model and determined when the
-predicted acquisition curve crossed 0.5 (when at least 50\% of children
-are reported to produce the word).
+al., 2007), aggregated in the Wordbank database (Frank et al., 2017)
+(data from 5520 children aged 16-30 months for the American English CDI:
+Words \& Sentences (WS) form, and 641 children for the French French
+CDI:WS form). Age of acquisition estimates were calculated via the
+Wordbankr package. We computed the proportion of children at each age
+who were reported to produce each word on the CDI forms completed by
+parents. We then fit a curve to these proportions using a logistic
+regression model and determined when the predicted acquisition curve
+crossed 0.5 (when at least 50\% of children are reported to produce the
+word).
 
 \hypertarget{merging-the-corpora}{%
 \subsection{Merging the Corpora}\label{merging-the-corpora}}
@@ -293,14 +285,14 @@ are reported to produce the word).
 We focus our analysis on the 670 words from the English CDI and 632
 words from the French CDI that were present in at least one of the
 corpora. For French, because of the presence of more complex morphology,
-CDI words were matched to related words in corpora via a stemmer. All
-word frequencies were normalized to number of tokens per million (TPM).
-For any CDI words that failed to appear in a given corpus, we replaced
-the missing word's frequency with a normalized count of 10 TPM, or the
-minimum normalized frequency for that distribution, whichever was
-smaller.\footnote{Other forms of smoothing, e.g.~Laplace smoothing
-  (\(\alpha=10\); added to all counts, including missing words) yielded
-  similar results.}
+CDI words were matched to related words in corpora via a stemmer
+(Porter, 2001). All word frequencies were normalized to number of tokens
+per million (TPM). For any CDI words that failed to appear in a given
+corpus, we replaced the missing word's frequency with a normalized count
+of 10 TPM, or the minimum normalized frequency for that distribution,
+whichever was smaller.\footnote{Other forms of smoothing, e.g.~Laplace
+  smoothing (\(\alpha=10\); added to all counts, including missing
+  words) yielded similar results.}
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
@@ -327,7 +319,10 @@ Unsurprisingly, there were strong correlations across these different
 corpora, but correlations were stronger within register and within
 source for both English and French. Overall, French distributions were
 more highly correlated with one another, likely because of the smaller
-sizes of the corpora.
+sizes of the corpora.\footnote{The French corpora had a large number of
+  CDI words missing (and thus smoothed): 95 in AdB; 77 in AdS; 70 in
+  AdM; 99 in ChB; 12 in ChS; 53. In comparison, English had 1 missing in
+  ChB, ChS, and ChM; 14 in Adb; 45 in AdS; 28 in AdM.}
 
 We used principal components analysis to disentangle these correlated
 distributions and to understand their relationship. PCA allows us to
@@ -335,9 +330,8 @@ project word frequencies into a space in which the first dimension
 captures the shared variance between frequencies from different sources
 and registers, and subsequent dimensions capture other consistent
 sources of variation. Since the logarithm of frequency is typically used
-as a psycholinguistic predictor in previous studies (Braginsky,
-Yurovsky, Marchman, \& Frank, 2019; Goodman, Dale, \& Li, 2008), we
-perform our PCAs over log frequencies.
+as a psycholinguistic predictor in previous studies (Braginsky et al.,
+2019; Goodman et al., 2008), we perform our PCAs over log frequencies.
 
 The eigenvectors of the PCs in relation to the original six frequency
 distributions are summarized for English in Table 1, and for French in
@@ -377,8 +371,8 @@ French it captures book language.
 \cellcolor{white}{\textcolor{black}{ChS}} & \cellcolor[HTML]{251254}{\textcolor{white}{\em{-0.26}}} & \cellcolor[HTML]{FE9F6D}{\textcolor{white}{\textbf{0.65}}} & \cellcolor[HTML]{030312}{\textcolor{white}{-0.30}} & \cellcolor[HTML]{C53C74}{\textcolor{white}{0.12}} & \cellcolor[HTML]{000004}{\textcolor{white}{\textbf{-0.60}}} & \cellcolor[HTML]{38106C}{\textcolor{white}{-0.22}}\\
 \cellcolor{white}{\textcolor{black}{AdM}} & \cellcolor[HTML]{030310}{\textcolor{white}{\em{-0.47}}} & \cellcolor[HTML]{02020B}{\textcolor{white}{-0.45}} & \cellcolor[HTML]{0D0A29}{\textcolor{white}{-0.24}} & \cellcolor[HTML]{FE9F6D}{\textcolor{white}{\textbf{0.48}}} & \cellcolor[HTML]{BC3978}{\textcolor{white}{0.13}} & \cellcolor[HTML]{000004}{\textcolor{white}{\textbf{-0.53}}}\\
 \cellcolor{white}{\textcolor{black}{AdB}} & \cellcolor[HTML]{020109}{\textcolor{white}{\em{-0.49}}} & \cellcolor[HTML]{000004}{\textcolor{white}{\textbf{-0.47}}} & \cellcolor[HTML]{491078}{\textcolor{white}{-0.01}} & \cellcolor[HTML]{21114E}{\textcolor{white}{-0.44}} & \cellcolor[HTML]{0C0927}{\textcolor{white}{-0.50}} & \cellcolor[HTML]{C63C73}{\textcolor{white}{0.32}}\\
-\addlinespace
 \cellcolor{white}{\textcolor{black}{AdS}} & \cellcolor[HTML]{000004}{\textcolor{white}{\em{-0.52}}} & \cellcolor[HTML]{C23B75}{\textcolor{white}{0.27}} & \cellcolor[HTML]{FE9F6D}{\textcolor{white}{\textbf{0.79}}} & \cellcolor[HTML]{C13A75}{\textcolor{white}{0.10}} & \cellcolor[HTML]{C03A77}{\textcolor{white}{0.14}} & \cellcolor[HTML]{721F81}{\textcolor{white}{-0.01}}\\
+\addlinespace
 \cellcolor{white}{\textcolor{black}{PVar}} & \cellcolor{white}{\textcolor{black}{0.89}} & \cellcolor{white}{\textcolor{black}{0.04}} & \cellcolor{white}{\textcolor{black}{0.03}} & \cellcolor{white}{\textcolor{black}{0.02}} & \cellcolor{white}{\textcolor{black}{0.01}} & \cellcolor{white}{\textcolor{black}{0.01}}\\
 \bottomrule
 \end{tabular}
@@ -400,8 +394,8 @@ French it captures book language.
 \cellcolor{white}{\textcolor{black}{ChS}} & \cellcolor[HTML]{050415}{\textcolor{white}{\em{-0.36}}} & \cellcolor[HTML]{000004}{\textcolor{white}{\textbf{-0.51}}} & \cellcolor[HTML]{FE9F6D}{\textcolor{white}{\textbf{0.73}}} & \cellcolor[HTML]{D6456C}{\textcolor{white}{0.22}} & \cellcolor[HTML]{681C81}{\textcolor{white}{-0.16}} & \cellcolor[HTML]{922B80}{\textcolor{white}{0.02}}\\
 \cellcolor{white}{\textcolor{black}{AdM}} & \cellcolor[HTML]{000004}{\textcolor{white}{\em{-0.42}}} & \cellcolor[HTML]{4E117B}{\textcolor{white}{-0.19}} & \cellcolor[HTML]{1F114A}{\textcolor{white}{-0.34}} & \cellcolor[HTML]{261256}{\textcolor{white}{-0.42}} & \cellcolor[HTML]{000004}{\textcolor{white}{\textbf{-0.62}}} & \cellcolor[HTML]{38106C}{\textcolor{white}{-0.34}}\\
 \cellcolor{white}{\textcolor{black}{AdB}} & \cellcolor[HTML]{010107}{\textcolor{white}{\em{-0.41}}} & \cellcolor[HTML]{FD9C6B}{\textcolor{white}{\textbf{0.54}}} & \cellcolor[HTML]{7C2382}{\textcolor{white}{0.02}} & \cellcolor[HTML]{CC3F71}{\textcolor{white}{0.18}} & \cellcolor[HTML]{321066}{\textcolor{white}{-0.36}} & \cellcolor[HTML]{FE9F6D}{\textcolor{white}{\textbf{0.62}}}\\
-\addlinespace
 \cellcolor{white}{\textcolor{black}{AdS}} & \cellcolor[HTML]{000004}{\textcolor{white}{\em{-0.42}}} & \cellcolor[HTML]{1E1149}{\textcolor{white}{-0.34}} & \cellcolor[HTML]{000004}{\textcolor{white}{\textbf{-0.55}}} & \cellcolor[HTML]{FE9F6D}{\textcolor{white}{\textbf{0.55}}} & \cellcolor[HTML]{E55064}{\textcolor{white}{0.30}} & \cellcolor[HTML]{9A2D80}{\textcolor{white}{0.04}}\\
+\addlinespace
 \cellcolor{white}{\textcolor{black}{PVar}} & \cellcolor{white}{\textcolor{black}{0.90}} & \cellcolor{white}{\textcolor{black}{0.04}} & \cellcolor{white}{\textcolor{black}{0.03}} & \cellcolor{white}{\textcolor{black}{0.02}} & \cellcolor{white}{\textcolor{black}{0.01}} & \cellcolor{white}{\textcolor{black}{0.00}}\\
 \bottomrule
 \end{tabular}
@@ -459,8 +453,8 @@ FR & 6 & CDB/ADB & carottes & grand-mère\\
 Next, we turned to the question of how well these frequency
 distributions predict English- and French-learning children's early word
 learning. Our approach was to fit a linear regression model predicting
-each CDI word's mean AoA, following previous work (Braginsky, Yurovsky,
-Marchman, \& Frank, 2019; Goodman, Dale, \& Li, 2008).
+each CDI word's mean AoA, following previous work (Braginsky et al.,
+2019; Goodman et al., 2008).
 
 Multicollinearity makes it unwise to include multiple raw frequency
 distributions in a regression, however, as the results will be unstable.
@@ -480,21 +474,20 @@ Given that past research has found that lexical class strongly modulates
 influences of word frequency, we included the interaction of lexical
 class (LC) with PC1 - PC6 in our regression. We also included the number
 of letters as a predictor (Nletters) to help control for the overall
-difficulty of producing each word {[}within each language, this
-predictor is extremely correlated with the number of phonemes and serves
-as a good proxy for production complexity; Braginsky, Yurovsky,
-Marchman, \& Frank (2019){]}. To determine if the inclusion of all PCs
-was justified, we ran a series of ANOVAs building up from PC1 to PC6 --
-in decreasing order of the variance they accounted for in the
-PCA\footnote{The R syntax for the sequence of regressions was
-  \texttt{AoA}\(\sim\)\texttt{PC1*LC},
+difficulty of producing each word (within each language, this predictor
+is extremely correlated with the number of phonemes and serves as a good
+proxy for production complexity; Braginsky et al., 2019). To determine
+if the inclusion of all PCs was justified, we ran a series of ANOVAs
+building up from PC1 to PC6 -- in decreasing order of the variance they
+accounted for in the PCA\footnote{The R syntax for the sequence of
+  regressions was \texttt{AoA}\(\sim\)\texttt{PC1*LC},
   \texttt{AoA}\(\sim\)\texttt{(PC1+PC2)*LC}, \ldots,
   \texttt{AoA}\(\sim\)\texttt{(PC1+PC2+PC3+PC4+PC5+PC6)*LC}, with noun
   as the baseline lexical category.}. For English, the more complex
 model was always significantly preferred, including up to the inclusion
 of PC6 (\(R^2 = .58\)). For French, the model which only included PC1
 and PC2 as predictors was significantly preferred, even though the
-french model explained less variation of the dependent value overall
+French model explained less variation of the dependent variable overall
 (\(R^2 = .06\)). Figure 2 shows the significant coefficient estimates
 (\(p<0.05\)) for English, and all main effects for French, as well as
 the one significant interaction.
@@ -536,12 +529,12 @@ are learned earlier than less frequent words, but it is not a
 significant predictor in this regression. This finding could be
 attributed to PC1 being explained away by PC2, or it could be an
 artifact of the data e.g.~some lexical category being more represented
-than others). PC1 also interacted significantly with function words.
+than others. PC1 also interacted significantly with function words.
 
 In both languages, there was no significant effect of word length,
 unlike in prior studies; this finding may indicate that prior effects of
 word length were confounded with register or source frequency effects
-(Braginsky, Yurovsky, Marchman, \& Frank, 2019).
+(Braginsky et al., 2019).
 
 Table 4 shows the top 5 words with the most-improved AoA prediction
 (greatest decrease in residual squared error) with the addition of each
@@ -552,13 +545,6 @@ child-directed speech -- is added to the English model, ``uh oh'' and
 ``no'' improve; when PC5 -- roughly corresponding to child-directed
 books -- is added, several animal noises like ``grrr'' and
 ``cockadoodledoo'' improve.
-
-To sum up, in both languages, we observe that the predictive value of
-word frequency was especially high for words that are highly frequent in
-child directed speech. However, for English, the difference across
-registers (difficulty of adult-directed versus child-directed) appears
-more important. For French, the difference and difficulty of text,
-independent of register, appears more important.
 
 \hypertarget{principal-components-and-maternal-education-q3}{%
 \subsection{Principal components and maternal education
@@ -597,10 +583,6 @@ EN +4 & was, lot, lips, gonna, hafta\\
 EN +6 & would, mine, does, my, could\\
 \cellcolor{gray!6}{FR +1} & \cellcolor{gray!6}{\makecell[l]{le, faire, au sommet de, au sujet de, lequel \\ (EN: the, do, on top, about, which)}}\\
 FR +2 & \makecell[c]{coincé, sombre, maître, oui, aïe \\ (EN: stuck, dark, teacher, yes, ouch)}\\
-\cellcolor{gray!6}{FR +3} & \cellcolor{gray!6}{\makecell[r]{mouillé, essuyer, cinema, travailler, coquin \\ (EN: wet, wipe, theater, work, naughty)}}\\
-FR +4 & \makecell[l]{coincé, jaune, fou, bruyant, mignon \\ (EN: stuck, yellow, crazy, noisy, cute)}\\
-\cellcolor{gray!6}{FR +5} & \cellcolor{gray!6}{\makecell[c]{lequel, près de, là-bas, le même, notre \\ (EN: which, near, there, the same, our)}}\\
-FR +6 & \makecell[r]{au sujet de, maman, grand-mère, miam, forêt \\ (EN: about, mommy, grandma, yummy, forest)}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -691,7 +673,7 @@ first five PCs, as well as interactions of mother's education with PC1
 (overall frequency) and PC5 (child-directed speech vs.~books). This
 intriguing -- but highly exploratory -- finding suggests that the early
 language advantage shown by children of more highly-educated mothers
-(and thus in higher-SES households; cf. Hoff, 2003) may in part be due
+(and thus in higher-SES households; cf.~Hoff, 2003) may in part be due
 to greater amounts of shared reading time. A target for future research
 is to predict individual children's learning of particular words using
 these principal components, in combination with measures of how much
@@ -734,23 +716,22 @@ daily routines.
 \noindent
 
 \hypertarget{refs}{}
-\begin{CSLReferences}{1}{0}
 \leavevmode\hypertarget{ref-ambridge2015ubiquity}{}%
 Ambridge, B., Kidd, E., Rowland, C. F., \& Theakston, A. L. (2015). The
 ubiquity of frequency effects in first language acquisition.
 \emph{Journal of Child Language}, \emph{42}(2), 239--273.
 
 \leavevmode\hypertarget{ref-andre2010mise}{}%
-André, V., \& Canut, E. (2010). Mise {à} disposition de corpus oraux
-interactifs: Le projet TCOF (traitement de corpus oraux en fran{ç}ais).
-\emph{Pratiques. Linguistique, Litt{é}rature, Didactique}, (147-148),
+André, V., \& Canut, E. (2010). Mise à disposition de corpus oraux
+interactifs: Le projet tcof (traitement de corpus oraux en français).
+\emph{Pratiques. Linguistique, Littérature, Didactique}, (147-148),
 35--51.
 
 \leavevmode\hypertarget{ref-balthasar2005plateforme}{}%
 Balthasar, L., \& Bert, M. (2005). La plateforme corpus de langues
-parl{é}es en interaction(CLAPI). Historique, {é}tat des lieux,
-perspectives. \emph{Lidil. Revue de Linguistique Et de Didactique Des
-Langues}, (31), 13--33.
+parlées en interaction(CLAPI). Historique, état des lieux, perspectives.
+\emph{Lidil. Revue de Linguistique et de Didactique Des Langues}, (31),
+13--33.
 
 \leavevmode\hypertarget{ref-braginsky2019consistency}{}%
 Braginsky, M., Yurovsky, D., Marchman, V. A., \& Frank, M. C. (2019).
@@ -759,9 +740,9 @@ languages. \emph{Open Mind}, \emph{3}, 52--67.
 
 \leavevmode\hypertarget{ref-branca2012discours}{}%
 Branca-Rosoff, S., Fleury, S., Lefeuvre, F., \& Pires, M. (2012).
-Discours sur la ville. Pr{é}sentation du corpus de fran{ç}ais parl{é}
-parisien des ann{é}es 2000 (CFPP2000). \emph{Article En Ligne,
-Http://Cfpp2000. Univparis3. Fr/Articles. Html}.
+Discours sur la ville. Présentation du corpus de français parlé parisien
+des années 2000 (cfpp2000). \emph{Article En Ligne, Http://Cfpp2000.
+Univparis3. Fr/Articles. Html}.
 
 \leavevmode\hypertarget{ref-bus1995joint}{}%
 Bus, A. G., Van Ijzendoorn, M. H., \& Pellegrini, A. D. (1995). Joint
@@ -792,9 +773,9 @@ in Child Development}, i--185.
 
 \leavevmode\hypertarget{ref-fenson2007}{}%
 Fenson, L., Marchman, V. A., Thal, D. J., Dale, P. S., Reznick, J. S.,
-\& Bates, E. (2007). \emph{{M}ac{A}rthur-{B}ates {C}ommunicative
-{D}evelopment {I}nventories: User's guide and technical manual (2nd
-ed.)}. Baltimore, MD: Brookes.
+\& Bates, E. (2007). \emph{MacArthur-Bates Communicative Development
+Inventories: User's guide and technical manual (2nd ed.)}. Baltimore,
+MD: Brookes.
 
 \leavevmode\hypertarget{ref-fernald2013ses}{}%
 Fernald, A., Marchman, V. A., \& Weisleder, A. (2013). SES differences
@@ -810,6 +791,10 @@ Wordbank: An open repository for developmental vocabulary data.
 Frank, M. C., Braginsky, M., Yurovsky, D., \& Marchman, V. A. (2021).
 \emph{Variability and consistency in early language learning: The
 wordbank project}. MIT Press.
+
+\leavevmode\hypertarget{ref-godfrey1993switchboard}{}%
+Godfrey, J., \& Holliman, E. (1993). Switchboard-1 release 2 ldc97s62.
+\emph{Linguistic Data Consortium}.
 
 \leavevmode\hypertarget{ref-goodman2008}{}%
 Goodman, J. C., Dale, P. S., \& Li, P. (2008). Does frequency count?
@@ -832,13 +817,16 @@ Socioeconomic status affects early vocabulary development via maternal
 speech. \emph{Child Development}, \emph{74}(5), 1368--1378.
 
 \leavevmode\hypertarget{ref-macwhinney2000childes}{}%
-MacWhinney, B. (2000). \emph{The CHILDES project: Tools for analyzing
+MacWhinney, B. (2000). \emph{The childes project: Tools for analyzing
 talk. Transcription format and programs} (Vol. 1). Psychology Press.
 
 \leavevmode\hypertarget{ref-montag2015words}{}%
 Montag, J. L., Jones, M. N., \& Smith, L. B. (2015). The words children
 hear: Picture books and the statistics for language learning.
 \emph{Psychological Science}, \emph{26}(9), 1489--1496.
+
+\leavevmode\hypertarget{ref-porter2001snowball}{}%
+Porter, M. F. (2001). Snowball: A language for stemming algorithms.
 
 \leavevmode\hypertarget{ref-rowe2012longitudinal}{}%
 Rowe, M. L. (2012). A longitudinal investigation of the role of quantity
@@ -850,8 +838,6 @@ Shen, Y., \& Del Tufo, S. N. (2022). Parent-child shared book reading
 mediates the impact of socioeconomic status on heritage language
 learners' emergent literacy. \emph{Early Childhood Research Quarterly},
 \emph{59}, 254--264.
-
-\end{CSLReferences}
 
 \bibliographystyle{apacite}
 
