@@ -310,7 +310,7 @@ dddc_fr <- dd_fr %>%
 ```
 
 
-We focus our analysis on the `r length(unique(dddc$definition))` words from the English CDI and `r length(unique(dddc_fr$definition))` words from the French CDI that were present in at least one of the corpora. For French, because of the presence of more complex morphology, CDI words were matched to related words in corpora via a stemmer. 
+We focus our analysis on the `r length(unique(dddc$definition))` words from the English CDI and `r length(unique(dddc_fr$definition))` words from the French CDI that were present in at least one of the corpora. For French, because of the presence of more complex morphology, CDI words were matched to related words in corpora via a stemmer [@porter2001snowball]. 
 All word frequencies were normalized to number of tokens per million (TPM). 
 For any CDI words that failed to appear in a given corpus, we replaced the missing word's frequency with a normalized count of 10 TPM, or the minimum normalized frequency for that distribution, whichever was smaller.[^1]
 
