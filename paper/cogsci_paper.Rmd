@@ -973,6 +973,7 @@ In sum, by better understanding the similarity and differences between word freq
 
 [Redacted for anonymous review.]
 <!--This research was funded in part by (Georgia's grant).
+This research was supported by the Stanford Maternal and Child Health Research Institute. 
 We thank members of the Language and Cognition lab for their feedback.-->
 
 
