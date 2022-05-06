@@ -70,12 +70,12 @@ require(boot)
 
 How does speech addressed to children, heard on television, or read in books impact the growth of children's early vocabulary? 
 How does speech from these sources relate to adult-directed sources of speech? 
-And how do these potential language sources combine with parental education to predict young children's vocabulary growth? 
+And how do these potential language sources combine with parental socio-economic status (SES) to predict young children's vocabulary growth? 
 Children must learn words based on ambient linguistic input, and indeed the amount of child-directed speech a child receives predicts later vocabulary growth [@hart1995meaningful].
 However, children's exposure to different words can vary greatly depending on the source -- spoken language vs. books vs. media -- and the register -- child-directed vs. adult directed -- of the language. 
 <!-- These different inputs can vary both in quantity, as well as in various measures of quality (e.g., diversity of the types of words used, the length of utterances), which may influence children's uptake. -->
 Moreover, the amount of input children receive from these different input sources may vary from child to child, which may account for some of the great variability seen in children's early vocabulary growth [@fenson1994variability].
-Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to parents' socioeconomic status [SES; @rowe2012longitudinal; @hoff2003specificity]. 
+Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to parents' SES [ @rowe2012longitudinal; @hoff2003specificity]. SES is a composite concept and parental education has often been used as the proxy of the parents' SES  [see @rowe2018understanding as an entry point to this literature]. For example, @hoff2003specificity compared the speech of low versus high SES American mothers, with SES defined based on education (college-educated versus high school).
 <!-- @rowe2018understanding; Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. -->
 
 Input word frequency varies significantly depending on the context. 
