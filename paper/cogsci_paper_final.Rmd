@@ -70,12 +70,12 @@ require(boot)
 
 How does speech addressed to children, heard on television, or read in books impact the growth of children's early vocabulary? 
 How does speech from these sources relate to adult-directed sources of speech? 
-And how do these potential language sources combine with parental education to predict young children's vocabulary growth? 
+And how do these potential language sources combine with parental socio-economic status (SES) to predict young children's vocabulary growth? 
 Children must learn words based on ambient linguistic input, and indeed the amount of child-directed speech a child receives predicts later vocabulary growth [@hart1995meaningful].
 However, children's exposure to different words can vary greatly depending on the source -- spoken language vs. books vs. media -- and the register -- child-directed vs. adult directed -- of the language. 
 <!-- These different inputs can vary both in quantity, as well as in various measures of quality (e.g., diversity of the types of words used, the length of utterances), which may influence children's uptake. -->
 Moreover, the amount of input children receive from these different input sources may vary from child to child, which may account for some of the great variability seen in children's early vocabulary growth [@fenson1994variability].
-Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to parents' socioeconomic status [SES; @rowe2012longitudinal; @hoff2003specificity]. 
+Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to parents' SES [ @rowe2012longitudinal; @hoff2003specificity]. SES is a composite concept and parental education has often been used as the proxy of the parents' SES  [see @rowe2018understanding as an entry point to this literature]. For example, @hoff2003specificity compared the speech of low versus high SES American mothers, with SES defined based on education (college-educated versus high school).
 <!-- @rowe2018understanding; Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. -->
 
 Input word frequency varies significantly depending on the context. 
@@ -169,7 +169,7 @@ scatterplotMatrix(log(tmp[,c("child_speech","child_book","child_tv","adult_speec
 We used corpora from different sources to identify shared and distinct variance in frequencies. These corpora vary widely in size due to data accessibility; several were created for the current study and are available in our GitHub repository, together with all analysis scripts.
 
 ### Child-directed Speech (ChS).
-Utterances of ChS were extracted from the CHILDES corpus [@macwhinney2000childes], a collection of transcripts of interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years). After cleaning, the CHILDES English corpus yielded `r format(round(subset(total_child_tokens, source=="speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens, source=="speech")$n, scientific=F)` word types. The French ChS yielded `r format(round(subset(total_child_tokens_fr, source=="child_speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_speech")$n, scientific=F)` word types.
+Utterances of ChS were extracted from the CHILDES database (excluding book reading corpora)[@macwhinney2000childes], a collection of transcripts of interactions between caregivers and children of ages ranging from 0 to 12 years ($M=2.9$ years). After cleaning, the CHILDES English corpus yielded `r format(round(subset(total_child_tokens, source=="speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens, source=="speech")$n, scientific=F)` word types. The French ChS yielded `r format(round(subset(total_child_tokens_fr, source=="child_speech")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_speech")$n, scientific=F)` word types.
 
 ### Child-directed books (ChB).
 We used a sample of 98 English children's books from Project Gutenberg's open-source database, previously used in machine learning research on language comprehension [@hill2015goldilocks]. The books were published between 1820 and 1922, but include well-known titles as *The Legend of Sleepy Hollow*. We also used 130 popular French children stories accessible in parenting websites (https://fr.hellokids.com/) and 10 French children books from Project Gutenberg. After cleaning, the English ChB corpus totals `r format(round(subset(total_child_tokens, source=="books")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens, source=="books")$n, scientific=F)` word types, and the French ChB totals `r format(round(subset(total_child_tokens_fr, source=="child_book")$word_count, -3), scientific=F)` tokens across `r format(subset(total_child_tokens_fr, source=="child_book")$n, scientific=F)` word types.
@@ -511,8 +511,7 @@ papaja::apa_table(df, caption="English (EN) & French (FR) PC descriptions.",
 ## PCA-based Age of Acquisition Regression (Q2)
 
 
-Next, we turned to the question of how well these frequency distributions predict English- and French-learning children's early word learning. 
-Our approach was to fit a linear regression model predicting each CDI word's mean AoA, following previous work [@braginsky2019consistency; @goodman2008].
+Next, we turned to the question of how well these frequency distributions predict English- and French-learning children's early word learning. ChS has been claimed to present properties that could facilitate language acquisition and promote infants' attention to language [@golinkoff2015baby;@soderstrom2007beyond] when compared to AdS. Frequency distributions in ChS could thus play a role in predicting children's early word learning. There has been less evidence on the specific role of books and media in predicting early word learning. Our approach was to fit a linear regression model predicting each CDI word's mean AoA, following previous work [@braginsky2019consistency; @goodman2008].
 
 Multicollinearity makes it unwise to include multiple raw frequency distributions in a regression, however, as the results will be unstable. We verified that this situation was the case by running a regression predicting AoA with the logarithm of word frequency from each of the six distributions as a predictor. The Variance Inflation Factor (VIF) estimates the inflation of the variance of a regression coefficient when there is correlation between predictors [@dodge2008concise]. The higher the VIF for a predictor, the less reliable the regression results are when that predictor is included. 
 The VIF for every distribution was $>>1$ (and many $>5$), indicating that these variables show strong multicollinearity which may compromise the reliability of the regression results. 
@@ -747,8 +746,9 @@ Table 4 shows the top 5 words with the most-improved AoA prediction (greatest de
 
 ## Principal components and maternal education (Q3)
 
-Previous findings relate SES status to book reading [@shen2022parent], which is in turn related to better language skills [@bus1995joint]. 
-These findings suggest that the vocabulary composition of children whose mothers are more highly-educated (a proxy for household SES) may be better predicted by the word frequencies seen in child-directed books, rather than those from child-directed speech. 
+Correlations between parental SES and children's language development are documented in a large body of literature, and SES seems to be predictive of aspects of word learning [@hoff2003specificity].
+Previous findings also relate SES status to book reading [@shen2022parent], which in turn seems to be related to better language skills [@bus1995joint;@senechal2002parental]. 
+These findings suggest that the vocabulary composition of children whose mothers are highly-educated (parental education being a proxy for household SES) may be better predicted by the word frequencies seen in ChB, rather than those from ChS. 
 To test this idea, we fit a series of exploratory logistic regressions successively adding the PCs to predict the number of children in Wordbank who produce or don't produce each item.
 Due to lack of maternal education data for French data, we focused on American English-learning children. 
 We included interactions of mother's education and children's age with each PC; interactions of this type indicate that a particular type of register or source might be more important to acquisition for one SES group or another. 
@@ -965,13 +965,19 @@ We also used English Wordbank data to examine how well the frequency components 
 This analysis revealed significant contributions of the first five PCs, as well as interactions of mother's education with PC1 (overall frequency) and PC5 (child-directed speech vs. books). 
 This intriguing -- but highly exploratory -- finding suggests that the early language advantage shown by children of more highly-educated mothers [and thus in higher-SES households; cf. @hoff2003specificity] may in part be due to greater amounts of shared reading time. A target for future research is to predict individual children's learning of particular words using these principal components, in combination with  measures of how much time their child spends receiving input from each of the input sources ([adult- vs. child-directed] x [books, media, and speech]).
 
-This research has a number of limitations that point the way to future work. First, our study is an observational linkage between frequencies as estimated from one set of materials and acquisition trajectories from wholly different children. We expect that frequencies represent estimates of an average experience by a member of a particular linguistic or cultural group, but they are certainly biased by their specific source. Further, corpora of different sizes were used to represent the sources and registers for each language. Differences we observed could also be partly attributed to differences in corpus size. For example, the French corpora were composed of several smaller ones, due to the lack of large accessible corpora, and had slightly different makeup, e.g. short stories in French vs. longer books in English. Finally, although we made an effort to examine two languages, French and English represent only a tiny subset of the broader set of linguistic environments in which children acquire their vocabulary. 
+This research has a number of limitations that point the way to future work. First, our study is an observational linkage between frequencies as estimated from one set of materials and acquisition trajectories from wholly different children. We expect that frequencies represent estimates of an average experience by a member of a particular linguistic or cultural group, but they are certainly biased by their specific source. 
+
+Second, corpora of different sizes represent the sources and registers for each language, and less data were available overall for French. Its small data size should be considered when generalizing patterns. Observed differences between the two languages could also be partly attributed to differences in corpus size and sources. For example, the French corpora are composed of several smaller ones, due to the lack of large accessible corpora, and have slightly different makeup, e.g. short stories in French vs. longer books in English. 
+
+Third, most English and some French child-directed books hwere published several decades ago, and are used in this study due to the lack of available open-source contemporary books. This may yield slightly different frequency distributions, however this difference should be negligible for the specific CDI words tested here. 
+
+Moreover, we should note the difficulty of drawing conclusions about the results of this study, since the conclusions are based on interpretations of the relevant dimensions of the different principal components. Finally, although we made an effort to examine two languages, French and English represent only a tiny subset of the broader set of linguistic environments in which children acquire their vocabulary. 
 
 In sum, by better understanding the similarity and differences between word frequencies that children experience in different contexts, future research in this vein holds the promise to predict individual differences in children's early word learning on the basis of their daily routines.
 
 # Acknowledgements
 
-This research was funded in part by (Georgia's Marie Curie grant?).
+This research was funded in part by the Fyssen Foundation.
 This research was supported by the Stanford Maternal and Child Health Research Institute. 
 We thank members of the Language and Cognition lab for their feedback.
 
