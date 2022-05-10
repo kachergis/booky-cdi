@@ -73,7 +73,8 @@ How does speech from these sources relate to adult-directed sources of speech?
 And how do these potential language sources combine with parental education to predict young children's vocabulary growth? 
 Children must learn words based on ambient linguistic input, and indeed the amount of child-directed speech a child receives predicts later vocabulary growth [@hart1995meaningful].
 However, children's exposure to different words can vary greatly depending on the source -- spoken language vs. books vs. media -- and the register -- child-directed vs. adult directed -- of the language. 
-<!-- These different inputs can vary both in quantity, as well as in various measures of quality (e.g., diversity of the types of words used, the length of utterances), which may influence children's uptake. -->
+These input sources vary in word frequency, as well as by various measures of quality. 
+For example, children's books have higher lexical diversity than child-directed speech, and thus may represent an important source of lexical knowledge [@montag2015words].
 Moreover, the amount of input children receive from these different input sources may vary from child to child, which may account for some of the great variability seen in children's early vocabulary growth [@fenson1994variability].
 Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to parents' socioeconomic status [SES; @rowe2012longitudinal; @hoff2003specificity]. 
 <!-- @rowe2018understanding; Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. -->
