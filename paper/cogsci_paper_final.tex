@@ -52,7 +52,8 @@
 % \textwidth 16cm
 % \textheight 21cm
 
-\title{Identifying the distributional sources of children's early vocabulary}
+\title{Identifying the distributional sources of children's early
+vocabulary}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -71,6 +72,11 @@
 
 \author{{\large \bf George Kachergis*, Georgia Loukatou*, and Michael C. Frank } \AND {\large \bf  {kachergis, loukatou, mcfrank}@stanford.edu} \\  \newline\\ Department of Psychology, Stanford University, Stanford, CA 94305 USA\\ *equal contributions}
 
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newenvironment{CSLReferences}%
+  {}%
+  {\par}
 
 \begin{document}
 
@@ -146,7 +152,7 @@ relatively less frequent as compared to children's books. In general,
 speech -- whether directed to children or to adults -- contains
 relatively fewer function words and tends to score lower on measures of
 lexical diversity than books, which have a higher ratio of types (unique
-words) per set of tokens (instances of words; Dawson et al., 2021).
+words) per set of tokens {[}instances of words; Dawson et al. (2021){]}.
 
 In this paper, we have three primary research questions. Question 1: How
 different are different input sources? We examine shared and unique
@@ -494,9 +500,9 @@ As past research indicates that lexical class strongly modulates
 influences of word frequency, we included the two-way interaction of
 lexical class (LC) with each PC in our regression. We also included the
 number of letters as a predictor (Nletters) to help control for the
-overall difficulty of producing each word (within each language, this
+overall difficulty of producing each word {[}within each language, this
 predictor is highly correlated with the number of phonemes and serves as
-a good proxy for production complexity; Braginsky et al., 2019). To
+a good proxy for production complexity; Braginsky et al. (2019){]}. To
 determine if the inclusion of all PCs was justified, we ran a series of
 ANOVAs building up from PC1 to PC6 -- in decreasing order of the
 variance they accounted for in the PCA\footnote{R syntax for the
@@ -570,7 +576,7 @@ books -- is added, several animal noises like ``grrr'' and
 \subsection{Principal components and maternal education
 (Q3)}\label{principal-components-and-maternal-education-q3}}
 
-Correlations between parental SES and children's language development
+Correlations between household SES and children's language development
 are documented in a large body of literature, and SES seems to be
 predictive of aspects of word learning (Hoff, 2003). Previous findings
 also relate SES status to book reading (Shen \& Del Tufo, 2022), which
@@ -585,9 +591,9 @@ successively adding the PCs to predict the number of children in
 Wordbank who produce or don't produce each item. Due to lack of maternal
 education data for French data, we focused on American English-learning
 children. We included interactions of mother's education and children's
-age with each PC; interactions of this type indicate that a particular
-type of register or source might be more important to acquisition for
-one SES group or another.
+age with each PC; such interactions indicate that a particular type of
+register or source might be more important to acquisition for one SES
+group or another.
 
 American English data from Wordbank contained 2,776 CDI:WS
 administrations with mother's education dichotomously coded (N=1160 with
@@ -686,22 +692,21 @@ words that were improved by the addition of particular PCs appeared
 somewhat related to these sources and registers.
 
 We also used English Wordbank data to test how well frequency components
-combine with mother's education to predict children's early word
-learning. This exploratory analysis revealed significant contributions
-of the first five PCs, as well as interactions of mother's education
-with PC1 (overall frequency) and PC5 (child-directed speech vs.~books).
-This intriguing finding suggests that the early language advantage shown
-by children of more highly-educated mothers (and thus in higher-SES
-households; cf.~Hoff, 2003) may in part be due to greater amounts of
-shared reading time. A target for future research is to predict
-individual children's learning of particular words using these principal
-components, in combination with measures of how much time their child
-spends receiving input from each input source ({[}adult-
-vs.~child-directed{]} x {[}books, media, speech{]}).
+combine with mother's education to predict early word learning. This
+exploratory analysis revealed significant contributions of the first
+five PCs, as well as interactions of mother's education with PC1
+(overall frequency) and PC5 (child-directed speech vs.~books). This
+intriguing finding suggests that the early language advantage shown by
+children of highly-educated mothers (and thus in higher-SES households;
+cf. Hoff, 2003) may in part be due to greater amounts of shared reading
+time. Future research may predict individual children's learning of
+particular words using these principal components, in combination with
+measures of the time their child spends receiving input from each input
+source ({[}adult- vs.~child-directed{]} x {[}books, media, speech{]}).
 
 This research has a number of limitations that point the way to future
-work. First, our study is an observational linkage between frequencies
-as estimated from one set of materials and acquisition trajectories from
+work. First, it is an observational linkage between frequencies as
+estimated from one set of materials and acquisition trajectories from
 wholly different children. We expect that frequencies represent
 estimates of an average experience by a member of a particular
 linguistic or cultural group, but they are certainly biased by their
@@ -709,18 +714,16 @@ specific source. Second, corpora of different sizes represent the
 sources and registers for each language, and less data were available
 overall for French. Observed differences between the two languages could
 thus be partly attributed to differences in corpus size and sources. For
-example, the French corpora are composed of several smaller ones, due to
-the lack of large accessible corpora, and have slightly different
-makeup, e.g.~short stories in French vs.~longer books in English. Third,
-most English and some French child-directed books where published
-decades ago, and are used due to the lack of available open-source
-contemporary books. This could yield different frequency distributions,
-however this difference should be negligible for the specific CDI words
-tested here. Moreover, we note the difficulty of drawing conclusions
-about these results, since the conclusions are based on interpretations
-of the relevant dimensions of the different principal components.
-Finally, although an effort was made to examine two languages, French
-and English represent only a tiny subset of the broader set of
+example, the French corpora are composed of several smaller ones and
+have slightly different makeup, e.g.~French short stories vs.~English
+longer books. Third, most child books were published decades ago, and
+are used due to the lack of open-source contemporary books. This may
+yield different frequency distributions, but the difference should be
+negligible for the CDI words tested here. Moreover, we note the
+difficulty of drawing conclusions about these results, since they are
+based on interpretations of the relevant dimensions of the different
+principal components. Finally, although an effort was made to examine
+two languages, they represent only a tiny subset of the broader set of
 linguistic environments in which children acquire their vocabulary. In
 sum, by better understanding the similarity and differences between word
 frequencies that children experience in different contexts, future
@@ -744,149 +747,152 @@ thank members of the Language and Cognition lab for their feedback.
 \noindent
 
 \hypertarget{refs}{}
-\leavevmode\hypertarget{ref-ambridge2015ubiquity}{}%
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-ambridge2015ubiquity}{}}%
 Ambridge, B., Kidd, E., Rowland, C. F., \& Theakston, A. L. (2015). The
 ubiquity of frequency effects in first language acquisition.
 \emph{Journal of Child Language}, \emph{42}(2), 239--273.
 
-\leavevmode\hypertarget{ref-andre2010mise}{}%
-André, V., \& Canut, E. (2010). Mise à disposition de corpus oraux
-interactifs: Le projet tcof (traitement de corpus oraux en français).
-\emph{Pratiques. Linguistique, Littérature, Didactique}, (147-148),
+\leavevmode\vadjust pre{\hypertarget{ref-andre2010mise}{}}%
+André, V., \& Canut, E. (2010). Mise {à} disposition de corpus oraux
+interactifs: Le projet TCOF (traitement de corpus oraux en fran{ç}ais).
+\emph{Pratiques. Linguistique, Litt{é}rature, Didactique}, (147-148),
 35--51.
 
-\leavevmode\hypertarget{ref-balthasar2005plateforme}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-balthasar2005plateforme}{}}%
 Balthasar, L., \& Bert, M. (2005). La plateforme corpus de langues
-parlées en interaction(CLAPI). Historique, état des lieux, perspectives.
-\emph{Lidil. Revue de Linguistique et de Didactique Des Langues}, (31),
-13--33.
+parl{é}es en interaction(CLAPI). Historique, {é}tat des lieux,
+perspectives. \emph{Lidil. Revue de Linguistique Et de Didactique Des
+Langues}, (31), 13--33.
 
-\leavevmode\hypertarget{ref-braginsky2019consistency}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-braginsky2019consistency}{}}%
 Braginsky, M., Yurovsky, D., Marchman, V. A., \& Frank, M. C. (2019).
 Consistency and variability in children's word learning across
 languages. \emph{Open Mind}, \emph{3}, 52--67.
 
-\leavevmode\hypertarget{ref-branca2012discours}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-branca2012discours}{}}%
 Branca-Rosoff, S., Fleury, S., Lefeuvre, F., \& Pires, M. (2012).
-Discours sur la ville. Présentation du corpus de français parlé parisien
-des années 2000 (cfpp2000). \emph{Article En Ligne, Http://Cfpp2000.
-Univparis3. Fr/Articles. Html}.
+Discours sur la ville. Pr{é}sentation du corpus de fran{ç}ais parl{é}
+parisien des ann{é}es 2000 (CFPP2000). \emph{Article En Ligne,
+Http://Cfpp2000. Univparis3. Fr/Articles. Html}.
 
-\leavevmode\hypertarget{ref-bus1995joint}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-bus1995joint}{}}%
 Bus, A. G., Van Ijzendoorn, M. H., \& Pellegrini, A. D. (1995). Joint
 book reading makes for success in learning to read: A meta-analysis on
 intergenerational transmission of literacy. \emph{Review of Educational
 Research}, \emph{65}(1), 1--21.
 
-\leavevmode\hypertarget{ref-charlesworth2021gender}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-charlesworth2021gender}{}}%
 Charlesworth, T. E., Yang, V., Mann, T. C., Kurdi, B., \& Banaji, M. R.
 (2021). Gender stereotypes in natural language: Word embeddings show
 robust consistency across child and adult language corpora of more than
 65 million words. \emph{Psychological Science}, \emph{32}(2), 218--240.
 
-\leavevmode\hypertarget{ref-dawson2021features}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-dawson2021features}{}}%
 Dawson, N., Hsiao, Y., Wei Ming Tan, A., Banerji, N., \& Nation, K.
 (2021). Features of lexical richness in children's books: Comparisons
 with child-directed speech. \emph{Language Development Research}.
 
-\leavevmode\hypertarget{ref-dodge2008concise}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-dodge2008concise}{}}%
 Dodge, Y. (2008). \emph{The concise encyclopedia of statistics}.
 Springer Science \& Business Media.
 
-\leavevmode\hypertarget{ref-fenson1994variability}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-fenson1994variability}{}}%
 Fenson, L., Dale, P. S., Reznick, J. S., Bates, E., Thal, D. J.,
 Pethick, S. J., \ldots{} Stiles, J. (1994). Variability in early
 communicative development. \emph{Monographs of the Society for Research
 in Child Development}, i--185.
 
-\leavevmode\hypertarget{ref-fenson2007}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-fenson2007}{}}%
 Fenson, L., Marchman, V. A., Thal, D. J., Dale, P. S., Reznick, J. S.,
-\& Bates, E. (2007). \emph{MacArthur-Bates Communicative Development
-Inventories: User's guide and technical manual (2nd ed.)}. Baltimore,
-MD: Brookes.
+\& Bates, E. (2007). \emph{{M}ac{A}rthur-{B}ates {C}ommunicative
+{D}evelopment {I}nventories: User's guide and technical manual (2nd
+ed.)}. Baltimore, MD: Brookes.
 
-\leavevmode\hypertarget{ref-fernald2013ses}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-fernald2013ses}{}}%
 Fernald, A., Marchman, V. A., \& Weisleder, A. (2013). SES differences
 in language processing skill and vocabulary are evident at 18 months.
 \emph{Developmental Science}, \emph{16}(2), 234--248.
 
-\leavevmode\hypertarget{ref-frank2017wordbank}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-frank2017wordbank}{}}%
 Frank, M. C., Braginsky, M., Yurovsky, D., \& Marchman, V. A. (2017).
 Wordbank: An open repository for developmental vocabulary data.
 \emph{Journal of Child Language}, \emph{44}(3), 677--694.
 
-\leavevmode\hypertarget{ref-frank2021}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-frank2021}{}}%
 Frank, M. C., Braginsky, M., Yurovsky, D., \& Marchman, V. A. (2021).
 \emph{Variability and consistency in early language learning: The
 wordbank project}. MIT Press.
 
-\leavevmode\hypertarget{ref-godfrey1993switchboard}{}%
-Godfrey, J., \& Holliman, E. (1993). Switchboard-1 release 2 ldc97s62.
+\leavevmode\vadjust pre{\hypertarget{ref-godfrey1993switchboard}{}}%
+Godfrey, J., \& Holliman, E. (1993). Switchboard-1 release 2 LDC97S62.
 \emph{Linguistic Data Consortium}.
 
-\leavevmode\hypertarget{ref-golinkoff2015baby}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-golinkoff2015baby}{}}%
 Golinkoff, R. M., Can, D. D., Soderstrom, M., \& Hirsh-Pasek, K. (2015).
 (Baby) talk to me: The social context of infant-directed speech and its
 effects on early language acquisition. \emph{Current Directions in
 Psychological Science}, \emph{24}(5), 339--344.
 
-\leavevmode\hypertarget{ref-goodman2008}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-goodman2008}{}}%
 Goodman, J. C., Dale, P. S., \& Li, P. (2008). Does frequency count?
 Parental input and the acquisition of vocabulary. \emph{Journal of Child
 Language}, \emph{35}(3), 515--531.
 
-\leavevmode\hypertarget{ref-hart1995meaningful}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-hart1995meaningful}{}}%
 Hart, B., \& Risley, T. R. (1995). \emph{Meaningful differences in the
 everyday experience of young american children.} Paul H Brookes
 Publishing.
 
-\leavevmode\hypertarget{ref-hill2015goldilocks}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-hill2015goldilocks}{}}%
 Hill, F., Bordes, A., Chopra, S., \& Weston, J. (2015). The goldilocks
 principle: Reading children's books with explicit memory
 representations. \emph{arXiv Preprint arXiv:1511.02301}.
 
-\leavevmode\hypertarget{ref-hoff2003specificity}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-hoff2003specificity}{}}%
 Hoff, E. (2003). The specificity of environmental influence:
 Socioeconomic status affects early vocabulary development via maternal
 speech. \emph{Child Development}, \emph{74}(5), 1368--1378.
 
-\leavevmode\hypertarget{ref-macwhinney2000childes}{}%
-MacWhinney, B. (2000). \emph{The childes project: Tools for analyzing
+\leavevmode\vadjust pre{\hypertarget{ref-macwhinney2000childes}{}}%
+MacWhinney, B. (2000). \emph{The CHILDES project: Tools for analyzing
 talk. Transcription format and programs} (Vol. 1). Psychology Press.
 
-\leavevmode\hypertarget{ref-montag2015words}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-montag2015words}{}}%
 Montag, J. L., Jones, M. N., \& Smith, L. B. (2015). The words children
 hear: Picture books and the statistics for language learning.
 \emph{Psychological Science}, \emph{26}(9), 1489--1496.
 
-\leavevmode\hypertarget{ref-porter2001snowball}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-porter2001snowball}{}}%
 Porter, M. F. (2001). Snowball: A language for stemming algorithms.
 
-\leavevmode\hypertarget{ref-rowe2012longitudinal}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-rowe2012longitudinal}{}}%
 Rowe, M. L. (2012). A longitudinal investigation of the role of quantity
 and quality of child-directed speech in vocabulary development.
 \emph{Child Development}, \emph{83}(5), 1762--1774.
 
-\leavevmode\hypertarget{ref-rowe2018understanding}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-rowe2018understanding}{}}%
 Rowe, M. L. (2018). Understanding socioeconomic differences in parents'
 speech to children. \emph{Child Development Perspectives}, \emph{12}(2),
 122--127.
 
-\leavevmode\hypertarget{ref-senechal2002parental}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-senechal2002parental}{}}%
 Sénéchal, M., \& LeFevre, J.-A. (2002). Parental involvement in the
 development of children's reading skill: A five-year longitudinal study.
 \emph{Child Development}, \emph{73}(2), 445--460.
 
-\leavevmode\hypertarget{ref-shen2022parent}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-shen2022parent}{}}%
 Shen, Y., \& Del Tufo, S. N. (2022). Parent-child shared book reading
 mediates the impact of socioeconomic status on heritage language
 learners' emergent literacy. \emph{Early Childhood Research Quarterly},
 \emph{59}, 254--264.
 
-\leavevmode\hypertarget{ref-soderstrom2007beyond}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-soderstrom2007beyond}{}}%
 Soderstrom, M. (2007). Beyond babytalk: Re-evaluating the nature and
 content of speech input to preverbal infants. \emph{Developmental
 Review}, \emph{27}(4), 501--532.
+
+\end{CSLReferences}
 
 \bibliographystyle{apacite}
 
