@@ -69,13 +69,15 @@ require(boot)
 
 How does speech addressed to children, heard on television, or read in books impact the growth of children's early vocabulary? 
 How does speech from these sources relate to adult-directed sources of speech? 
-And how do these potential language sources combine with parental socio-economic status (SES) to predict young children's vocabulary growth? 
+And how do these potential language sources combine with household socio-economic status (SES) to predict young children's vocabulary growth? 
 Children must learn words based on ambient linguistic input, and indeed the amount of child-directed speech a child receives predicts later vocabulary growth [@hart1995meaningful].
 However, children's exposure to different words can vary greatly depending on the source -- spoken language vs. books vs. media -- and the register -- child- vs. adult-directed -- of the language. 
 These input sources vary in word frequency, as well as by various measures of quality. 
 For example, children's books have higher lexical diversity than child-directed speech, and thus may represent an important source of lexical knowledge [@montag2015words].
 Moreover, the amount of input children receive from these different input sources may vary from child to child, which may account for some of the great variability seen in children's early vocabulary growth [@fenson1994variability].
-Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to parents' SES [ @rowe2012longitudinal; @hoff2003specificity]. SES is a composite concept and parental education has often been used as the proxy of the parents' SES  [see @rowe2018understanding as an entry point to this literature]. For example, @hoff2003specificity compared the speech of low versus high SES American mothers, with SES defined based on education (college-educated versus high school).
+Indeed, higher measures of input quantity and quality have been found to relate to children's faster vocabulary growth, and to often be related to household SES [ @rowe2012longitudinal; @hoff2003specificity]. 
+SES is a composite concept and parental education has often been used as a proxy for SES [see @rowe2018understanding as an entry point to this literature]. 
+For example, @hoff2003specificity compared the speech of low- versus high-SES American mothers, with SES defined based on education (college-educated versus high school).
 <!-- @rowe2018understanding; Importantly, this variance has been found to relate to children's language development and to be predictive of aspects of word learning [@hoff2003specificity]. -->
 
 Input word frequency varies significantly depending on the context. 
@@ -94,7 +96,7 @@ These data allow us to investigate the role of different frequency sources using
 <!-- We expect less contribution to word learning from adult-directed speech, movies and books, because of other factors relevant to quality: for example, adult-directed sources may include longer length of utterances, more lexical diversity and less interaction compared with child-directed speech, movies and books [@rowe2012longitudinal]. Factors may also relate to quantity; children may simply receive less language from adult-directed sources. -->
 
 Question 3: How do input frequencies relate to maternal education?  An intuitive hypothesis is that children of more highly-educated parents may read more to their young children, although it should be noted that parental education is strongly associated with household SES--to the extent that the former is often used as a proxy for the latter. 
-Indeed, young children from higher-SES households tend to have larger vocabulary [@fernald2013ses], and parents with higher-SES tend to report reading more to their young children than parents with lower SES. 
+Indeed, young children from high-SES households tend to have larger vocabulary [@fernald2013ses], and parents with higher SES tend to report reading more to their young children than parents with lower SES. 
 Thus, we test which sources of input frequency combine with maternal education to better predict children's acquisition of particular words, expecting that we may see evidence of earlier learning of words from children's books in households with higher maternal education (and SES). <!-- could also introduce disputed link between SES and child-directed speech.. -->
 
 Together, the answers to these questions provide insight into whether word frequency acts as a single factor in vocabulary learning, or whether different sources and registers have distinguishable effects. 
